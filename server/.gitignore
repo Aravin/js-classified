@@ -1,0 +1,26 @@
+# Logs and temporary files
+*.log
+tmp/
+temp/
+*.tmp
+node_modules/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE files
+.idea/
+.vscode/
+*.swp
+
+# Build artifacts
+dist/
+build/
+
+# Local development environment
+.env.local
+.env.*.local
+
+# Sensitive information (if applicable)
+.env

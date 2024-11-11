@@ -1,0 +1,35 @@
+{
+  "name": "client",
+  "version": "0.0.1",
+  "description": "A classified website (free and open source)",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aravin/js-classified.git"
+  },
+  "keywords": [
+    "classified"
+  ],
+  "author": "Aravind Appadurai",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aravin/js-classified/issues"
+  },
+  "homepage": "https://github.com/Aravin/js-classified#readme",
+  "dependencies": {
+    "fastify": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "concurrently": "^9.1.0",
+    "nodemon": "^3.1.7",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
+  }
+}
