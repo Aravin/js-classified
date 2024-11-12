@@ -1,6 +1,9 @@
 <script lang="ts">
 	import '../app.css';
 	import Icon from '@iconify/svelte';
+	import {categoryList} from '$lib/categories/index';
+	import { locations } from '$lib/locations';
+	import SearchableSelect from '$lib/SearchableSelect.svelte';
 </script>
 
 <header class="bg-rose-800 p-4">
@@ -17,12 +20,7 @@
 			</div>
 
 			<div class="form-control w-full md:w-60">
-				<select class="select select-bordered w-full">
-					<option disabled selected>Category</option>
-					<option value="category1">Category 1</option>
-					<option value="category2">Category 2</option>
-					<option value="category3">Category 3</option>
-				</select>
+				<SearchableSelect options={categoryList} placeholder="Search categories..." />
 			</div>
 
 			<div class="form-control w-full md:w-auto">
