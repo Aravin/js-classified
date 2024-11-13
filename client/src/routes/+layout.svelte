@@ -10,7 +10,7 @@
   <div class="container mx-auto flex flex-col items-center justify-between md:flex-row">
     <h1 class="mb-2 text-2xl font-bold text-gray-300 md:mb-0">JS Classifieds</h1>
     <div class="flex flex-col items-center space-y-2 md:flex-row md:space-x-4 md:space-y-0">
-      <div class="form-control w-full md:w-60">
+      <div class="form-control">
         <SearchableSelect
           options={locations.map((location) => ({
             key: location.id.toString(),
@@ -20,27 +20,17 @@
         />
       </div>
 
-      <div class="form-control w-full md:w-60">
-        <SearchableSelect options={categoryList} placeholder="Search category..." />
+      <div class="form-control">
+        <div class="input-group relative">
+          <SearchableSelect options={categoryList} placeholder="Search category..." />
+        </div>
       </div>
 
-      <div class="form-control w-full md:w-auto">
+      <div class="form-control">
         <div class="input-group relative">
-          <input type="text" placeholder="Search..." class="input input-bordered w-full" />
+          <input type="text" placeholder="Search..." class="input input-bordered" />
           <button class="btn btn-square absolute right-0 top-0 rounded-l-none">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              /></svg
-            >
+            <Icon icon="material-symbols:search" font-size="32" />
           </button>
         </div>
       </div>

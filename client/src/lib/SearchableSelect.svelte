@@ -9,7 +9,10 @@
   }
 
   function handleBlur() {
-    showDropdown = false;
+    // Delay the hiding of the dropdown to allow option selection
+    setTimeout(() => {
+      showDropdown = false;
+    }, 100);
   }
 
   function selectOption(option: { key: string, value: string }) {
