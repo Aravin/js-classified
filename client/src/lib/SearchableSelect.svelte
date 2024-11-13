@@ -1,21 +1,21 @@
 <script lang="ts">
-  export let options: string[] = [];
-  export let placeholder: string = 'Search...';
-  let searchTerm: string = '';
-  let showDropdown: boolean = false;
+  export let options: { key: string, value: string }[] = [];
+  export let searchTerm: string = '';
+  export let placeholder: string = '';
+  export let showDropdown: boolean = false;
 
   function handleFocus() {
     showDropdown = true;
   }
 
   function handleBlur() {
-    // Delay hiding the dropdown to allow click events to register
-    setTimeout(() => showDropdown = false, 200);
+    showDropdown = false;
   }
 
-  function selectOption(option: string) {
-    searchTerm = option;
+  function selectOption(option: { key: string, value: string }) {
+    searchTerm = option.value;
     showDropdown = false;
+    // You can add additional logic here to handle the selected option
   }
 </script>
 
@@ -54,11 +54,11 @@
     on:blur={handleBlur}
   />
 
-  {#if showDropdown && options.filter(option => option.toLowerCase().includes(searchTerm.toLowerCase())).length > 0}
+  {#if showDropdown && options.filter(option => option.value.toLowerCase().includes(searchTerm.toLowerCase())).length > 0}
     <div class="dropdown">
-      {#each options.filter(option => option.toLowerCase().includes(searchTerm.toLowerCase())) as option}
+      {#each options.filter(option => option.value.toLowerCase().includes(searchTerm.toLowerCase())) as option}
         <div class="dropdown-option" on:click={() => selectOption(option)}>
-          {option}
+          {option.value}
         </div>
       {/each}
     </div>
