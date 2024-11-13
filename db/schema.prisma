@@ -10,13 +10,13 @@ datasource db {
 model location {
   id           Int     @id @default(autoincrement())
   name         String?
-  village      String?
   dist         String? // District
   state        String?
   state_code   String?
   country      String?
   country_code String?
   pincode      String?
-  location     String? // For coordinates (consider a better type for real-world usage)
-  bbox         String? // For bounding box (consider a better type)
+  loc_type     String?
+  coords       String?
+  bbox         String?
 }
