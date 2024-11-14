@@ -2,27 +2,26 @@
   import { categories } from '$lib/categories/categories';
 </script>
 
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-  {#each Object.entries(categories) as [categoryName, subCategories]}
-    <div class="card bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title">{categoryName}</h2>
-
-        {#each Object.entries(subCategories) as [subCategoryName, nestedCategories]}
-          <strong>{subCategoryName}</strong>
-
-          {#each Object.entries(nestedCategories) as [nestedCategoryName, nestedCategoryValue]}
-            {#if Array.isArray(nestedCategoryValue)}
-              <ul class="ml-4 list-inside list-disc">
-                {#each nestedCategoryValue as item}
-                  <li>{item}</li>
-                {/each}
-              </ul>
-            {:else if typeof nestedCategoryValue === 'string'}
-              <span>{nestedCategoryValue}</span>
-            {/if}
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+  {#each Object.entries(categories) as [categoryName, items]}
+    <div class="card bg-base-100 border border-base-200 hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+      <div class="card-body p-5">
+        <div class="border-l-4 border-primary pl-3 -ml-5">
+          <h2 class="card-title text-base-content font-medium tracking-tight">{categoryName}</h2>
+          <p class="text-xs text-base-content/50 mt-0.5">{items.length} items</p>
+        </div>
+        <ul class="mt-4 space-y-1.5">
+          {#each items as item}
+            <li>
+              <a 
+                href="/{categoryName}/{item}" 
+                class="text-base-content/70 hover:text-primary transition-colors duration-200 hover:pl-1"
+              >
+                {item}
+              </a>
+            </li>
           {/each}
-        {/each}
+        </ul>
       </div>
     </div>
   {/each}

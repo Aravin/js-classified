@@ -12,10 +12,11 @@
       <span class="lg:hidden xl:inline">JS Classifieds</span>
       <span class="hidden lg:inline xl:hidden">JSC</span>
     </h1>
-    <div class="flex w-full flex-col items-center space-y-2 md:flex-row md:flex-wrap md:items-stretch md:content-start md:gap-2 lg:flex-nowrap lg:space-x-2 lg:items-start">
-      
-      <div> </div>  
-        
+    <div
+      class="flex w-full flex-col items-center space-y-2 md:flex-row md:flex-wrap md:content-start md:items-stretch md:gap-2 lg:flex-nowrap lg:items-start lg:space-x-2"
+    >
+      <div></div>
+
       <div class="form-control w-full">
         <SearchableSelect
           options={locations}
@@ -25,11 +26,10 @@
       </div>
 
       <div class="form-control w-full">
-        <SearchableSelect 
-          options={categoryList} 
-          placeholder="Search category..." 
+        <SearchableSelect
+          options={categoryList}
+          placeholder="Search category..."
           icon="material-symbols:category"
-
         />
       </div>
 
