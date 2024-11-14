@@ -7,37 +7,44 @@
 </script>
 
 <header class="bg-rose-800 p-4">
-  <div class="container mx-auto flex flex-col items-center justify-between md:flex-row">
-    <h1 class="mb-2 text-2xl font-bold text-gray-300 md:mb-0">JS Classifieds</h1>
-    <div class="flex flex-col items-center space-y-2 md:flex-row md:space-x-4 md:space-y-0">
-      <div class="form-control">
+  <div class="container mx-auto flex flex-col items-center justify-between lg:flex-row">
+    <h1 class="mb-2 text-2xl font-bold text-gray-300 md:mb-0">
+      <span class="lg:hidden xl:inline">JS Classifieds</span>
+      <span class="hidden lg:inline xl:hidden">JSC</span>
+    </h1>
+    <div class="flex w-full flex-col items-center space-y-2 md:flex-row md:flex-wrap md:items-stretch md:content-start md:gap-2 lg:flex-nowrap lg:space-x-2 lg:items-start">
+      
+      <div> </div>  
+        
+      <div class="form-control w-full">
         <SearchableSelect
-          options={locations.map((location) => ({
-            key: location.id.toString(),
-            value: location.loc
-          }))}
+          options={locations}
           placeholder="Search location..."
+          icon="material-symbols:location-on"
         />
       </div>
 
-      <div class="form-control">
-        <div class="input-group relative">
-          <SearchableSelect options={categoryList} placeholder="Search category..." />
-        </div>
+      <div class="form-control w-full">
+        <SearchableSelect 
+          options={categoryList} 
+          placeholder="Search category..." 
+          icon="material-symbols:category"
+
+        />
       </div>
 
-      <div class="form-control">
+      <div class="form-control w-full">
         <div class="input-group relative">
-          <input type="text" placeholder="Search..." class="input input-bordered" />
+          <input type="text" placeholder="Search..." class="input input-bordered w-full" />
           <button class="btn btn-square absolute right-0 top-0 rounded-l-none">
             <Icon icon="material-symbols:search" font-size="32" />
           </button>
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row sm:space-x-2">
-        <button class="btn btn-primary mb-2 sm:mb-0">Login</button>
-        <button class="btn btn-accent">Post Ad</button>
+      <div class="flex w-full flex-col sm:flex-row sm:space-x-2">
+        <button class="btn btn-primary mb-2 w-full sm:flex-1">Login</button>
+        <button class="btn btn-accent w-full sm:flex-1">Post Ad</button>
       </div>
     </div>
   </div>

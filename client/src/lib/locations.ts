@@ -1,2170 +1,2712 @@
 export const locations = [
-    {
-      "id": 540,
-      "loc": "Andaman and Nicobar Islands > South Andaman > Port Blair"
-    },
-    {
-      "id": 142,
-      "loc": "Andhra Pradesh > Anantapur > Anantapur"
-    },
-    {
-      "id": 144,
-      "loc": "Andhra Pradesh > Anantapur > Tadipatri"
-    },
-    {
-      "id": 125,
-      "loc": "Andhra Pradesh > Annamayya > Madanapalle"
-    },
-    {
-      "id": 213,
-      "loc": "Andhra Pradesh > Chittoor > Chittoor"
-    },
-    {
-      "id": 242,
-      "loc": "Andhra Pradesh > East Godavari > Rajamahendravaram"
-    },
-    {
-      "id": 231,
-      "loc": "Andhra Pradesh > Eluru > Eluru"
-    },
-    {
-      "id": 227,
-      "loc": "Andhra Pradesh > Guntur > Amaravati"
-    },
-    {
-      "id": 225,
-      "loc": "Andhra Pradesh > Guntur > Guntur"
-    },
-    {
-      "id": 226,
-      "loc": "Andhra Pradesh > Guntur > Tenali"
-    },
-    {
-      "id": 243,
-      "loc": "Andhra Pradesh > Kakinada > Kakinada"
-    },
-    {
-      "id": 230,
-      "loc": "Andhra Pradesh > Krishna > Gudivada"
-    },
-    {
-      "id": 229,
-      "loc": "Andhra Pradesh > Krishna > Machilipatnam"
-    },
-    {
-      "id": 145,
-      "loc": "Andhra Pradesh > Kurnool > Adoni"
-    },
-    {
-      "id": 146,
-      "loc": "Andhra Pradesh > Kurnool > Kurnool"
-    },
-    {
-      "id": 228,
-      "loc": "Andhra Pradesh > NTR > Vijayawada"
-    },
-    {
-      "id": 147,
-      "loc": "Andhra Pradesh > Nandyal > Nandyal"
-    },
-    {
-      "id": 224,
-      "loc": "Andhra Pradesh > Palnadu > Chilakaluripet"
-    },
-    {
-      "id": 222,
-      "loc": "Andhra Pradesh > Palnadu > Narasaraopet"
-    },
-    {
-      "id": 221,
-      "loc": "Andhra Pradesh > Prakasam > Ongole"
-    },
-    {
-      "id": 220,
-      "loc": "Andhra Pradesh > Sri Potti Sriramulu Nellore > Kavali"
-    },
-    {
-      "id": 219,
-      "loc": "Andhra Pradesh > Sri Potti Sriramulu Nellore > Nellore"
-    },
-    {
-      "id": 141,
-      "loc": "Andhra Pradesh > Sri Sathya Sai > Dharmavaram"
-    },
-    {
-      "id": 248,
-      "loc": "Andhra Pradesh > Srikakulam > Srikakulam"
-    },
-    {
-      "id": 216,
-      "loc": "Andhra Pradesh > Tirupati > Tirupati"
-    },
-    {
-      "id": 244,
-      "loc": "Andhra Pradesh > Visakhapatnam > Visakhapatnam"
-    },
-    {
-      "id": 245,
-      "loc": "Andhra Pradesh > Vizianagaram > Vizianagaram"
-    },
-    {
-      "id": 232,
-      "loc": "Andhra Pradesh > West Godavari > Bhimavaram"
-    },
-    {
-      "id": 233,
-      "loc": "Andhra Pradesh > West Godavari > Tadepallegudem"
-    },
-    {
-      "id": 218,
-      "loc": "Andhra Pradesh > YSR > Kadapa"
-    },
-    {
-      "id": 143,
-      "loc": "Andhra Pradesh > YSR > Proddatur"
-    },
-    {
-      "id": 564,
-      "loc": "Arunachal Pradesh > Anjaw > Hawai"
-    },
-    {
-      "id": 555,
-      "loc": "Arunachal Pradesh > East Kameng > Seppa"
-    },
-    {
-      "id": 562,
-      "loc": "Arunachal Pradesh > Kamle > Raga"
-    },
-    {
-      "id": 561,
-      "loc": "Arunachal Pradesh > Kra Daadi > Palin"
-    },
-    {
-      "id": 559,
-      "loc": "Arunachal Pradesh > Kurung Kumey > Koloriang"
-    },
-    {
-      "id": 560,
-      "loc": "Arunachal Pradesh > Lower Subansiri > Ziro"
-    },
-    {
-      "id": 557,
-      "loc": "Arunachal Pradesh > Pakke Kessang > Lemmi"
-    },
-    {
-      "id": 558,
-      "loc": "Arunachal Pradesh > Papum Pare > Itanagar"
-    },
-    {
-      "id": 565,
-      "loc": "Arunachal Pradesh > Shi Yomi > Tato"
-    },
-    {
-      "id": 552,
-      "loc": "Arunachal Pradesh > Tawang > Tawang"
-    },
-    {
-      "id": 551,
-      "loc": "Arunachal Pradesh > West Kameng > Bomdila"
-    },
-    {
-      "id": 547,
-      "loc": "Assam > Barpeta > Barpeta"
-    },
-    {
-      "id": 546,
-      "loc": "Assam > Bongaigaon > Bongaigaon"
-    },
-    {
-      "id": 543,
-      "loc": "Assam > Cachar > Silchar"
-    },
-    {
-      "id": 523,
-      "loc": "Assam > Dhubri > Dhubri"
-    },
-    {
-      "id": 563,
-      "loc": "Assam > Dibrugarh > Dibrugarh"
-    },
-    {
-      "id": 545,
-      "loc": "Assam > Goalpara > Goalpara"
-    },
-    {
-      "id": 85,
-      "loc": "Assam > Golaghat > Golaghat"
-    },
-    {
-      "id": 556,
-      "loc": "Assam > Jorhat > Jorhat"
-    },
-    {
-      "id": 549,
-      "loc": "Assam > Kamrup Metropolitan > Guwahati"
-    },
-    {
-      "id": 550,
-      "loc": "Assam > Nagaon > Nagaon"
-    },
-    {
-      "id": 86,
-      "loc": "Assam > Sivasagar > Sibsagar"
-    },
-    {
-      "id": 423,
-      "loc": "Bihar > Aurangabad > Aurangabad"
-    },
-    {
-      "id": 511,
-      "loc": "Bihar > Begusarai > Begusarai"
-    },
-    {
-      "id": 79,
-      "loc": "Bihar > Begusarai > Mansurchak"
-    },
-    {
-      "id": 470,
-      "loc": "Bihar > Bhagalpur > Bhagalpur"
-    },
-    {
-      "id": 504,
-      "loc": "Bihar > Bhojpur > Arrah"
-    },
-    {
-      "id": 446,
-      "loc": "Bihar > Buxar > Buxar"
-    },
-    {
-      "id": 514,
-      "loc": "Bihar > Darbhanga > Darbhanga"
-    },
-    {
-      "id": 464,
-      "loc": "Bihar > Gaya > Gaya"
-    },
-    {
-      "id": 465,
-      "loc": "Bihar > Jehanabad > Jehanabad"
-    },
-    {
-      "id": 516,
-      "loc": "Bihar > Katihar > Katihar"
-    },
-    {
-      "id": 519,
-      "loc": "Bihar > Kishanganj > Kishanganj"
-    },
-    {
-      "id": 512,
-      "loc": "Bihar > Munger > Munger"
-    },
-    {
-      "id": 510,
-      "loc": "Bihar > Muzaffarpur > Muzaffarpur"
-    },
-    {
-      "id": 467,
-      "loc": "Bihar > Nalanda > Bihar Sharif"
-    },
-    {
-      "id": 466,
-      "loc": "Bihar > Nalanda > Pawapuri"
-    },
-    {
-      "id": 72,
-      "loc": "Bihar > Nawada > Nawada"
-    },
-    {
-      "id": 456,
-      "loc": "Bihar > Pashchim Champaran > Bagaha"
-    },
-    {
-      "id": 515,
-      "loc": "Bihar > Pashchim Champaran > Bettiah"
-    },
-    {
-      "id": 505,
-      "loc": "Bihar > Patna > Danapur"
-    },
-    {
-      "id": 507,
-      "loc": "Bihar > Patna > Patna"
-    },
-    {
-      "id": 78,
-      "loc": "Bihar > Purba Champaran > Motihari"
-    },
-    {
-      "id": 509,
-      "loc": "Bihar > Purba Champaran > Motihari"
-    },
-    {
-      "id": 517,
-      "loc": "Bihar > Purnia > Purnia"
-    },
-    {
-      "id": 69,
-      "loc": "Bihar > Rohtas > Dehri"
-    },
-    {
-      "id": 424,
-      "loc": "Bihar > Rohtas > Dehri"
-    },
-    {
-      "id": 422,
-      "loc": "Bihar > Rohtas > Sasaram"
-    },
-    {
-      "id": 513,
-      "loc": "Bihar > Saharsa > Saharsa"
-    },
-    {
-      "id": 506,
-      "loc": "Bihar > Saran > Chhapra"
-    },
-    {
-      "id": 449,
-      "loc": "Bihar > Siwan > Siwan"
-    },
-    {
-      "id": 508,
-      "loc": "Bihar > Vaishali > Hajipur"
-    },
-    {
-      "id": 246,
-      "loc": "Chhattisgarh > Bastar > Jagdalpur"
-    },
-    {
-      "id": 261,
-      "loc": "Chhattisgarh > Bilaspur > Bilaspur"
-    },
-    {
-      "id": 259,
-      "loc": "Chhattisgarh > Durg > Bhilai"
-    },
-    {
-      "id": 258,
-      "loc": "Chhattisgarh > Durg > Durg"
-    },
-    {
-      "id": 262,
-      "loc": "Chhattisgarh > Korba > Korba"
-    },
-    {
-      "id": 21,
-      "loc": "Chhattisgarh > Raigarh > Raigarh"
-    },
-    {
-      "id": 260,
-      "loc": "Chhattisgarh > Raipur > Raipur"
-    },
-    {
-      "id": 257,
-      "loc": "Chhattisgarh > Rajnandgaon > Rajnandgaon"
-    },
-    {
-      "id": 418,
-      "loc": "Chhattisgarh > Surguja > Ambikapur"
-    },
-    {
-      "id": 160,
-      "loc": "Dadra and Nagar Haveli and Daman and Diu > Dadra and Nagar Haveli > Silvassa"
-    },
-    {
-      "id": 370,
-      "loc": "Delhi > Central Delhi > Delhi"
-    },
-    {
-      "id": 131,
-      "loc": "Goa > North Goa > Panaji"
-    },
-    {
-      "id": 289,
-      "loc": "Gujarat > Ahmedabad > Ahmedabad"
-    },
-    {
-      "id": 166,
-      "loc": "Gujarat > Amreli > Amreli"
-    },
-    {
-      "id": 12,
-      "loc": "Gujarat > Amreli > Babra"
-    },
-    {
-      "id": 11,
-      "loc": "Gujarat > Amreli > Kundla"
-    },
-    {
-      "id": 287,
-      "loc": "Gujarat > Anand > Anand"
-    },
-    {
-      "id": 294,
-      "loc": "Gujarat > Banas Kantha > Deesa"
-    },
-    {
-      "id": 44,
-      "loc": "Gujarat > Banas Kantha > Palanpur"
-    },
-    {
-      "id": 295,
-      "loc": "Gujarat > Banas Kantha > Palanpur"
-    },
-    {
-      "id": 43,
-      "loc": "Gujarat > Banas Kantha > Tharad"
-    },
-    {
-      "id": 14,
-      "loc": "Gujarat > Bharuch > Ankleshwar"
-    },
-    {
-      "id": 172,
-      "loc": "Gujarat > Bharuch > Bharuch"
-    },
-    {
-      "id": 170,
-      "loc": "Gujarat > Bhavnagar > Bhavnagar"
-    },
-    {
-      "id": 8,
-      "loc": "Gujarat > Bhavnagar > Mahuva"
-    },
-    {
-      "id": 169,
-      "loc": "Gujarat > Botad > Botad"
-    },
-    {
-      "id": 293,
-      "loc": "Gujarat > Gandhinagar > Gandhinagar"
-    },
-    {
-      "id": 292,
-      "loc": "Gujarat > Gandhinagar > Kalol"
-    },
-    {
-      "id": 7,
-      "loc": "Gujarat > Gir Somnath > Kodinar"
-    },
-    {
-      "id": 158,
-      "loc": "Gujarat > Gir Somnath > Veraval"
-    },
-    {
-      "id": 157,
-      "loc": "Gujarat > Jamnagar > Jamnagar"
-    },
-    {
-      "id": 36,
-      "loc": "Gujarat > Jamnagar > Latipar"
-    },
-    {
-      "id": 37,
-      "loc": "Gujarat > Jamnagar > Timbdi"
-    },
-    {
-      "id": 164,
-      "loc": "Gujarat > Junagadh > Junagadh"
-    },
-    {
-      "id": 288,
-      "loc": "Gujarat > Kheda > Nadiad"
-    },
-    {
-      "id": 284,
-      "loc": "Gujarat > Kutch > Bhuj"
-    },
-    {
-      "id": 34,
-      "loc": "Gujarat > Kutch > Naliya"
-    },
-    {
-      "id": 39,
-      "loc": "Gujarat > Kutch > Rapar"
-    },
-    {
-      "id": 290,
-      "loc": "Gujarat > Mahesana > Mahesana"
-    },
-    {
-      "id": 35,
-      "loc": "Gujarat > Morbi > Bangavadi"
-    },
-    {
-      "id": 285,
-      "loc": "Gujarat > Morbi > Morbi"
-    },
-    {
-      "id": 162,
-      "loc": "Gujarat > Nav Sari > Navsari"
-    },
-    {
-      "id": 298,
-      "loc": "Gujarat > Panch Mahal > Godhra"
-    },
-    {
-      "id": 40,
-      "loc": "Gujarat > Patan > Chanasma"
-    },
-    {
-      "id": 291,
-      "loc": "Gujarat > Patan > Patan"
-    },
-    {
-      "id": 156,
-      "loc": "Gujarat > Porbandar > Porbandar"
-    },
-    {
-      "id": 9,
-      "loc": "Gujarat > Rajkot > Dhoraji"
-    },
-    {
-      "id": 167,
-      "loc": "Gujarat > Rajkot > Gondal"
-    },
-    {
-      "id": 10,
-      "loc": "Gujarat > Rajkot > Jetpur"
-    },
-    {
-      "id": 165,
-      "loc": "Gujarat > Rajkot > Jetpur"
-    },
-    {
-      "id": 168,
-      "loc": "Gujarat > Rajkot > Rajkot"
-    },
-    {
-      "id": 42,
-      "loc": "Gujarat > Sabar Kantha > Himatnagar"
-    },
-    {
-      "id": 163,
-      "loc": "Gujarat > Surat > Sachin"
-    },
-    {
-      "id": 171,
-      "loc": "Gujarat > Surat > Surat"
-    },
-    {
-      "id": 38,
-      "loc": "Gujarat > Surendranagar > Dhrangadhra"
-    },
-    {
-      "id": 286,
-      "loc": "Gujarat > Surendranagar > Surendranagar"
-    },
-    {
-      "id": 200,
-      "loc": "Gujarat > Vadodara > Vadodara"
-    },
-    {
-      "id": 161,
-      "loc": "Gujarat > Valsad > Valsad"
-    },
-    {
-      "id": 159,
-      "loc": "Gujarat > Valsad > Vapi"
-    },
-    {
-      "id": 390,
-      "loc": "Haryana > Ambala > Ambala"
-    },
-    {
-      "id": 364,
-      "loc": "Haryana > Bhiwani > Bhiwani"
-    },
-    {
-      "id": 367,
-      "loc": "Haryana > Faridabad > Faridabad"
-    },
-    {
-      "id": 350,
-      "loc": "Haryana > Hisar > Hisar"
-    },
-    {
-      "id": 368,
-      "loc": "Haryana > Jhajjar > Bahadurgarh"
-    },
-    {
-      "id": 372,
-      "loc": "Haryana > Jind > Jind"
-    },
-    {
-      "id": 383,
-      "loc": "Haryana > Kaithal > Kaithal"
-    },
-    {
-      "id": 384,
-      "loc": "Haryana > Karnal > Karnal"
-    },
-    {
-      "id": 385,
-      "loc": "Haryana > Kurukshetra > Kurukshetra"
-    },
-    {
-      "id": 338,
-      "loc": "Haryana > Mahendragarh > Narnaul"
-    },
-    {
-      "id": 57,
-      "loc": "Haryana > Palwal > Hodal"
-    },
-    {
-      "id": 366,
-      "loc": "Haryana > Palwal > Palwal"
-    },
-    {
-      "id": 375,
-      "loc": "Haryana > Panipat > Panipat"
-    },
-    {
-      "id": 363,
-      "loc": "Haryana > Rewari > Rewari"
-    },
-    {
-      "id": 371,
-      "loc": "Haryana > Rohtak > Rohtak"
-    },
-    {
-      "id": 355,
-      "loc": "Haryana > Sirsa > Sirsa"
-    },
-    {
-      "id": 373,
-      "loc": "Haryana > Sonipat > Sonipat"
-    },
-    {
-      "id": 387,
-      "loc": "Haryana > Yamunanagar > Jagadhari"
-    },
-    {
-      "id": 386,
-      "loc": "Haryana > Yamunanagar > Yamunanagar"
-    },
-    {
-      "id": 410,
-      "loc": "Himachal Pradesh > Kangra > Dharamshala"
-    },
-    {
-      "id": 63,
-      "loc": "Himachal Pradesh > Kangra > Nurpur"
-    },
-    {
-      "id": 409,
-      "loc": "Himachal Pradesh > Kangra > Palampur"
-    },
-    {
-      "id": 411,
-      "loc": "Himachal Pradesh > Mandi > Mandi"
-    },
-    {
-      "id": 408,
-      "loc": "Himachal Pradesh > Shimla > Shimla"
-    },
-    {
-      "id": 391,
-      "loc": "Himachal Pradesh > Solan > Solan"
-    },
-    {
-      "id": 406,
-      "loc": "Jammu and Kashmir > Anantnag > Anantnag"
-    },
-    {
-      "id": 536,
-      "loc": "Jammu and Kashmir > Baramulla > Baramulla"
-    },
-    {
-      "id": 537,
-      "loc": "Jammu and Kashmir > Baramulla > Sopore"
-    },
-    {
-      "id": 403,
-      "loc": "Jammu and Kashmir > Jammu > Jammu"
-    },
-    {
-      "id": 405,
-      "loc": "Jammu and Kashmir > Kathua > Kathua"
-    },
-    {
-      "id": 83,
-      "loc": "Jammu and Kashmir > Kupwara > Hafthrada"
-    },
-    {
-      "id": 538,
-      "loc": "Jammu and Kashmir > Kupwara > Kralpora"
-    },
-    {
-      "id": 535,
-      "loc": "Jammu and Kashmir > Poonch > Poonch"
-    },
-    {
-      "id": 539,
-      "loc": "Jammu and Kashmir > Srinagar > Srinagar"
-    },
-    {
-      "id": 64,
-      "loc": "Jammu and Kashmir > Udhampur > Latti Dhuna"
-    },
-    {
-      "id": 404,
-      "loc": "Jammu and Kashmir > Udhampur > Udhampur"
-    },
-    {
-      "id": 460,
-      "loc": "Jharkhand > Bokaro > Bokaro"
-    },
-    {
-      "id": 469,
-      "loc": "Jharkhand > Deoghar > Deoghar"
-    },
-    {
-      "id": 73,
-      "loc": "Jharkhand > Giridih > Giridih"
-    },
-    {
-      "id": 463,
-      "loc": "Jharkhand > Hazaribagh > Hazaribagh"
-    },
-    {
-      "id": 458,
-      "loc": "Jharkhand > Purbi Singhbhum > Jamshedpur"
-    },
-    {
-      "id": 457,
-      "loc": "Jharkhand > Ranchi > Ranchi"
-    },
-    {
-      "id": 136,
-      "loc": "Karnataka > Bagalkote > Bagalkote"
-    },
-    {
-      "id": 122,
-      "loc": "Karnataka > Bangalore Urban > Bengaluru"
-    },
-    {
-      "id": 132,
-      "loc": "Karnataka > Belgaum > Belagavi"
-    },
-    {
-      "id": 140,
-      "loc": "Karnataka > Bellary > Ballari"
-    },
-    {
-      "id": 188,
-      "loc": "Karnataka > Bidar > Bidar"
-    },
-    {
-      "id": 113,
-      "loc": "Karnataka > Chikkamagaluru > Chikkamagaluru"
-    },
-    {
-      "id": 138,
-      "loc": "Karnataka > Chitradurga > Chitradurga"
-    },
-    {
-      "id": 111,
-      "loc": "Karnataka > Dakshina Kannada > Mangaluru"
-    },
-    {
-      "id": 127,
-      "loc": "Karnataka > Davanagere > Davanagere"
-    },
-    {
-      "id": 129,
-      "loc": "Karnataka > Dharwad > Dharwad"
-    },
-    {
-      "id": 130,
-      "loc": "Karnataka > Dharwad > Hubballi"
-    },
-    {
-      "id": 120,
-      "loc": "Karnataka > Hassan > Hassan"
-    },
-    {
-      "id": 128,
-      "loc": "Karnataka > Haveri > Ranebennur"
-    },
-    {
-      "id": 184,
-      "loc": "Karnataka > Kalaburagi > Kalaburagi"
-    },
-    {
-      "id": 124,
-      "loc": "Karnataka > Kolar > Kolar"
-    },
-    {
-      "id": 117,
-      "loc": "Karnataka > Mandya > Mandya"
-    },
-    {
-      "id": 116,
-      "loc": "Karnataka > Mysuru > Mysuru"
-    },
-    {
-      "id": 148,
-      "loc": "Karnataka > Raichur > Raichur"
-    },
-    {
-      "id": 115,
-      "loc": "Karnataka > Shimoga > Bhadravathi"
-    },
-    {
-      "id": 114,
-      "loc": "Karnataka > Shimoga > Shivamogga"
-    },
-    {
-      "id": 121,
-      "loc": "Karnataka > Tumkur > Tumakuru"
-    },
-    {
-      "id": 112,
-      "loc": "Karnataka > Udupi > Udupi"
-    },
-    {
-      "id": 126,
-      "loc": "Karnataka > Uttara Kannada > Sirsi"
-    },
-    {
-      "id": 139,
-      "loc": "Karnataka > Vijayanagara > Hosapete"
-    },
-    {
-      "id": 137,
-      "loc": "Karnataka > Vijayapura > Vijayapura"
-    },
-    {
-      "id": 94,
-      "loc": "Kerala > Alappuzha > Alappuzha"
-    },
-    {
-      "id": 100,
-      "loc": "Kerala > Ernakulam > Ernakulam"
-    },
-    {
-      "id": 99,
-      "loc": "Kerala > Ernakulam > Kochi"
-    },
-    {
-      "id": 110,
-      "loc": "Kerala > Kannur > Kannur"
-    },
-    {
-      "id": 92,
-      "loc": "Kerala > Kollam > Kollam"
-    },
-    {
-      "id": 95,
-      "loc": "Kerala > Kottayam > Kottayam"
-    },
-    {
-      "id": 91,
-      "loc": "Kerala > Kozhikode > Kozhikode"
-    },
-    {
-      "id": 2,
-      "loc": "Kerala > Malappuram > Malappuram"
-    },
-    {
-      "id": 1,
-      "loc": "Kerala > Malappuram > Puthanathani"
-    },
-    {
-      "id": 93,
-      "loc": "Kerala > Thiruvananthapuram > Thiruvananthapuram"
-    },
-    {
-      "id": 101,
-      "loc": "Kerala > Thrissur > Thrissur"
-    },
-    {
-      "id": 209,
-      "loc": "Madhya Pradesh > Betul > Betul"
-    },
-    {
-      "id": 426,
-      "loc": "Madhya Pradesh > Bhind > Bhind"
-    },
-    {
-      "id": 312,
-      "loc": "Madhya Pradesh > Bhopal > Bhopal"
-    },
-    {
-      "id": 206,
-      "loc": "Madhya Pradesh > Burhanpur > Burhanpur"
-    },
-    {
-      "id": 254,
-      "loc": "Madhya Pradesh > Chhindwara > Chhindwara"
-    },
-    {
-      "id": 413,
-      "loc": "Madhya Pradesh > Damoh > Damoh"
-    },
-    {
-      "id": 309,
-      "loc": "Madhya Pradesh > Dewas > Dewas"
-    },
-    {
-      "id": 300,
-      "loc": "Madhya Pradesh > Dhar > Pithampur"
-    },
-    {
-      "id": 316,
-      "loc": "Madhya Pradesh > Guna > Guna"
-    },
-    {
-      "id": 335,
-      "loc": "Madhya Pradesh > Gwalior > Gwalior"
-    },
-    {
-      "id": 17,
-      "loc": "Madhya Pradesh > Harda > Timarni"
-    },
-    {
-      "id": 301,
-      "loc": "Madhya Pradesh > Indore > Indore"
-    },
-    {
-      "id": 412,
-      "loc": "Madhya Pradesh > Jabalpur > Jabalpur"
-    },
-    {
-      "id": 415,
-      "loc": "Madhya Pradesh > Katni > Katni"
-    },
-    {
-      "id": 68,
-      "loc": "Madhya Pradesh > Katni > Murwara"
-    },
-    {
-      "id": 207,
-      "loc": "Madhya Pradesh > Khandwa > Khandwa"
-    },
-    {
-      "id": 201,
-      "loc": "Madhya Pradesh > Khargone > Khargone"
-    },
-    {
-      "id": 414,
-      "loc": "Madhya Pradesh > Mandla > Mandla"
-    },
-    {
-      "id": 305,
-      "loc": "Madhya Pradesh > Mandsaur > Mandsaur"
-    },
-    {
-      "id": 333,
-      "loc": "Madhya Pradesh > Morena > Morena"
-    },
-    {
-      "id": 303,
-      "loc": "Madhya Pradesh > Nagda > Nagda"
-    },
-    {
-      "id": 311,
-      "loc": "Madhya Pradesh > Narmadapuram > Narmadapuram"
-    },
-    {
-      "id": 49,
-      "loc": "Madhya Pradesh > Narmadapuram > Piparia"
-    },
-    {
-      "id": 306,
-      "loc": "Madhya Pradesh > Neemuch > Neemuch"
-    },
-    {
-      "id": 50,
-      "loc": "Madhya Pradesh > Rajgarh > Rajgarh"
-    },
-    {
-      "id": 47,
-      "loc": "Madhya Pradesh > Ratlam > Jaora"
-    },
-    {
-      "id": 417,
-      "loc": "Madhya Pradesh > Rewa > Rewa"
-    },
-    {
-      "id": 314,
-      "loc": "Madhya Pradesh > Sagar > Sagar"
-    },
-    {
-      "id": 66,
-      "loc": "Madhya Pradesh > Satna > Nagod"
-    },
-    {
-      "id": 416,
-      "loc": "Madhya Pradesh > Satna > Satna"
-    },
-    {
-      "id": 310,
-      "loc": "Madhya Pradesh > Sehore > Sehore"
-    },
-    {
-      "id": 255,
-      "loc": "Madhya Pradesh > Seoni > Seoni"
-    },
-    {
-      "id": 331,
-      "loc": "Madhya Pradesh > Shivpuri > Shivpuri"
-    },
-    {
-      "id": 419,
-      "loc": "Madhya Pradesh > Singrauli > Singrauli"
-    },
-    {
-      "id": 302,
-      "loc": "Madhya Pradesh > Ujjain > Ujjain"
-    },
-    {
-      "id": 65,
-      "loc": "Madhya Pradesh > Umaria > Umaria"
-    },
-    {
-      "id": 313,
-      "loc": "Madhya Pradesh > Vidisha > Vidisha"
-    },
-    {
-      "id": 182,
-      "loc": "Maharashtra > Ahmednagar > Ahmednagar"
-    },
-    {
-      "id": 181,
-      "loc": "Maharashtra > Ahmednagar > Akole"
-    },
-    {
-      "id": 202,
-      "loc": "Maharashtra > Akola > Akola"
-    },
-    {
-      "id": 208,
-      "loc": "Maharashtra > Amravati > Achalpur"
-    },
-    {
-      "id": 204,
-      "loc": "Maharashtra > Amravati > Amravati"
-    },
-    {
-      "id": 183,
-      "loc": "Maharashtra > Beed > Beed"
-    },
-    {
-      "id": 252,
-      "loc": "Maharashtra > Bhandara > Bhandara"
-    },
-    {
-      "id": 253,
-      "loc": "Maharashtra > Bhandara > Tumsar"
-    },
-    {
-      "id": 249,
-      "loc": "Maharashtra > Chandrapur > Chandrapur"
-    },
-    {
-      "id": 194,
-      "loc": "Maharashtra > Chhatrapati Sambhajinagar > Chhatrapati Sambhajinagar"
-    },
-    {
-      "id": 185,
-      "loc": "Maharashtra > Dharashiv > Dharashiv"
-    },
-    {
-      "id": 196,
-      "loc": "Maharashtra > Dhule > Dhule"
-    },
-    {
-      "id": 256,
-      "loc": "Maharashtra > Gondiya > Gondia"
-    },
-    {
-      "id": 198,
-      "loc": "Maharashtra > Jalgaon > Bhusawal"
-    },
-    {
-      "id": 15,
-      "loc": "Maharashtra > Jalgaon > Chopda"
-    },
-    {
-      "id": 197,
-      "loc": "Maharashtra > Jalgaon > Jalgaon"
-    },
-    {
-      "id": 195,
-      "loc": "Maharashtra > Jalna > Jalna"
-    },
-    {
-      "id": 133,
-      "loc": "Maharashtra > Kolhapur > Ichalkaranji"
-    },
-    {
-      "id": 134,
-      "loc": "Maharashtra > Kolhapur > Kolhapur"
-    },
-    {
-      "id": 189,
-      "loc": "Maharashtra > Latur > Latur"
-    },
-    {
-      "id": 190,
-      "loc": "Maharashtra > Latur > Udgir"
-    },
-    {
-      "id": 151,
-      "loc": "Maharashtra > Mumbai Suburban > Mumbai"
-    },
-    {
-      "id": 251,
-      "loc": "Maharashtra > Nagpur > Nagpur"
-    },
-    {
-      "id": 20,
-      "loc": "Maharashtra > Nagpur > Saoner"
-    },
-    {
-      "id": 191,
-      "loc": "Maharashtra > Nanded > Nanded"
-    },
-    {
-      "id": 199,
-      "loc": "Maharashtra > Nandurbar > Nandurbar"
-    },
-    {
-      "id": 193,
-      "loc": "Maharashtra > Nashik > Malegaon"
-    },
-    {
-      "id": 192,
-      "loc": "Maharashtra > Nashik > Nashik"
-    },
-    {
-      "id": 155,
-      "loc": "Maharashtra > Palghar > Vasai-Virar"
-    },
-    {
-      "id": 176,
-      "loc": "Maharashtra > Pune > Pimpri-Chinchwad"
-    },
-    {
-      "id": 177,
-      "loc": "Maharashtra > Pune > Pune"
-    },
-    {
-      "id": 152,
-      "loc": "Maharashtra > Raigad > Panvel"
-    },
-    {
-      "id": 135,
-      "loc": "Maharashtra > Sangli > Sangli"
-    },
-    {
-      "id": 173,
-      "loc": "Maharashtra > Satara > Satara"
-    },
-    {
-      "id": 175,
-      "loc": "Maharashtra > Solapur > Barshi"
-    },
-    {
-      "id": 174,
-      "loc": "Maharashtra > Solapur > Solapur"
-    },
-    {
-      "id": 5,
-      "loc": "Maharashtra > Thane > Bhiwandi"
-    },
-    {
-      "id": 154,
-      "loc": "Maharashtra > Thane > Bhiwandi"
-    },
-    {
-      "id": 178,
-      "loc": "Maharashtra > Thane > Kalyan-Dombivli"
-    },
-    {
-      "id": 180,
-      "loc": "Maharashtra > Thane > Kulgaon Badlapur"
-    },
-    {
-      "id": 150,
-      "loc": "Maharashtra > Thane > Navi Mumbai"
-    },
-    {
-      "id": 153,
-      "loc": "Maharashtra > Thane > Thane"
-    },
-    {
-      "id": 179,
-      "loc": "Maharashtra > Thane > Ulhasnagar"
-    },
-    {
-      "id": 16,
-      "loc": "Maharashtra > Wardha > Arvi"
-    },
-    {
-      "id": 250,
-      "loc": "Maharashtra > Wardha > Hinganghat"
-    },
-    {
-      "id": 205,
-      "loc": "Maharashtra > Wardha > Wardha"
-    },
-    {
-      "id": 203,
-      "loc": "Maharashtra > Yavatmal > Yavatmal"
-    },
-    {
-      "id": 544,
-      "loc": "Manipur > Imphal West > Imphal"
-    },
-    {
-      "id": 84,
-      "loc": "Manipur > Thoubal > Khangabok"
-    },
-    {
-      "id": 548,
-      "loc": "Meghalaya > East Khasi Hills > Shillong"
-    },
-    {
-      "id": 542,
-      "loc": "Mizoram > Aizwal > Aizawl"
-    },
-    {
-      "id": 554,
-      "loc": "Nagaland > Dimapur > Dimapur"
-    },
-    {
-      "id": 553,
-      "loc": "Nagaland > Kohima > Kohima"
-    },
-    {
-      "id": 269,
-      "loc": "Odisha > Bhadrak > Bhadrak"
-    },
-    {
-      "id": 268,
-      "loc": "Odisha > Cuttack > Cuttack"
-    },
-    {
-      "id": 24,
-      "loc": "Odisha > Debagarh > Deogarh"
-    },
-    {
-      "id": 265,
-      "loc": "Odisha > Ganjam > Brahmapur"
-    },
-    {
-      "id": 267,
-      "loc": "Odisha > Khordha > Bhubaneswar"
-    },
-    {
-      "id": 19,
-      "loc": "Odisha > Koraput > Jeypore"
-    },
-    {
-      "id": 25,
-      "loc": "Odisha > Mayurbhanj > Baripada"
-    },
-    {
-      "id": 271,
-      "loc": "Odisha > Mayurbhanj > Baripada"
-    },
-    {
-      "id": 247,
-      "loc": "Odisha > Nabarangapur > Umerkote"
-    },
-    {
-      "id": 23,
-      "loc": "Odisha > Puri > Kakatpur"
-    },
-    {
-      "id": 22,
-      "loc": "Odisha > Puri > Puri"
-    },
-    {
-      "id": 263,
-      "loc": "Odisha > Sambalpur > Sambalpur"
-    },
-    {
-      "id": 270,
-      "loc": "Odisha > Sundargarh > Rourkela"
-    },
-    {
-      "id": 211,
-      "loc": "Puducherry > Puducherry > Puducherry"
-    },
-    {
-      "id": 397,
-      "loc": "Punjab > Amritsar > Amritsar"
-    },
-    {
-      "id": 360,
-      "loc": "Punjab > Barnala > Barnala"
-    },
-    {
-      "id": 359,
-      "loc": "Punjab > Barnala > Tapa"
-    },
-    {
-      "id": 356,
-      "loc": "Punjab > Bathinda > Bathinda"
-    },
-    {
-      "id": 357,
-      "loc": "Punjab > Faridkot > Faridkot"
-    },
-    {
-      "id": 353,
-      "loc": "Punjab > Fazilka > Abohar"
-    },
-    {
-      "id": 61,
-      "loc": "Punjab > Fazilka > Fazilka"
-    },
-    {
-      "id": 396,
-      "loc": "Punjab > Firozpur > Firozpur"
-    },
-    {
-      "id": 401,
-      "loc": "Punjab > Gurdaspur > Batala"
-    },
-    {
-      "id": 400,
-      "loc": "Punjab > Hoshiarpur > Hoshiarpur"
-    },
-    {
-      "id": 399,
-      "loc": "Punjab > Jalandhar > Jalandhar"
-    },
-    {
-      "id": 398,
-      "loc": "Punjab > Kapurthala > Kapurthala"
-    },
-    {
-      "id": 389,
-      "loc": "Punjab > Ludhiana > Khanna"
-    },
-    {
-      "id": 362,
-      "loc": "Punjab > Ludhiana > Ludhiana"
-    },
-    {
-      "id": 361,
-      "loc": "Punjab > Malerkotla > Malerkotla"
-    },
-    {
-      "id": 358,
-      "loc": "Punjab > Moga > Moga"
-    },
-    {
-      "id": 402,
-      "loc": "Punjab > Pathankot > Pathankot"
-    },
-    {
-      "id": 388,
-      "loc": "Punjab > Patiala > Patiala"
-    },
-    {
-      "id": 407,
-      "loc": "Punjab > Rupnagar > Anandpur Sahib"
-    },
-    {
-      "id": 354,
-      "loc": "Punjab > Sri Muktsar Sahib > Sri Muktsar Sahib"
-    },
-    {
-      "id": 322,
-      "loc": "Rajasthan > Ajmer > Ajmer"
-    },
-    {
-      "id": 319,
-      "loc": "Rajasthan > Ajmer > Beawar"
-    },
-    {
-      "id": 323,
-      "loc": "Rajasthan > Ajmer > Kishangarh"
-    },
-    {
-      "id": 337,
-      "loc": "Rajasthan > Alwar > Alwar"
-    },
-    {
-      "id": 365,
-      "loc": "Rajasthan > Alwar > Bhiwadi"
-    },
-    {
-      "id": 299,
-      "loc": "Rajasthan > Banswara > Banswara"
-    },
-    {
-      "id": 315,
-      "loc": "Rajasthan > Baran > Baran"
-    },
-    {
-      "id": 296,
-      "loc": "Rajasthan > Barmer > Barmer"
-    },
-    {
-      "id": 339,
-      "loc": "Rajasthan > Bharatpur > Bharatpur"
-    },
-    {
-      "id": 320,
-      "loc": "Rajasthan > Bhilwara > Bhilwara"
-    },
-    {
-      "id": 326,
-      "loc": "Rajasthan > Bikaner > Bikaner"
-    },
-    {
-      "id": 321,
-      "loc": "Rajasthan > Bundi > Bundi"
-    },
-    {
-      "id": 307,
-      "loc": "Rajasthan > Chittorgarh > Chittorgarh"
-    },
-    {
-      "id": 48,
-      "loc": "Rajasthan > Chittorgarh > Nimbahera"
-    },
-    {
-      "id": 348,
-      "loc": "Rajasthan > Churu > Churu"
-    },
-    {
-      "id": 334,
-      "loc": "Rajasthan > Dhaulpur > Dhaulpur"
-    },
-    {
-      "id": 60,
-      "loc": "Rajasthan > Hanumangarh > Hanumangarh"
-    },
-    {
-      "id": 327,
-      "loc": "Rajasthan > Jaipur > Jaipur"
-    },
-    {
-      "id": 349,
-      "loc": "Rajasthan > Jhunjhunun > Jhunjhunu"
-    },
-    {
-      "id": 297,
-      "loc": "Rajasthan > Jodhpur > Jodhpur"
-    },
-    {
-      "id": 54,
-      "loc": "Rajasthan > Karauli > Hindaun"
-    },
-    {
-      "id": 336,
-      "loc": "Rajasthan > Karauli > Hindaun"
-    },
-    {
-      "id": 308,
-      "loc": "Rajasthan > Kota > Kota"
-    },
-    {
-      "id": 53,
-      "loc": "Rajasthan > Nagaur > Kuchaman"
-    },
-    {
-      "id": 325,
-      "loc": "Rajasthan > Nagaur > Nagaur"
-    },
-    {
-      "id": 51,
-      "loc": "Rajasthan > Pali > Pali"
-    },
-    {
-      "id": 330,
-      "loc": "Rajasthan > Sawai Madhopur > Gangapur"
-    },
-    {
-      "id": 329,
-      "loc": "Rajasthan > Sawai Madhopur > Sawai Madhopur"
-    },
-    {
-      "id": 328,
-      "loc": "Rajasthan > Sikar > Sikar"
-    },
-    {
-      "id": 45,
-      "loc": "Rajasthan > Sirohi > Sirohi"
-    },
-    {
-      "id": 59,
-      "loc": "Rajasthan > Sri Ganganagar > Ganganagar"
-    },
-    {
-      "id": 347,
-      "loc": "Rajasthan > Sri Ganganagar > Jaitsar"
-    },
-    {
-      "id": 352,
-      "loc": "Rajasthan > Sri Ganganagar > Sri Ganganagar"
-    },
-    {
-      "id": 324,
-      "loc": "Rajasthan > Tonk > Tonk"
-    },
-    {
-      "id": 304,
-      "loc": "Rajasthan > Udaipur > Udaipur"
-    },
-    {
-      "id": 526,
-      "loc": "Sikkim > Gangtok > Gangtok"
-    },
-    {
-      "id": 214,
-      "loc": "Tamil Nadu > Chengalpattu > Tambaram"
-    },
-    {
-      "id": 217,
-      "loc": "Tamil Nadu > Chennai > Chennai"
-    },
-    {
-      "id": 102,
-      "loc": "Tamil Nadu > Coimbatore > Coimbatore"
-    },
-    {
-      "id": 210,
-      "loc": "Tamil Nadu > Cuddalore > Cuddalore"
-    },
-    {
-      "id": 103,
-      "loc": "Tamil Nadu > Dindgul > Dindigul"
-    },
-    {
-      "id": 118,
-      "loc": "Tamil Nadu > Erode > Erode"
-    },
-    {
-      "id": 90,
-      "loc": "Tamil Nadu > Kanyakumari > Nagercoil"
-    },
-    {
-      "id": 107,
-      "loc": "Tamil Nadu > Karur > Karur"
-    },
-    {
-      "id": 123,
-      "loc": "Tamil Nadu > Krishnagiri > Hosur"
-    },
-    {
-      "id": 104,
-      "loc": "Tamil Nadu > Madurai > Madurai"
-    },
-    {
-      "id": 119,
-      "loc": "Tamil Nadu > Salem > Salem"
-    },
-    {
-      "id": 109,
-      "loc": "Tamil Nadu > Thanjavur > Kumbakonam"
-    },
-    {
-      "id": 108,
-      "loc": "Tamil Nadu > Thanjavur > Thanjavur"
-    },
-    {
-      "id": 215,
-      "loc": "Tamil Nadu > Thiruvallur > Avadi"
-    },
-    {
-      "id": 97,
-      "loc": "Tamil Nadu > Thoothukkudi > Thoothukudi"
-    },
-    {
-      "id": 106,
-      "loc": "Tamil Nadu > Tiruchirappalli > Tiruchirappalli"
-    },
-    {
-      "id": 87,
-      "loc": "Tamil Nadu > Tirunelveli > Tirunelveli"
-    },
-    {
-      "id": 105,
-      "loc": "Tamil Nadu > Tiruppur > Tiruppur"
-    },
-    {
-      "id": 212,
-      "loc": "Tamil Nadu > Vellore > Vellore"
-    },
-    {
-      "id": 98,
-      "loc": "Tamil Nadu > Virudhunagar > Sivakasi"
-    },
-    {
-      "id": 239,
-      "loc": "Telangana > Hanumakonda > Warangal"
-    },
-    {
-      "id": 186,
-      "loc": "Telangana > Hyderabad > Hyderabad"
-    },
-    {
-      "id": 187,
-      "loc": "Telangana > Hyderabad > Secunderabad"
-    },
-    {
-      "id": 237,
-      "loc": "Telangana > Jangaon > Ippagudem"
-    },
-    {
-      "id": 240,
-      "loc": "Telangana > Karimnagar > Karimnagar"
-    },
-    {
-      "id": 149,
-      "loc": "Telangana > Mahabubnagar > Mahbubnagar"
-    },
-    {
-      "id": 223,
-      "loc": "Telangana > Nalgonda > Miryalaguda"
-    },
-    {
-      "id": 234,
-      "loc": "Telangana > Nalgonda > Nalgonda"
-    },
-    {
-      "id": 241,
-      "loc": "Telangana > Peddapalli > Ramagundam"
-    },
-    {
-      "id": 238,
-      "loc": "Telangana > Siddipet > Siddipet"
-    },
-    {
-      "id": 236,
-      "loc": "Telangana > Suryapet > Suryapet"
-    },
-    {
-      "id": 235,
-      "loc": "Telangana > Suryapet > Vizag"
-    },
-    {
-      "id": 541,
-      "loc": "Tripura > West Tripura > Agartala"
-    },
-    {
-      "id": 340,
-      "loc": "Uttar Pradesh > Agra > Agra"
-    },
-    {
-      "id": 342,
-      "loc": "Uttar Pradesh > Agra division > Mathura"
-    },
-    {
-      "id": 345,
-      "loc": "Uttar Pradesh > Aligarh > Aligarh"
-    },
-    {
-      "id": 442,
-      "loc": "Uttar Pradesh > Ambedkar Nagar > Akbarpur"
-    },
-    {
-      "id": 448,
-      "loc": "Uttar Pradesh > Azamgarh > Azamgarh"
-    },
-    {
-      "id": 374,
-      "loc": "Uttar Pradesh > Baghpat > Baraut"
-    },
-    {
-      "id": 454,
-      "loc": "Uttar Pradesh > Bahraich > Bahraich"
-    },
-    {
-      "id": 447,
-      "loc": "Uttar Pradesh > Ballia > Ballia"
-    },
-    {
-      "id": 427,
-      "loc": "Uttar Pradesh > Banda > Banda"
-    },
-    {
-      "id": 436,
-      "loc": "Uttar Pradesh > Barabanki > Barabanki"
-    },
-    {
-      "id": 528,
-      "loc": "Uttar Pradesh > Bareilly > Bareilly"
-    },
-    {
-      "id": 453,
-      "loc": "Uttar Pradesh > Basti > Basti"
-    },
-    {
-      "id": 434,
-      "loc": "Uttar Pradesh > Budaun > Budaun"
-    },
-    {
-      "id": 379,
-      "loc": "Uttar Pradesh > Bulandshahr > Bulandshahr"
-    },
-    {
-      "id": 378,
-      "loc": "Uttar Pradesh > Bulandshahr > Khurja"
-    },
-    {
-      "id": 421,
-      "loc": "Uttar Pradesh > Chandauli > Mughal Sarai"
-    },
-    {
-      "id": 450,
-      "loc": "Uttar Pradesh > Deoria > Deoria"
-    },
-    {
-      "id": 344,
-      "loc": "Uttar Pradesh > Etah > Etah"
-    },
-    {
-      "id": 451,
-      "loc": "Uttar Pradesh > Faizabad > Faizabad"
-    },
-    {
-      "id": 428,
-      "loc": "Uttar Pradesh > Fatehpur > Fatehpur"
-    },
-    {
-      "id": 341,
-      "loc": "Uttar Pradesh > Firozabad > Shikohabad"
-    },
-    {
-      "id": 377,
-      "loc": "Uttar Pradesh > Gautam Buddha Nagar > Greater Noida"
-    },
-    {
-      "id": 369,
-      "loc": "Uttar Pradesh > Gautam Buddha Nagar > Noida"
-    },
-    {
-      "id": 444,
-      "loc": "Uttar Pradesh > Ghazipur > Ghazipur"
-    },
-    {
-      "id": 452,
-      "loc": "Uttar Pradesh > Gonda > Gonda"
-    },
-    {
-      "id": 455,
-      "loc": "Uttar Pradesh > Gorakhpur > Gorakhpur"
-    },
-    {
-      "id": 433,
-      "loc": "Uttar Pradesh > Hardoi > Hardoi"
-    },
-    {
-      "id": 58,
-      "loc": "Uttar Pradesh > Hathras > Hathras"
-    },
-    {
-      "id": 425,
-      "loc": "Uttar Pradesh > Jalaun > Orai"
-    },
-    {
-      "id": 440,
-      "loc": "Uttar Pradesh > Jaunpur > Jaunpur"
-    },
-    {
-      "id": 332,
-      "loc": "Uttar Pradesh > Jhansi > Jhansi"
-    },
-    {
-      "id": 382,
-      "loc": "Uttar Pradesh > Jyotiba Phule Nagar > Amroha"
-    },
-    {
-      "id": 429,
-      "loc": "Uttar Pradesh > Kanpur Nagar > Kanpur"
-    },
-    {
-      "id": 346,
-      "loc": "Uttar Pradesh > Kasganj > Kasganj"
-    },
-    {
-      "id": 438,
-      "loc": "Uttar Pradesh > Kheri > Lakhimpur"
-    },
-    {
-      "id": 317,
-      "loc": "Uttar Pradesh > Lalitpur > Lalitpur"
-    },
-    {
-      "id": 435,
-      "loc": "Uttar Pradesh > Lucknow > Lucknow"
-    },
-    {
-      "id": 432,
-      "loc": "Uttar Pradesh > Mainpuri > Mainpuri"
-    },
-    {
-      "id": 445,
-      "loc": "Uttar Pradesh > Mau > Mau"
-    },
-    {
-      "id": 420,
-      "loc": "Uttar Pradesh > Mirzapur > Mirzapur"
-    },
-    {
-      "id": 530,
-      "loc": "Uttar Pradesh > Moradabad > Moradabad"
-    },
-    {
-      "id": 381,
-      "loc": "Uttar Pradesh > Muzaffarnagar > Muzaffarnagar"
-    },
-    {
-      "id": 529,
-      "loc": "Uttar Pradesh > Pilibhit > Pilibhit"
-    },
-    {
-      "id": 439,
-      "loc": "Uttar Pradesh > Prayagraj > Prayagraj"
-    },
-    {
-      "id": 431,
-      "loc": "Uttar Pradesh > Raebareli > Raebareli"
-    },
-    {
-      "id": 393,
-      "loc": "Uttar Pradesh > Saharanpur > Saharanpur"
-    },
-    {
-      "id": 527,
-      "loc": "Uttar Pradesh > Sambhal > Chandausi"
-    },
-    {
-      "id": 380,
-      "loc": "Uttar Pradesh > Sambhal > Sambhal"
-    },
-    {
-      "id": 376,
-      "loc": "Uttar Pradesh > Shamli > Shamli"
-    },
-    {
-      "id": 437,
-      "loc": "Uttar Pradesh > Sitapur > Sitapur"
-    },
-    {
-      "id": 441,
-      "loc": "Uttar Pradesh > Sultanpur > Sultanpur"
-    },
-    {
-      "id": 430,
-      "loc": "Uttar Pradesh > Unnao > Unnao"
-    },
-    {
-      "id": 443,
-      "loc": "Uttar Pradesh > Varanasi > Varanasi"
-    },
-    {
-      "id": 533,
-      "loc": "Uttarakhand > Almora > Almora"
-    },
-    {
-      "id": 534,
-      "loc": "Uttarakhand > Bageshwar > Bāgeshwar"
-    },
-    {
-      "id": 395,
-      "loc": "Uttarakhand > Dehradun > Dehradun"
-    },
-    {
-      "id": 394,
-      "loc": "Uttarakhand > Haridwar > Haridwar"
-    },
-    {
-      "id": 392,
-      "loc": "Uttarakhand > Haridwar > Roorkee"
-    },
-    {
-      "id": 81,
-      "loc": "Uttarakhand > Nainital > Haldwani"
-    },
-    {
-      "id": 532,
-      "loc": "Uttarakhand > Nainital > Haldwani"
-    },
-    {
-      "id": 82,
-      "loc": "Uttarakhand > Nainital > Nainital"
-    },
-    {
-      "id": 531,
-      "loc": "Uttarakhand > Udham Singh Nagar > Rudrapur"
-    },
-    {
-      "id": 524,
-      "loc": "West Bengal > Alipurduar > Alipurduar"
-    },
-    {
-      "id": 461,
-      "loc": "West Bengal > Bankura > Bankura"
-    },
-    {
-      "id": 75,
-      "loc": "West Bengal > Birbhum > Bolpur"
-    },
-    {
-      "id": 490,
-      "loc": "West Bengal > Birbhum > Bolpur"
-    },
-    {
-      "id": 500,
-      "loc": "West Bengal > Birbhum > Siuri"
-    },
-    {
-      "id": 503,
-      "loc": "West Bengal > Dakshin Dinajpur > Balurghat"
-    },
-    {
-      "id": 525,
-      "loc": "West Bengal > Darjeeling > Darjeeling"
-    },
-    {
-      "id": 80,
-      "loc": "West Bengal > Darjeeling > Siliguri"
-    },
-    {
-      "id": 520,
-      "loc": "West Bengal > Darjeeling > Siliguri"
-    },
-    {
-      "id": 471,
-      "loc": "West Bengal > Howrah > Bally"
-    },
-    {
-      "id": 474,
-      "loc": "West Bengal > Howrah > Howrah"
-    },
-    {
-      "id": 277,
-      "loc": "West Bengal > Howrah > Uluberia"
-    },
-    {
-      "id": 484,
-      "loc": "West Bengal > Hugli > Chandannagar"
-    },
-    {
-      "id": 483,
-      "loc": "West Bengal > Hugli > Hugli-Chunchura"
-    },
-    {
-      "id": 479,
-      "loc": "West Bengal > Hugli > Serampore"
-    },
-    {
-      "id": 521,
-      "loc": "West Bengal > Jalpaiguri > Jalpaiguri"
-    },
-    {
-      "id": 522,
-      "loc": "West Bengal > Kochbihar > Cooch Behar"
-    },
-    {
-      "id": 502,
-      "loc": "West Bengal > Maldah > Malda"
-    },
-    {
-      "id": 501,
-      "loc": "West Bengal > Murshidabad > Berhampore"
-    },
-    {
-      "id": 487,
-      "loc": "West Bengal > Nadia > Chakdaha"
-    },
-    {
-      "id": 485,
-      "loc": "West Bengal > Nadia > Kalyani"
-    },
-    {
-      "id": 493,
-      "loc": "West Bengal > Nadia > Krishnanagar"
-    },
-    {
-      "id": 492,
-      "loc": "West Bengal > Nadia > Nabadwip"
-    },
-    {
-      "id": 486,
-      "loc": "West Bengal > Nadia > Ranaghat"
-    },
-    {
-      "id": 491,
-      "loc": "West Bengal > Nadia > Shantipur"
-    },
-    {
-      "id": 495,
-      "loc": "West Bengal > Nadia > Tehatta"
-    },
-    {
-      "id": 497,
-      "loc": "West Bengal > North 24 Parganas > Ashoknagar Kalyangarh"
-    },
-    {
-      "id": 499,
-      "loc": "West Bengal > North 24 Parganas > Bangaon"
-    },
-    {
-      "id": 476,
-      "loc": "West Bengal > North 24 Parganas > Baranagar"
-    },
-    {
-      "id": 481,
-      "loc": "West Bengal > North 24 Parganas > Barasat"
-    },
-    {
-      "id": 482,
-      "loc": "West Bengal > North 24 Parganas > Barrackpore"
-    },
-    {
-      "id": 496,
-      "loc": "West Bengal > North 24 Parganas > Basirhat"
-    },
-    {
-      "id": 76,
-      "loc": "West Bengal > North 24 Parganas > Bidhannagar"
-    },
-    {
-      "id": 478,
-      "loc": "West Bengal > North 24 Parganas > Dum Dum"
-    },
-    {
-      "id": 498,
-      "loc": "West Bengal > North 24 Parganas > Habra"
-    },
-    {
-      "id": 480,
-      "loc": "West Bengal > North 24 Parganas > New Barrackpore"
-    },
-    {
-      "id": 477,
-      "loc": "West Bengal > North 24 Parganas > North Dumdum"
-    },
-    {
-      "id": 475,
-      "loc": "West Bengal > North 24 Parganas > South Dumdum"
-    },
-    {
-      "id": 462,
-      "loc": "West Bengal > Paschim Bardhaman > Asansol"
-    },
-    {
-      "id": 488,
-      "loc": "West Bengal > Paschim Bardhaman > Durgapur"
-    },
-    {
-      "id": 273,
-      "loc": "West Bengal > Paschim Medinipur > Kharagpur"
-    },
-    {
-      "id": 272,
-      "loc": "West Bengal > Paschim Medinipur > Midnapore"
-    },
-    {
-      "id": 77,
-      "loc": "West Bengal > Purba Bardhaman > Bardhaman"
-    },
-    {
-      "id": 489,
-      "loc": "West Bengal > Purba Bardhaman > Bardhaman"
-    },
-    {
-      "id": 494,
-      "loc": "West Bengal > Purba Bardhaman > Katwa"
-    },
-    {
-      "id": 275,
-      "loc": "West Bengal > Purba Medinipur > Haldia"
-    },
-    {
-      "id": 459,
-      "loc": "West Bengal > Puruliya > Purulia"
-    },
-    {
-      "id": 30,
-      "loc": "West Bengal > South 24 Parganas > Baruipur"
-    },
-    {
-      "id": 282,
-      "loc": "West Bengal > South 24 Parganas > Baruipur"
-    },
-    {
-      "id": 28,
-      "loc": "West Bengal > South 24 Parganas > Budge Budge"
-    },
-    {
-      "id": 280,
-      "loc": "West Bengal > South 24 Parganas > Budge Budge"
-    },
-    {
-      "id": 32,
-      "loc": "West Bengal > South 24 Parganas > Canning"
-    },
-    {
-      "id": 283,
-      "loc": "West Bengal > South 24 Parganas > Canning"
-    },
-    {
-      "id": 27,
-      "loc": "West Bengal > South 24 Parganas > Diamond Harbour"
-    },
-    {
-      "id": 276,
-      "loc": "West Bengal > South 24 Parganas > Diamond Harbour"
-    },
-    {
-      "id": 31,
-      "loc": "West Bengal > South 24 Parganas > Jaynagar Majilpur"
-    },
-    {
-      "id": 281,
-      "loc": "West Bengal > South 24 Parganas > Jaynagar Majilpur"
-    },
-    {
-      "id": 26,
-      "loc": "West Bengal > South 24 Parganas > Kakdwip"
-    },
-    {
-      "id": 274,
-      "loc": "West Bengal > South 24 Parganas > Kakdwip"
-    },
-    {
-      "id": 74,
-      "loc": "West Bengal > South 24 Parganas > Maheshtala"
-    },
-    {
-      "id": 472,
-      "loc": "West Bengal > South 24 Parganas > Maheshtala"
-    },
-    {
-      "id": 473,
-      "loc": "West Bengal > South 24 Parganas > Maheshtala"
-    },
-    {
-      "id": 29,
-      "loc": "West Bengal > South 24 Parganas > Pujali"
-    },
-    {
-      "id": 278,
-      "loc": "West Bengal > South 24 Parganas > Pujali"
-    },
-    {
-      "id": 33,
-      "loc": "West Bengal > South 24 Parganas > Rajpur Sonarpur"
-    },
-    {
-      "id": 279,
-      "loc": "West Bengal > South 24 Parganas > Rajpur Sonarpur"
-    },
-    {
-      "id": 518,
-      "loc": "West Bengal > Uttar Dinajpur > Raiganj"
-    }
-  ];
+  {
+    "key": 540,
+    "value": "Port Blair",
+    "display": "Andaman and Nicobar Islands > South Andaman > Port Blair"
+  },
+  {
+    "key": 142,
+    "value": "Anantapur",
+    "display": "Andhra Pradesh > Anantapur"
+  },
+  {
+    "key": 144,
+    "value": "Tadipatri",
+    "display": "Andhra Pradesh > Anantapur > Tadipatri"
+  },
+  {
+    "key": 125,
+    "value": "Madanapalle",
+    "display": "Andhra Pradesh > Annamayya > Madanapalle"
+  },
+  {
+    "key": 213,
+    "value": "Chittoor",
+    "display": "Andhra Pradesh > Chittoor"
+  },
+  {
+    "key": 242,
+    "value": "Rajamahendravaram",
+    "display": "Andhra Pradesh > East Godavari > Rajamahendravaram"
+  },
+  {
+    "key": 231,
+    "value": "Eluru",
+    "display": "Andhra Pradesh > Eluru"
+  },
+  {
+    "key": 227,
+    "value": "Amaravati",
+    "display": "Andhra Pradesh > Guntur > Amaravati"
+  },
+  {
+    "key": 225,
+    "value": "Guntur",
+    "display": "Andhra Pradesh > Guntur"
+  },
+  {
+    "key": 226,
+    "value": "Tenali",
+    "display": "Andhra Pradesh > Guntur > Tenali"
+  },
+  {
+    "key": 243,
+    "value": "Kakinada",
+    "display": "Andhra Pradesh > Kakinada"
+  },
+  {
+    "key": 230,
+    "value": "Gudivada",
+    "display": "Andhra Pradesh > Krishna > Gudivada"
+  },
+  {
+    "key": 229,
+    "value": "Machilipatnam",
+    "display": "Andhra Pradesh > Krishna > Machilipatnam"
+  },
+  {
+    "key": 145,
+    "value": "Adoni",
+    "display": "Andhra Pradesh > Kurnool > Adoni"
+  },
+  {
+    "key": 146,
+    "value": "Kurnool",
+    "display": "Andhra Pradesh > Kurnool"
+  },
+  {
+    "key": 228,
+    "value": "Vijayawada",
+    "display": "Andhra Pradesh > NTR > Vijayawada"
+  },
+  {
+    "key": 147,
+    "value": "Nandyal",
+    "display": "Andhra Pradesh > Nandyal"
+  },
+  {
+    "key": 224,
+    "value": "Chilakaluripet",
+    "display": "Andhra Pradesh > Palnadu > Chilakaluripet"
+  },
+  {
+    "key": 222,
+    "value": "Narasaraopet",
+    "display": "Andhra Pradesh > Palnadu > Narasaraopet"
+  },
+  {
+    "key": 221,
+    "value": "Ongole",
+    "display": "Andhra Pradesh > Prakasam > Ongole"
+  },
+  {
+    "key": 220,
+    "value": "Kavali",
+    "display": "Andhra Pradesh > Sri Potti Sriramulu Nellore > Kavali"
+  },
+  {
+    "key": 219,
+    "value": "Nellore",
+    "display": "Andhra Pradesh > Sri Potti Sriramulu Nellore > Nellore"
+  },
+  {
+    "key": 141,
+    "value": "Dharmavaram",
+    "display": "Andhra Pradesh > Sri Sathya Sai > Dharmavaram"
+  },
+  {
+    "key": 248,
+    "value": "Srikakulam",
+    "display": "Andhra Pradesh > Srikakulam"
+  },
+  {
+    "key": 216,
+    "value": "Tirupati",
+    "display": "Andhra Pradesh > Tirupati"
+  },
+  {
+    "key": 244,
+    "value": "Visakhapatnam",
+    "display": "Andhra Pradesh > Visakhapatnam"
+  },
+  {
+    "key": 245,
+    "value": "Vizianagaram",
+    "display": "Andhra Pradesh > Vizianagaram"
+  },
+  {
+    "key": 232,
+    "value": "Bhimavaram",
+    "display": "Andhra Pradesh > West Godavari > Bhimavaram"
+  },
+  {
+    "key": 233,
+    "value": "Tadepallegudem",
+    "display": "Andhra Pradesh > West Godavari > Tadepallegudem"
+  },
+  {
+    "key": 218,
+    "value": "Kadapa",
+    "display": "Andhra Pradesh > YSR > Kadapa"
+  },
+  {
+    "key": 143,
+    "value": "Proddatur",
+    "display": "Andhra Pradesh > YSR > Proddatur"
+  },
+  {
+    "key": 564,
+    "value": "Hawai",
+    "display": "Arunachal Pradesh > Anjaw > Hawai"
+  },
+  {
+    "key": 555,
+    "value": "Seppa",
+    "display": "Arunachal Pradesh > East Kameng > Seppa"
+  },
+  {
+    "key": 562,
+    "value": "Raga",
+    "display": "Arunachal Pradesh > Kamle > Raga"
+  },
+  {
+    "key": 561,
+    "value": "Palin",
+    "display": "Arunachal Pradesh > Kra Daadi > Palin"
+  },
+  {
+    "key": 559,
+    "value": "Koloriang",
+    "display": "Arunachal Pradesh > Kurung Kumey > Koloriang"
+  },
+  {
+    "key": 560,
+    "value": "Ziro",
+    "display": "Arunachal Pradesh > Lower Subansiri > Ziro"
+  },
+  {
+    "key": 557,
+    "value": "Lemmi",
+    "display": "Arunachal Pradesh > Pakke Kessang > Lemmi"
+  },
+  {
+    "key": 558,
+    "value": "Itanagar",
+    "display": "Arunachal Pradesh > Papum Pare > Itanagar"
+  },
+  {
+    "key": 565,
+    "value": "Tato",
+    "display": "Arunachal Pradesh > Shi Yomi > Tato"
+  },
+  {
+    "key": 552,
+    "value": "Tawang",
+    "display": "Arunachal Pradesh > Tawang"
+  },
+  {
+    "key": 551,
+    "value": "Bomdila",
+    "display": "Arunachal Pradesh > West Kameng > Bomdila"
+  },
+  {
+    "key": 547,
+    "value": "Barpeta",
+    "display": "Assam > Barpeta"
+  },
+  {
+    "key": 546,
+    "value": "Bongaigaon",
+    "display": "Assam > Bongaigaon"
+  },
+  {
+    "key": 543,
+    "value": "Silchar",
+    "display": "Assam > Cachar > Silchar"
+  },
+  {
+    "key": 523,
+    "value": "Dhubri",
+    "display": "Assam > Dhubri"
+  },
+  {
+    "key": 563,
+    "value": "Dibrugarh",
+    "display": "Assam > Dibrugarh"
+  },
+  {
+    "key": 545,
+    "value": "Goalpara",
+    "display": "Assam > Goalpara"
+  },
+  {
+    "key": 85,
+    "value": "Golaghat",
+    "display": "Assam > Golaghat"
+  },
+  {
+    "key": 556,
+    "value": "Jorhat",
+    "display": "Assam > Jorhat"
+  },
+  {
+    "key": 549,
+    "value": "Guwahati",
+    "display": "Assam > Kamrup Metropolitan > Guwahati"
+  },
+  {
+    "key": 550,
+    "value": "Nagaon",
+    "display": "Assam > Nagaon"
+  },
+  {
+    "key": 86,
+    "value": "Sibsagar",
+    "display": "Assam > Sivasagar > Sibsagar"
+  },
+  {
+    "key": 423,
+    "value": "Aurangabad",
+    "display": "Bihar > Aurangabad"
+  },
+  {
+    "key": 511,
+    "value": "Begusarai",
+    "display": "Bihar > Begusarai"
+  },
+  {
+    "key": 79,
+    "value": "Mansurchak",
+    "display": "Bihar > Begusarai > Mansurchak"
+  },
+  {
+    "key": 470,
+    "value": "Bhagalpur",
+    "display": "Bihar > Bhagalpur"
+  },
+  {
+    "key": 504,
+    "value": "Arrah",
+    "display": "Bihar > Bhojpur > Arrah"
+  },
+  {
+    "key": 446,
+    "value": "Buxar",
+    "display": "Bihar > Buxar"
+  },
+  {
+    "key": 514,
+    "value": "Darbhanga",
+    "display": "Bihar > Darbhanga"
+  },
+  {
+    "key": 464,
+    "value": "Gaya",
+    "display": "Bihar > Gaya"
+  },
+  {
+    "key": 465,
+    "value": "Jehanabad",
+    "display": "Bihar > Jehanabad"
+  },
+  {
+    "key": 516,
+    "value": "Katihar",
+    "display": "Bihar > Katihar"
+  },
+  {
+    "key": 519,
+    "value": "Kishanganj",
+    "display": "Bihar > Kishanganj"
+  },
+  {
+    "key": 512,
+    "value": "Munger",
+    "display": "Bihar > Munger"
+  },
+  {
+    "key": 510,
+    "value": "Muzaffarpur",
+    "display": "Bihar > Muzaffarpur"
+  },
+  {
+    "key": 467,
+    "value": "Bihar Sharif",
+    "display": "Bihar > Nalanda > Bihar Sharif"
+  },
+  {
+    "key": 466,
+    "value": "Pawapuri",
+    "display": "Bihar > Nalanda > Pawapuri"
+  },
+  {
+    "key": 72,
+    "value": "Nawada",
+    "display": "Bihar > Nawada"
+  },
+  {
+    "key": 456,
+    "value": "Bagaha",
+    "display": "Bihar > Pashchim Champaran > Bagaha"
+  },
+  {
+    "key": 515,
+    "value": "Bettiah",
+    "display": "Bihar > Pashchim Champaran > Bettiah"
+  },
+  {
+    "key": 505,
+    "value": "Danapur",
+    "display": "Bihar > Patna > Danapur"
+  },
+  {
+    "key": 507,
+    "value": "Patna",
+    "display": "Bihar > Patna"
+  },
+  {
+    "key": 78,
+    "value": "Motihari",
+    "display": "Bihar > Purba Champaran > Motihari"
+  },
+  {
+    "key": 509,
+    "value": "Motihari",
+    "display": "Bihar > Purba Champaran > Motihari"
+  },
+  {
+    "key": 517,
+    "value": "Purnia",
+    "display": "Bihar > Purnia"
+  },
+  {
+    "key": 69,
+    "value": "Dehri",
+    "display": "Bihar > Rohtas > Dehri"
+  },
+  {
+    "key": 424,
+    "value": "Dehri",
+    "display": "Bihar > Rohtas > Dehri"
+  },
+  {
+    "key": 422,
+    "value": "Sasaram",
+    "display": "Bihar > Rohtas > Sasaram"
+  },
+  {
+    "key": 513,
+    "value": "Saharsa",
+    "display": "Bihar > Saharsa"
+  },
+  {
+    "key": 506,
+    "value": "Chhapra",
+    "display": "Bihar > Saran > Chhapra"
+  },
+  {
+    "key": 449,
+    "value": "Siwan",
+    "display": "Bihar > Siwan"
+  },
+  {
+    "key": 508,
+    "value": "Hajipur",
+    "display": "Bihar > Vaishali > Hajipur"
+  },
+  {
+    "key": 246,
+    "value": "Jagdalpur",
+    "display": "Chhattisgarh > Bastar > Jagdalpur"
+  },
+  {
+    "key": 261,
+    "value": "Bilaspur",
+    "display": "Chhattisgarh > Bilaspur"
+  },
+  {
+    "key": 259,
+    "value": "Bhilai",
+    "display": "Chhattisgarh > Durg > Bhilai"
+  },
+  {
+    "key": 258,
+    "value": "Durg",
+    "display": "Chhattisgarh > Durg"
+  },
+  {
+    "key": 262,
+    "value": "Korba",
+    "display": "Chhattisgarh > Korba"
+  },
+  {
+    "key": 21,
+    "value": "Raigarh",
+    "display": "Chhattisgarh > Raigarh"
+  },
+  {
+    "key": 260,
+    "value": "Raipur",
+    "display": "Chhattisgarh > Raipur"
+  },
+  {
+    "key": 257,
+    "value": "Rajnandgaon",
+    "display": "Chhattisgarh > Rajnandgaon"
+  },
+  {
+    "key": 418,
+    "value": "Ambikapur",
+    "display": "Chhattisgarh > Surguja > Ambikapur"
+  },
+  {
+    "key": 160,
+    "value": "Silvassa",
+    "display": "Dadra and Nagar Haveli and Daman and Diu > Dadra and Nagar Haveli > Silvassa"
+  },
+  {
+    "key": 370,
+    "value": "Delhi",
+    "display": "Delhi > Central Delhi > Delhi"
+  },
+  {
+    "key": 131,
+    "value": "Panaji",
+    "display": "Goa > North Goa > Panaji"
+  },
+  {
+    "key": 289,
+    "value": "Ahmedabad",
+    "display": "Gujarat > Ahmedabad"
+  },
+  {
+    "key": 166,
+    "value": "Amreli",
+    "display": "Gujarat > Amreli"
+  },
+  {
+    "key": 12,
+    "value": "Babra",
+    "display": "Gujarat > Amreli > Babra"
+  },
+  {
+    "key": 11,
+    "value": "Kundla",
+    "display": "Gujarat > Amreli > Kundla"
+  },
+  {
+    "key": 287,
+    "value": "Anand",
+    "display": "Gujarat > Anand"
+  },
+  {
+    "key": 294,
+    "value": "Deesa",
+    "display": "Gujarat > Banas Kantha > Deesa"
+  },
+  {
+    "key": 44,
+    "value": "Palanpur",
+    "display": "Gujarat > Banas Kantha > Palanpur"
+  },
+  {
+    "key": 295,
+    "value": "Palanpur",
+    "display": "Gujarat > Banas Kantha > Palanpur"
+  },
+  {
+    "key": 43,
+    "value": "Tharad",
+    "display": "Gujarat > Banas Kantha > Tharad"
+  },
+  {
+    "key": 14,
+    "value": "Ankleshwar",
+    "display": "Gujarat > Bharuch > Ankleshwar"
+  },
+  {
+    "key": 172,
+    "value": "Bharuch",
+    "display": "Gujarat > Bharuch"
+  },
+  {
+    "key": 170,
+    "value": "Bhavnagar",
+    "display": "Gujarat > Bhavnagar"
+  },
+  {
+    "key": 8,
+    "value": "Mahuva",
+    "display": "Gujarat > Bhavnagar > Mahuva"
+  },
+  {
+    "key": 169,
+    "value": "Botad",
+    "display": "Gujarat > Botad"
+  },
+  {
+    "key": 293,
+    "value": "Gandhinagar",
+    "display": "Gujarat > Gandhinagar"
+  },
+  {
+    "key": 292,
+    "value": "Kalol",
+    "display": "Gujarat > Gandhinagar > Kalol"
+  },
+  {
+    "key": 7,
+    "value": "Kodinar",
+    "display": "Gujarat > Gir Somnath > Kodinar"
+  },
+  {
+    "key": 158,
+    "value": "Veraval",
+    "display": "Gujarat > Gir Somnath > Veraval"
+  },
+  {
+    "key": 157,
+    "value": "Jamnagar",
+    "display": "Gujarat > Jamnagar"
+  },
+  {
+    "key": 36,
+    "value": "Latipar",
+    "display": "Gujarat > Jamnagar > Latipar"
+  },
+  {
+    "key": 37,
+    "value": "Timbdi",
+    "display": "Gujarat > Jamnagar > Timbdi"
+  },
+  {
+    "key": 164,
+    "value": "Junagadh",
+    "display": "Gujarat > Junagadh"
+  },
+  {
+    "key": 288,
+    "value": "Nadiad",
+    "display": "Gujarat > Kheda > Nadiad"
+  },
+  {
+    "key": 284,
+    "value": "Bhuj",
+    "display": "Gujarat > Kutch > Bhuj"
+  },
+  {
+    "key": 34,
+    "value": "Naliya",
+    "display": "Gujarat > Kutch > Naliya"
+  },
+  {
+    "key": 39,
+    "value": "Rapar",
+    "display": "Gujarat > Kutch > Rapar"
+  },
+  {
+    "key": 290,
+    "value": "Mahesana",
+    "display": "Gujarat > Mahesana"
+  },
+  {
+    "key": 35,
+    "value": "Bangavadi",
+    "display": "Gujarat > Morbi > Bangavadi"
+  },
+  {
+    "key": 285,
+    "value": "Morbi",
+    "display": "Gujarat > Morbi"
+  },
+  {
+    "key": 162,
+    "value": "Navsari",
+    "display": "Gujarat > Nav Sari > Navsari"
+  },
+  {
+    "key": 298,
+    "value": "Godhra",
+    "display": "Gujarat > Panch Mahal > Godhra"
+  },
+  {
+    "key": 40,
+    "value": "Chanasma",
+    "display": "Gujarat > Patan > Chanasma"
+  },
+  {
+    "key": 291,
+    "value": "Patan",
+    "display": "Gujarat > Patan"
+  },
+  {
+    "key": 156,
+    "value": "Porbandar",
+    "display": "Gujarat > Porbandar"
+  },
+  {
+    "key": 9,
+    "value": "Dhoraji",
+    "display": "Gujarat > Rajkot > Dhoraji"
+  },
+  {
+    "key": 167,
+    "value": "Gondal",
+    "display": "Gujarat > Rajkot > Gondal"
+  },
+  {
+    "key": 10,
+    "value": "Jetpur",
+    "display": "Gujarat > Rajkot > Jetpur"
+  },
+  {
+    "key": 165,
+    "value": "Jetpur",
+    "display": "Gujarat > Rajkot > Jetpur"
+  },
+  {
+    "key": 168,
+    "value": "Rajkot",
+    "display": "Gujarat > Rajkot"
+  },
+  {
+    "key": 42,
+    "value": "Himatnagar",
+    "display": "Gujarat > Sabar Kantha > Himatnagar"
+  },
+  {
+    "key": 163,
+    "value": "Sachin",
+    "display": "Gujarat > Surat > Sachin"
+  },
+  {
+    "key": 171,
+    "value": "Surat",
+    "display": "Gujarat > Surat"
+  },
+  {
+    "key": 38,
+    "value": "Dhrangadhra",
+    "display": "Gujarat > Surendranagar > Dhrangadhra"
+  },
+  {
+    "key": 286,
+    "value": "Surendranagar",
+    "display": "Gujarat > Surendranagar"
+  },
+  {
+    "key": 200,
+    "value": "Vadodara",
+    "display": "Gujarat > Vadodara"
+  },
+  {
+    "key": 161,
+    "value": "Valsad",
+    "display": "Gujarat > Valsad"
+  },
+  {
+    "key": 159,
+    "value": "Vapi",
+    "display": "Gujarat > Valsad > Vapi"
+  },
+  {
+    "key": 390,
+    "value": "Ambala",
+    "display": "Haryana > Ambala"
+  },
+  {
+    "key": 364,
+    "value": "Bhiwani",
+    "display": "Haryana > Bhiwani"
+  },
+  {
+    "key": 367,
+    "value": "Faridabad",
+    "display": "Haryana > Faridabad"
+  },
+  {
+    "key": 350,
+    "value": "Hisar",
+    "display": "Haryana > Hisar"
+  },
+  {
+    "key": 368,
+    "value": "Bahadurgarh",
+    "display": "Haryana > Jhajjar > Bahadurgarh"
+  },
+  {
+    "key": 372,
+    "value": "Jind",
+    "display": "Haryana > Jind"
+  },
+  {
+    "key": 383,
+    "value": "Kaithal",
+    "display": "Haryana > Kaithal"
+  },
+  {
+    "key": 384,
+    "value": "Karnal",
+    "display": "Haryana > Karnal"
+  },
+  {
+    "key": 385,
+    "value": "Kurukshetra",
+    "display": "Haryana > Kurukshetra"
+  },
+  {
+    "key": 338,
+    "value": "Narnaul",
+    "display": "Haryana > Mahendragarh > Narnaul"
+  },
+  {
+    "key": 57,
+    "value": "Hodal",
+    "display": "Haryana > Palwal > Hodal"
+  },
+  {
+    "key": 366,
+    "value": "Palwal",
+    "display": "Haryana > Palwal"
+  },
+  {
+    "key": 375,
+    "value": "Panipat",
+    "display": "Haryana > Panipat"
+  },
+  {
+    "key": 363,
+    "value": "Rewari",
+    "display": "Haryana > Rewari"
+  },
+  {
+    "key": 371,
+    "value": "Rohtak",
+    "display": "Haryana > Rohtak"
+  },
+  {
+    "key": 355,
+    "value": "Sirsa",
+    "display": "Haryana > Sirsa"
+  },
+  {
+    "key": 373,
+    "value": "Sonipat",
+    "display": "Haryana > Sonipat"
+  },
+  {
+    "key": 387,
+    "value": "Jagadhari",
+    "display": "Haryana > Yamunanagar > Jagadhari"
+  },
+  {
+    "key": 386,
+    "value": "Yamunanagar",
+    "display": "Haryana > Yamunanagar"
+  },
+  {
+    "key": 410,
+    "value": "Dharamshala",
+    "display": "Himachal Pradesh > Kangra > Dharamshala"
+  },
+  {
+    "key": 63,
+    "value": "Nurpur",
+    "display": "Himachal Pradesh > Kangra > Nurpur"
+  },
+  {
+    "key": 409,
+    "value": "Palampur",
+    "display": "Himachal Pradesh > Kangra > Palampur"
+  },
+  {
+    "key": 411,
+    "value": "Mandi",
+    "display": "Himachal Pradesh > Mandi"
+  },
+  {
+    "key": 408,
+    "value": "Shimla",
+    "display": "Himachal Pradesh > Shimla"
+  },
+  {
+    "key": 391,
+    "value": "Solan",
+    "display": "Himachal Pradesh > Solan"
+  },
+  {
+    "key": 406,
+    "value": "Anantnag",
+    "display": "Jammu and Kashmir > Anantnag"
+  },
+  {
+    "key": 536,
+    "value": "Baramulla",
+    "display": "Jammu and Kashmir > Baramulla"
+  },
+  {
+    "key": 537,
+    "value": "Sopore",
+    "display": "Jammu and Kashmir > Baramulla > Sopore"
+  },
+  {
+    "key": 403,
+    "value": "Jammu",
+    "display": "Jammu and Kashmir > Jammu"
+  },
+  {
+    "key": 405,
+    "value": "Kathua",
+    "display": "Jammu and Kashmir > Kathua"
+  },
+  {
+    "key": 83,
+    "value": "Hafthrada",
+    "display": "Jammu and Kashmir > Kupwara > Hafthrada"
+  },
+  {
+    "key": 538,
+    "value": "Kralpora",
+    "display": "Jammu and Kashmir > Kupwara > Kralpora"
+  },
+  {
+    "key": 535,
+    "value": "Poonch",
+    "display": "Jammu and Kashmir > Poonch"
+  },
+  {
+    "key": 539,
+    "value": "Srinagar",
+    "display": "Jammu and Kashmir > Srinagar"
+  },
+  {
+    "key": 64,
+    "value": "Latti Dhuna",
+    "display": "Jammu and Kashmir > Udhampur > Latti Dhuna"
+  },
+  {
+    "key": 404,
+    "value": "Udhampur",
+    "display": "Jammu and Kashmir > Udhampur"
+  },
+  {
+    "key": 460,
+    "value": "Bokaro",
+    "display": "Jharkhand > Bokaro"
+  },
+  {
+    "key": 469,
+    "value": "Deoghar",
+    "display": "Jharkhand > Deoghar"
+  },
+  {
+    "key": 73,
+    "value": "Giridih",
+    "display": "Jharkhand > Giridih"
+  },
+  {
+    "key": 463,
+    "value": "Hazaribagh",
+    "display": "Jharkhand > Hazaribagh"
+  },
+  {
+    "key": 458,
+    "value": "Jamshedpur",
+    "display": "Jharkhand > Purbi Singhbhum > Jamshedpur"
+  },
+  {
+    "key": 457,
+    "value": "Ranchi",
+    "display": "Jharkhand > Ranchi"
+  },
+  {
+    "key": 136,
+    "value": "Bagalkote",
+    "display": "Karnataka > Bagalkote"
+  },
+  {
+    "key": 122,
+    "value": "Bengaluru",
+    "display": "Karnataka > Bangalore Urban > Bengaluru"
+  },
+  {
+    "key": 132,
+    "value": "Belagavi",
+    "display": "Karnataka > Belgaum > Belagavi"
+  },
+  {
+    "key": 140,
+    "value": "Ballari",
+    "display": "Karnataka > Bellary > Ballari"
+  },
+  {
+    "key": 188,
+    "value": "Bidar",
+    "display": "Karnataka > Bidar"
+  },
+  {
+    "key": 113,
+    "value": "Chikkamagaluru",
+    "display": "Karnataka > Chikkamagaluru"
+  },
+  {
+    "key": 138,
+    "value": "Chitradurga",
+    "display": "Karnataka > Chitradurga"
+  },
+  {
+    "key": 111,
+    "value": "Mangaluru",
+    "display": "Karnataka > Dakshina Kannada > Mangaluru"
+  },
+  {
+    "key": 127,
+    "value": "Davanagere",
+    "display": "Karnataka > Davanagere"
+  },
+  {
+    "key": 129,
+    "value": "Dharwad",
+    "display": "Karnataka > Dharwad"
+  },
+  {
+    "key": 130,
+    "value": "Hubballi",
+    "display": "Karnataka > Dharwad > Hubballi"
+  },
+  {
+    "key": 120,
+    "value": "Hassan",
+    "display": "Karnataka > Hassan"
+  },
+  {
+    "key": 128,
+    "value": "Ranebennur",
+    "display": "Karnataka > Haveri > Ranebennur"
+  },
+  {
+    "key": 184,
+    "value": "Kalaburagi",
+    "display": "Karnataka > Kalaburagi"
+  },
+  {
+    "key": 124,
+    "value": "Kolar",
+    "display": "Karnataka > Kolar"
+  },
+  {
+    "key": 117,
+    "value": "Mandya",
+    "display": "Karnataka > Mandya"
+  },
+  {
+    "key": 116,
+    "value": "Mysuru",
+    "display": "Karnataka > Mysuru"
+  },
+  {
+    "key": 148,
+    "value": "Raichur",
+    "display": "Karnataka > Raichur"
+  },
+  {
+    "key": 115,
+    "value": "Bhadravathi",
+    "display": "Karnataka > Shimoga > Bhadravathi"
+  },
+  {
+    "key": 114,
+    "value": "Shivamogga",
+    "display": "Karnataka > Shimoga > Shivamogga"
+  },
+  {
+    "key": 121,
+    "value": "Tumakuru",
+    "display": "Karnataka > Tumkur > Tumakuru"
+  },
+  {
+    "key": 112,
+    "value": "Udupi",
+    "display": "Karnataka > Udupi"
+  },
+  {
+    "key": 126,
+    "value": "Sirsi",
+    "display": "Karnataka > Uttara Kannada > Sirsi"
+  },
+  {
+    "key": 139,
+    "value": "Hosapete",
+    "display": "Karnataka > Vijayanagara > Hosapete"
+  },
+  {
+    "key": 137,
+    "value": "Vijayapura",
+    "display": "Karnataka > Vijayapura"
+  },
+  {
+    "key": 94,
+    "value": "Alappuzha",
+    "display": "Kerala > Alappuzha"
+  },
+  {
+    "key": 100,
+    "value": "Ernakulam",
+    "display": "Kerala > Ernakulam"
+  },
+  {
+    "key": 99,
+    "value": "Kochi",
+    "display": "Kerala > Ernakulam > Kochi"
+  },
+  {
+    "key": 110,
+    "value": "Kannur",
+    "display": "Kerala > Kannur"
+  },
+  {
+    "key": 92,
+    "value": "Kollam",
+    "display": "Kerala > Kollam"
+  },
+  {
+    "key": 95,
+    "value": "Kottayam",
+    "display": "Kerala > Kottayam"
+  },
+  {
+    "key": 91,
+    "value": "Kozhikode",
+    "display": "Kerala > Kozhikode"
+  },
+  {
+    "key": 2,
+    "value": "Malappuram",
+    "display": "Kerala > Malappuram"
+  },
+  {
+    "key": 1,
+    "value": "Puthanathani",
+    "display": "Kerala > Malappuram > Puthanathani"
+  },
+  {
+    "key": 93,
+    "value": "Thiruvananthapuram",
+    "display": "Kerala > Thiruvananthapuram"
+  },
+  {
+    "key": 101,
+    "value": "Thrissur",
+    "display": "Kerala > Thrissur"
+  },
+  {
+    "key": 209,
+    "value": "Betul",
+    "display": "Madhya Pradesh > Betul"
+  },
+  {
+    "key": 426,
+    "value": "Bhind",
+    "display": "Madhya Pradesh > Bhind"
+  },
+  {
+    "key": 312,
+    "value": "Bhopal",
+    "display": "Madhya Pradesh > Bhopal"
+  },
+  {
+    "key": 206,
+    "value": "Burhanpur",
+    "display": "Madhya Pradesh > Burhanpur"
+  },
+  {
+    "key": 254,
+    "value": "Chhindwara",
+    "display": "Madhya Pradesh > Chhindwara"
+  },
+  {
+    "key": 413,
+    "value": "Damoh",
+    "display": "Madhya Pradesh > Damoh"
+  },
+  {
+    "key": 309,
+    "value": "Dewas",
+    "display": "Madhya Pradesh > Dewas"
+  },
+  {
+    "key": 300,
+    "value": "Pithampur",
+    "display": "Madhya Pradesh > Dhar > Pithampur"
+  },
+  {
+    "key": 316,
+    "value": "Guna",
+    "display": "Madhya Pradesh > Guna"
+  },
+  {
+    "key": 335,
+    "value": "Gwalior",
+    "display": "Madhya Pradesh > Gwalior"
+  },
+  {
+    "key": 17,
+    "value": "Timarni",
+    "display": "Madhya Pradesh > Harda > Timarni"
+  },
+  {
+    "key": 301,
+    "value": "Indore",
+    "display": "Madhya Pradesh > Indore"
+  },
+  {
+    "key": 412,
+    "value": "Jabalpur",
+    "display": "Madhya Pradesh > Jabalpur"
+  },
+  {
+    "key": 415,
+    "value": "Katni",
+    "display": "Madhya Pradesh > Katni"
+  },
+  {
+    "key": 68,
+    "value": "Murwara",
+    "display": "Madhya Pradesh > Katni > Murwara"
+  },
+  {
+    "key": 207,
+    "value": "Khandwa",
+    "display": "Madhya Pradesh > Khandwa"
+  },
+  {
+    "key": 201,
+    "value": "Khargone",
+    "display": "Madhya Pradesh > Khargone"
+  },
+  {
+    "key": 414,
+    "value": "Mandla",
+    "display": "Madhya Pradesh > Mandla"
+  },
+  {
+    "key": 305,
+    "value": "Mandsaur",
+    "display": "Madhya Pradesh > Mandsaur"
+  },
+  {
+    "key": 333,
+    "value": "Morena",
+    "display": "Madhya Pradesh > Morena"
+  },
+  {
+    "key": 303,
+    "value": "Nagda",
+    "display": "Madhya Pradesh > Nagda"
+  },
+  {
+    "key": 311,
+    "value": "Narmadapuram",
+    "display": "Madhya Pradesh > Narmadapuram"
+  },
+  {
+    "key": 49,
+    "value": "Piparia",
+    "display": "Madhya Pradesh > Narmadapuram > Piparia"
+  },
+  {
+    "key": 306,
+    "value": "Neemuch",
+    "display": "Madhya Pradesh > Neemuch"
+  },
+  {
+    "key": 50,
+    "value": "Rajgarh",
+    "display": "Madhya Pradesh > Rajgarh"
+  },
+  {
+    "key": 47,
+    "value": "Jaora",
+    "display": "Madhya Pradesh > Ratlam > Jaora"
+  },
+  {
+    "key": 417,
+    "value": "Rewa",
+    "display": "Madhya Pradesh > Rewa"
+  },
+  {
+    "key": 314,
+    "value": "Sagar",
+    "display": "Madhya Pradesh > Sagar"
+  },
+  {
+    "key": 66,
+    "value": "Nagod",
+    "display": "Madhya Pradesh > Satna > Nagod"
+  },
+  {
+    "key": 416,
+    "value": "Satna",
+    "display": "Madhya Pradesh > Satna"
+  },
+  {
+    "key": 310,
+    "value": "Sehore",
+    "display": "Madhya Pradesh > Sehore"
+  },
+  {
+    "key": 255,
+    "value": "Seoni",
+    "display": "Madhya Pradesh > Seoni"
+  },
+  {
+    "key": 331,
+    "value": "Shivpuri",
+    "display": "Madhya Pradesh > Shivpuri"
+  },
+  {
+    "key": 419,
+    "value": "Singrauli",
+    "display": "Madhya Pradesh > Singrauli"
+  },
+  {
+    "key": 302,
+    "value": "Ujjain",
+    "display": "Madhya Pradesh > Ujjain"
+  },
+  {
+    "key": 65,
+    "value": "Umaria",
+    "display": "Madhya Pradesh > Umaria"
+  },
+  {
+    "key": 313,
+    "value": "Vidisha",
+    "display": "Madhya Pradesh > Vidisha"
+  },
+  {
+    "key": 182,
+    "value": "Ahmednagar",
+    "display": "Maharashtra > Ahmednagar"
+  },
+  {
+    "key": 181,
+    "value": "Akole",
+    "display": "Maharashtra > Ahmednagar > Akole"
+  },
+  {
+    "key": 202,
+    "value": "Akola",
+    "display": "Maharashtra > Akola"
+  },
+  {
+    "key": 208,
+    "value": "Achalpur",
+    "display": "Maharashtra > Amravati > Achalpur"
+  },
+  {
+    "key": 204,
+    "value": "Amravati",
+    "display": "Maharashtra > Amravati"
+  },
+  {
+    "key": 183,
+    "value": "Beed",
+    "display": "Maharashtra > Beed"
+  },
+  {
+    "key": 252,
+    "value": "Bhandara",
+    "display": "Maharashtra > Bhandara"
+  },
+  {
+    "key": 253,
+    "value": "Tumsar",
+    "display": "Maharashtra > Bhandara > Tumsar"
+  },
+  {
+    "key": 249,
+    "value": "Chandrapur",
+    "display": "Maharashtra > Chandrapur"
+  },
+  {
+    "key": 194,
+    "value": "Chhatrapati Sambhajinagar",
+    "display": "Maharashtra > Chhatrapati Sambhajinagar"
+  },
+  {
+    "key": 185,
+    "value": "Dharashiv",
+    "display": "Maharashtra > Dharashiv"
+  },
+  {
+    "key": 196,
+    "value": "Dhule",
+    "display": "Maharashtra > Dhule"
+  },
+  {
+    "key": 256,
+    "value": "Gondia",
+    "display": "Maharashtra > Gondiya > Gondia"
+  },
+  {
+    "key": 198,
+    "value": "Bhusawal",
+    "display": "Maharashtra > Jalgaon > Bhusawal"
+  },
+  {
+    "key": 15,
+    "value": "Chopda",
+    "display": "Maharashtra > Jalgaon > Chopda"
+  },
+  {
+    "key": 197,
+    "value": "Jalgaon",
+    "display": "Maharashtra > Jalgaon"
+  },
+  {
+    "key": 195,
+    "value": "Jalna",
+    "display": "Maharashtra > Jalna"
+  },
+  {
+    "key": 133,
+    "value": "Ichalkaranji",
+    "display": "Maharashtra > Kolhapur > Ichalkaranji"
+  },
+  {
+    "key": 134,
+    "value": "Kolhapur",
+    "display": "Maharashtra > Kolhapur"
+  },
+  {
+    "key": 189,
+    "value": "Latur",
+    "display": "Maharashtra > Latur"
+  },
+  {
+    "key": 190,
+    "value": "Udgir",
+    "display": "Maharashtra > Latur > Udgir"
+  },
+  {
+    "key": 151,
+    "value": "Mumbai",
+    "display": "Maharashtra > Mumbai Suburban > Mumbai"
+  },
+  {
+    "key": 251,
+    "value": "Nagpur",
+    "display": "Maharashtra > Nagpur"
+  },
+  {
+    "key": 20,
+    "value": "Saoner",
+    "display": "Maharashtra > Nagpur > Saoner"
+  },
+  {
+    "key": 191,
+    "value": "Nanded",
+    "display": "Maharashtra > Nanded"
+  },
+  {
+    "key": 199,
+    "value": "Nandurbar",
+    "display": "Maharashtra > Nandurbar"
+  },
+  {
+    "key": 193,
+    "value": "Malegaon",
+    "display": "Maharashtra > Nashik > Malegaon"
+  },
+  {
+    "key": 192,
+    "value": "Nashik",
+    "display": "Maharashtra > Nashik"
+  },
+  {
+    "key": 155,
+    "value": "Vasai-Virar",
+    "display": "Maharashtra > Palghar > Vasai-Virar"
+  },
+  {
+    "key": 176,
+    "value": "Pimpri-Chinchwad",
+    "display": "Maharashtra > Pune > Pimpri-Chinchwad"
+  },
+  {
+    "key": 177,
+    "value": "Pune",
+    "display": "Maharashtra > Pune"
+  },
+  {
+    "key": 152,
+    "value": "Panvel",
+    "display": "Maharashtra > Raigad > Panvel"
+  },
+  {
+    "key": 135,
+    "value": "Sangli",
+    "display": "Maharashtra > Sangli"
+  },
+  {
+    "key": 173,
+    "value": "Satara",
+    "display": "Maharashtra > Satara"
+  },
+  {
+    "key": 175,
+    "value": "Barshi",
+    "display": "Maharashtra > Solapur > Barshi"
+  },
+  {
+    "key": 174,
+    "value": "Solapur",
+    "display": "Maharashtra > Solapur"
+  },
+  {
+    "key": 5,
+    "value": "Bhiwandi",
+    "display": "Maharashtra > Thane > Bhiwandi"
+  },
+  {
+    "key": 154,
+    "value": "Bhiwandi",
+    "display": "Maharashtra > Thane > Bhiwandi"
+  },
+  {
+    "key": 178,
+    "value": "Kalyan-Dombivli",
+    "display": "Maharashtra > Thane > Kalyan-Dombivli"
+  },
+  {
+    "key": 180,
+    "value": "Kulgaon Badlapur",
+    "display": "Maharashtra > Thane > Kulgaon Badlapur"
+  },
+  {
+    "key": 150,
+    "value": "Navi Mumbai",
+    "display": "Maharashtra > Thane > Navi Mumbai"
+  },
+  {
+    "key": 153,
+    "value": "Thane",
+    "display": "Maharashtra > Thane"
+  },
+  {
+    "key": 179,
+    "value": "Ulhasnagar",
+    "display": "Maharashtra > Thane > Ulhasnagar"
+  },
+  {
+    "key": 16,
+    "value": "Arvi",
+    "display": "Maharashtra > Wardha > Arvi"
+  },
+  {
+    "key": 250,
+    "value": "Hinganghat",
+    "display": "Maharashtra > Wardha > Hinganghat"
+  },
+  {
+    "key": 205,
+    "value": "Wardha",
+    "display": "Maharashtra > Wardha"
+  },
+  {
+    "key": 203,
+    "value": "Yavatmal",
+    "display": "Maharashtra > Yavatmal"
+  },
+  {
+    "key": 544,
+    "value": "Imphal",
+    "display": "Manipur > Imphal West > Imphal"
+  },
+  {
+    "key": 84,
+    "value": "Khangabok",
+    "display": "Manipur > Thoubal > Khangabok"
+  },
+  {
+    "key": 548,
+    "value": "Shillong",
+    "display": "Meghalaya > East Khasi Hills > Shillong"
+  },
+  {
+    "key": 542,
+    "value": "Aizawl",
+    "display": "Mizoram > Aizwal > Aizawl"
+  },
+  {
+    "key": 554,
+    "value": "Dimapur",
+    "display": "Nagaland > Dimapur"
+  },
+  {
+    "key": 553,
+    "value": "Kohima",
+    "display": "Nagaland > Kohima"
+  },
+  {
+    "key": 269,
+    "value": "Bhadrak",
+    "display": "Odisha > Bhadrak"
+  },
+  {
+    "key": 268,
+    "value": "Cuttack",
+    "display": "Odisha > Cuttack"
+  },
+  {
+    "key": 24,
+    "value": "Deogarh",
+    "display": "Odisha > Debagarh > Deogarh"
+  },
+  {
+    "key": 265,
+    "value": "Brahmapur",
+    "display": "Odisha > Ganjam > Brahmapur"
+  },
+  {
+    "key": 267,
+    "value": "Bhubaneswar",
+    "display": "Odisha > Khordha > Bhubaneswar"
+  },
+  {
+    "key": 19,
+    "value": "Jeypore",
+    "display": "Odisha > Koraput > Jeypore"
+  },
+  {
+    "key": 25,
+    "value": "Baripada",
+    "display": "Odisha > Mayurbhanj > Baripada"
+  },
+  {
+    "key": 271,
+    "value": "Baripada",
+    "display": "Odisha > Mayurbhanj > Baripada"
+  },
+  {
+    "key": 247,
+    "value": "Umerkote",
+    "display": "Odisha > Nabarangapur > Umerkote"
+  },
+  {
+    "key": 23,
+    "value": "Kakatpur",
+    "display": "Odisha > Puri > Kakatpur"
+  },
+  {
+    "key": 22,
+    "value": "Puri",
+    "display": "Odisha > Puri"
+  },
+  {
+    "key": 263,
+    "value": "Sambalpur",
+    "display": "Odisha > Sambalpur"
+  },
+  {
+    "key": 270,
+    "value": "Rourkela",
+    "display": "Odisha > Sundargarh > Rourkela"
+  },
+  {
+    "key": 211,
+    "value": "Puducherry",
+    "display": "Puducherry > Puducherry"
+  },
+  {
+    "key": 397,
+    "value": "Amritsar",
+    "display": "Punjab > Amritsar"
+  },
+  {
+    "key": 360,
+    "value": "Barnala",
+    "display": "Punjab > Barnala"
+  },
+  {
+    "key": 359,
+    "value": "Tapa",
+    "display": "Punjab > Barnala > Tapa"
+  },
+  {
+    "key": 356,
+    "value": "Bathinda",
+    "display": "Punjab > Bathinda"
+  },
+  {
+    "key": 357,
+    "value": "Faridkot",
+    "display": "Punjab > Faridkot"
+  },
+  {
+    "key": 353,
+    "value": "Abohar",
+    "display": "Punjab > Fazilka > Abohar"
+  },
+  {
+    "key": 61,
+    "value": "Fazilka",
+    "display": "Punjab > Fazilka"
+  },
+  {
+    "key": 396,
+    "value": "Firozpur",
+    "display": "Punjab > Firozpur"
+  },
+  {
+    "key": 401,
+    "value": "Batala",
+    "display": "Punjab > Gurdaspur > Batala"
+  },
+  {
+    "key": 400,
+    "value": "Hoshiarpur",
+    "display": "Punjab > Hoshiarpur"
+  },
+  {
+    "key": 399,
+    "value": "Jalandhar",
+    "display": "Punjab > Jalandhar"
+  },
+  {
+    "key": 398,
+    "value": "Kapurthala",
+    "display": "Punjab > Kapurthala"
+  },
+  {
+    "key": 389,
+    "value": "Khanna",
+    "display": "Punjab > Ludhiana > Khanna"
+  },
+  {
+    "key": 362,
+    "value": "Ludhiana",
+    "display": "Punjab > Ludhiana"
+  },
+  {
+    "key": 361,
+    "value": "Malerkotla",
+    "display": "Punjab > Malerkotla"
+  },
+  {
+    "key": 358,
+    "value": "Moga",
+    "display": "Punjab > Moga"
+  },
+  {
+    "key": 402,
+    "value": "Pathankot",
+    "display": "Punjab > Pathankot"
+  },
+  {
+    "key": 388,
+    "value": "Patiala",
+    "display": "Punjab > Patiala"
+  },
+  {
+    "key": 407,
+    "value": "Anandpur Sahib",
+    "display": "Punjab > Rupnagar > Anandpur Sahib"
+  },
+  {
+    "key": 354,
+    "value": "Sri Muktsar Sahib",
+    "display": "Punjab > Sri Muktsar Sahib"
+  },
+  {
+    "key": 322,
+    "value": "Ajmer",
+    "display": "Rajasthan > Ajmer"
+  },
+  {
+    "key": 319,
+    "value": "Beawar",
+    "display": "Rajasthan > Ajmer > Beawar"
+  },
+  {
+    "key": 323,
+    "value": "Kishangarh",
+    "display": "Rajasthan > Ajmer > Kishangarh"
+  },
+  {
+    "key": 337,
+    "value": "Alwar",
+    "display": "Rajasthan > Alwar"
+  },
+  {
+    "key": 365,
+    "value": "Bhiwadi",
+    "display": "Rajasthan > Alwar > Bhiwadi"
+  },
+  {
+    "key": 299,
+    "value": "Banswara",
+    "display": "Rajasthan > Banswara"
+  },
+  {
+    "key": 315,
+    "value": "Baran",
+    "display": "Rajasthan > Baran"
+  },
+  {
+    "key": 296,
+    "value": "Barmer",
+    "display": "Rajasthan > Barmer"
+  },
+  {
+    "key": 339,
+    "value": "Bharatpur",
+    "display": "Rajasthan > Bharatpur"
+  },
+  {
+    "key": 320,
+    "value": "Bhilwara",
+    "display": "Rajasthan > Bhilwara"
+  },
+  {
+    "key": 326,
+    "value": "Bikaner",
+    "display": "Rajasthan > Bikaner"
+  },
+  {
+    "key": 321,
+    "value": "Bundi",
+    "display": "Rajasthan > Bundi"
+  },
+  {
+    "key": 307,
+    "value": "Chittorgarh",
+    "display": "Rajasthan > Chittorgarh"
+  },
+  {
+    "key": 48,
+    "value": "Nimbahera",
+    "display": "Rajasthan > Chittorgarh > Nimbahera"
+  },
+  {
+    "key": 348,
+    "value": "Churu",
+    "display": "Rajasthan > Churu"
+  },
+  {
+    "key": 334,
+    "value": "Dhaulpur",
+    "display": "Rajasthan > Dhaulpur"
+  },
+  {
+    "key": 60,
+    "value": "Hanumangarh",
+    "display": "Rajasthan > Hanumangarh"
+  },
+  {
+    "key": 327,
+    "value": "Jaipur",
+    "display": "Rajasthan > Jaipur"
+  },
+  {
+    "key": 349,
+    "value": "Jhunjhunu",
+    "display": "Rajasthan > Jhunjhunun > Jhunjhunu"
+  },
+  {
+    "key": 297,
+    "value": "Jodhpur",
+    "display": "Rajasthan > Jodhpur"
+  },
+  {
+    "key": 54,
+    "value": "Hindaun",
+    "display": "Rajasthan > Karauli > Hindaun"
+  },
+  {
+    "key": 336,
+    "value": "Hindaun",
+    "display": "Rajasthan > Karauli > Hindaun"
+  },
+  {
+    "key": 308,
+    "value": "Kota",
+    "display": "Rajasthan > Kota"
+  },
+  {
+    "key": 53,
+    "value": "Kuchaman",
+    "display": "Rajasthan > Nagaur > Kuchaman"
+  },
+  {
+    "key": 325,
+    "value": "Nagaur",
+    "display": "Rajasthan > Nagaur"
+  },
+  {
+    "key": 51,
+    "value": "Pali",
+    "display": "Rajasthan > Pali"
+  },
+  {
+    "key": 330,
+    "value": "Gangapur",
+    "display": "Rajasthan > Sawai Madhopur > Gangapur"
+  },
+  {
+    "key": 329,
+    "value": "Sawai Madhopur",
+    "display": "Rajasthan > Sawai Madhopur"
+  },
+  {
+    "key": 328,
+    "value": "Sikar",
+    "display": "Rajasthan > Sikar"
+  },
+  {
+    "key": 45,
+    "value": "Sirohi",
+    "display": "Rajasthan > Sirohi"
+  },
+  {
+    "key": 59,
+    "value": "Ganganagar",
+    "display": "Rajasthan > Sri Ganganagar > Ganganagar"
+  },
+  {
+    "key": 347,
+    "value": "Jaitsar",
+    "display": "Rajasthan > Sri Ganganagar > Jaitsar"
+  },
+  {
+    "key": 352,
+    "value": "Sri Ganganagar",
+    "display": "Rajasthan > Sri Ganganagar"
+  },
+  {
+    "key": 324,
+    "value": "Tonk",
+    "display": "Rajasthan > Tonk"
+  },
+  {
+    "key": 304,
+    "value": "Udaipur",
+    "display": "Rajasthan > Udaipur"
+  },
+  {
+    "key": 526,
+    "value": "Gangtok",
+    "display": "Sikkim > Gangtok"
+  },
+  {
+    "key": 214,
+    "value": "Tambaram",
+    "display": "Tamil Nadu > Chengalpattu > Tambaram"
+  },
+  {
+    "key": 217,
+    "value": "Chennai",
+    "display": "Tamil Nadu > Chennai"
+  },
+  {
+    "key": 102,
+    "value": "Coimbatore",
+    "display": "Tamil Nadu > Coimbatore"
+  },
+  {
+    "key": 210,
+    "value": "Cuddalore",
+    "display": "Tamil Nadu > Cuddalore"
+  },
+  {
+    "key": 103,
+    "value": "Dindigul",
+    "display": "Tamil Nadu > Dindgul > Dindigul"
+  },
+  {
+    "key": 118,
+    "value": "Erode",
+    "display": "Tamil Nadu > Erode"
+  },
+  {
+    "key": 90,
+    "value": "Nagercoil",
+    "display": "Tamil Nadu > Kanyakumari > Nagercoil"
+  },
+  {
+    "key": 107,
+    "value": "Karur",
+    "display": "Tamil Nadu > Karur"
+  },
+  {
+    "key": 123,
+    "value": "Hosur",
+    "display": "Tamil Nadu > Krishnagiri > Hosur"
+  },
+  {
+    "key": 104,
+    "value": "Madurai",
+    "display": "Tamil Nadu > Madurai"
+  },
+  {
+    "key": 119,
+    "value": "Salem",
+    "display": "Tamil Nadu > Salem"
+  },
+  {
+    "key": 109,
+    "value": "Kumbakonam",
+    "display": "Tamil Nadu > Thanjavur > Kumbakonam"
+  },
+  {
+    "key": 108,
+    "value": "Thanjavur",
+    "display": "Tamil Nadu > Thanjavur"
+  },
+  {
+    "key": 215,
+    "value": "Avadi",
+    "display": "Tamil Nadu > Thiruvallur > Avadi"
+  },
+  {
+    "key": 97,
+    "value": "Thoothukudi",
+    "display": "Tamil Nadu > Thoothukkudi > Thoothukudi"
+  },
+  {
+    "key": 106,
+    "value": "Tiruchirappalli",
+    "display": "Tamil Nadu > Tiruchirappalli"
+  },
+  {
+    "key": 87,
+    "value": "Tirunelveli",
+    "display": "Tamil Nadu > Tirunelveli"
+  },
+  {
+    "key": 105,
+    "value": "Tiruppur",
+    "display": "Tamil Nadu > Tiruppur"
+  },
+  {
+    "key": 212,
+    "value": "Vellore",
+    "display": "Tamil Nadu > Vellore"
+  },
+  {
+    "key": 98,
+    "value": "Sivakasi",
+    "display": "Tamil Nadu > Virudhunagar > Sivakasi"
+  },
+  {
+    "key": 239,
+    "value": "Warangal",
+    "display": "Telangana > Hanumakonda > Warangal"
+  },
+  {
+    "key": 186,
+    "value": "Hyderabad",
+    "display": "Telangana > Hyderabad"
+  },
+  {
+    "key": 187,
+    "value": "Secunderabad",
+    "display": "Telangana > Hyderabad > Secunderabad"
+  },
+  {
+    "key": 237,
+    "value": "Ippagudem",
+    "display": "Telangana > Jangaon > Ippagudem"
+  },
+  {
+    "key": 240,
+    "value": "Karimnagar",
+    "display": "Telangana > Karimnagar"
+  },
+  {
+    "key": 149,
+    "value": "Mahbubnagar",
+    "display": "Telangana > Mahabubnagar > Mahbubnagar"
+  },
+  {
+    "key": 223,
+    "value": "Miryalaguda",
+    "display": "Telangana > Nalgonda > Miryalaguda"
+  },
+  {
+    "key": 234,
+    "value": "Nalgonda",
+    "display": "Telangana > Nalgonda"
+  },
+  {
+    "key": 241,
+    "value": "Ramagundam",
+    "display": "Telangana > Peddapalli > Ramagundam"
+  },
+  {
+    "key": 238,
+    "value": "Siddipet",
+    "display": "Telangana > Siddipet"
+  },
+  {
+    "key": 236,
+    "value": "Suryapet",
+    "display": "Telangana > Suryapet"
+  },
+  {
+    "key": 235,
+    "value": "Vizag",
+    "display": "Telangana > Suryapet > Vizag"
+  },
+  {
+    "key": 541,
+    "value": "Agartala",
+    "display": "Tripura > West Tripura > Agartala"
+  },
+  {
+    "key": 340,
+    "value": "Agra",
+    "display": "Uttar Pradesh > Agra"
+  },
+  {
+    "key": 342,
+    "value": "Mathura",
+    "display": "Uttar Pradesh > Agra division > Mathura"
+  },
+  {
+    "key": 345,
+    "value": "Aligarh",
+    "display": "Uttar Pradesh > Aligarh"
+  },
+  {
+    "key": 442,
+    "value": "Akbarpur",
+    "display": "Uttar Pradesh > Ambedkar Nagar > Akbarpur"
+  },
+  {
+    "key": 448,
+    "value": "Azamgarh",
+    "display": "Uttar Pradesh > Azamgarh"
+  },
+  {
+    "key": 374,
+    "value": "Baraut",
+    "display": "Uttar Pradesh > Baghpat > Baraut"
+  },
+  {
+    "key": 454,
+    "value": "Bahraich",
+    "display": "Uttar Pradesh > Bahraich"
+  },
+  {
+    "key": 447,
+    "value": "Ballia",
+    "display": "Uttar Pradesh > Ballia"
+  },
+  {
+    "key": 427,
+    "value": "Banda",
+    "display": "Uttar Pradesh > Banda"
+  },
+  {
+    "key": 436,
+    "value": "Barabanki",
+    "display": "Uttar Pradesh > Barabanki"
+  },
+  {
+    "key": 528,
+    "value": "Bareilly",
+    "display": "Uttar Pradesh > Bareilly"
+  },
+  {
+    "key": 453,
+    "value": "Basti",
+    "display": "Uttar Pradesh > Basti"
+  },
+  {
+    "key": 434,
+    "value": "Budaun",
+    "display": "Uttar Pradesh > Budaun"
+  },
+  {
+    "key": 379,
+    "value": "Bulandshahr",
+    "display": "Uttar Pradesh > Bulandshahr"
+  },
+  {
+    "key": 378,
+    "value": "Khurja",
+    "display": "Uttar Pradesh > Bulandshahr > Khurja"
+  },
+  {
+    "key": 421,
+    "value": "Mughal Sarai",
+    "display": "Uttar Pradesh > Chandauli > Mughal Sarai"
+  },
+  {
+    "key": 450,
+    "value": "Deoria",
+    "display": "Uttar Pradesh > Deoria"
+  },
+  {
+    "key": 344,
+    "value": "Etah",
+    "display": "Uttar Pradesh > Etah"
+  },
+  {
+    "key": 451,
+    "value": "Faizabad",
+    "display": "Uttar Pradesh > Faizabad"
+  },
+  {
+    "key": 428,
+    "value": "Fatehpur",
+    "display": "Uttar Pradesh > Fatehpur"
+  },
+  {
+    "key": 341,
+    "value": "Shikohabad",
+    "display": "Uttar Pradesh > Firozabad > Shikohabad"
+  },
+  {
+    "key": 377,
+    "value": "Greater Noida",
+    "display": "Uttar Pradesh > Gautam Buddha Nagar > Greater Noida"
+  },
+  {
+    "key": 369,
+    "value": "Noida",
+    "display": "Uttar Pradesh > Gautam Buddha Nagar > Noida"
+  },
+  {
+    "key": 444,
+    "value": "Ghazipur",
+    "display": "Uttar Pradesh > Ghazipur"
+  },
+  {
+    "key": 452,
+    "value": "Gonda",
+    "display": "Uttar Pradesh > Gonda"
+  },
+  {
+    "key": 455,
+    "value": "Gorakhpur",
+    "display": "Uttar Pradesh > Gorakhpur"
+  },
+  {
+    "key": 433,
+    "value": "Hardoi",
+    "display": "Uttar Pradesh > Hardoi"
+  },
+  {
+    "key": 58,
+    "value": "Hathras",
+    "display": "Uttar Pradesh > Hathras"
+  },
+  {
+    "key": 425,
+    "value": "Orai",
+    "display": "Uttar Pradesh > Jalaun > Orai"
+  },
+  {
+    "key": 440,
+    "value": "Jaunpur",
+    "display": "Uttar Pradesh > Jaunpur"
+  },
+  {
+    "key": 332,
+    "value": "Jhansi",
+    "display": "Uttar Pradesh > Jhansi"
+  },
+  {
+    "key": 382,
+    "value": "Amroha",
+    "display": "Uttar Pradesh > Jyotiba Phule Nagar > Amroha"
+  },
+  {
+    "key": 429,
+    "value": "Kanpur",
+    "display": "Uttar Pradesh > Kanpur Nagar > Kanpur"
+  },
+  {
+    "key": 346,
+    "value": "Kasganj",
+    "display": "Uttar Pradesh > Kasganj"
+  },
+  {
+    "key": 438,
+    "value": "Lakhimpur",
+    "display": "Uttar Pradesh > Kheri > Lakhimpur"
+  },
+  {
+    "key": 317,
+    "value": "Lalitpur",
+    "display": "Uttar Pradesh > Lalitpur"
+  },
+  {
+    "key": 435,
+    "value": "Lucknow",
+    "display": "Uttar Pradesh > Lucknow"
+  },
+  {
+    "key": 432,
+    "value": "Mainpuri",
+    "display": "Uttar Pradesh > Mainpuri"
+  },
+  {
+    "key": 445,
+    "value": "Mau",
+    "display": "Uttar Pradesh > Mau"
+  },
+  {
+    "key": 420,
+    "value": "Mirzapur",
+    "display": "Uttar Pradesh > Mirzapur"
+  },
+  {
+    "key": 530,
+    "value": "Moradabad",
+    "display": "Uttar Pradesh > Moradabad"
+  },
+  {
+    "key": 381,
+    "value": "Muzaffarnagar",
+    "display": "Uttar Pradesh > Muzaffarnagar"
+  },
+  {
+    "key": 529,
+    "value": "Pilibhit",
+    "display": "Uttar Pradesh > Pilibhit"
+  },
+  {
+    "key": 439,
+    "value": "Prayagraj",
+    "display": "Uttar Pradesh > Prayagraj"
+  },
+  {
+    "key": 431,
+    "value": "Raebareli",
+    "display": "Uttar Pradesh > Raebareli"
+  },
+  {
+    "key": 393,
+    "value": "Saharanpur",
+    "display": "Uttar Pradesh > Saharanpur"
+  },
+  {
+    "key": 527,
+    "value": "Chandausi",
+    "display": "Uttar Pradesh > Sambhal > Chandausi"
+  },
+  {
+    "key": 380,
+    "value": "Sambhal",
+    "display": "Uttar Pradesh > Sambhal"
+  },
+  {
+    "key": 376,
+    "value": "Shamli",
+    "display": "Uttar Pradesh > Shamli"
+  },
+  {
+    "key": 437,
+    "value": "Sitapur",
+    "display": "Uttar Pradesh > Sitapur"
+  },
+  {
+    "key": 441,
+    "value": "Sultanpur",
+    "display": "Uttar Pradesh > Sultanpur"
+  },
+  {
+    "key": 430,
+    "value": "Unnao",
+    "display": "Uttar Pradesh > Unnao"
+  },
+  {
+    "key": 443,
+    "value": "Varanasi",
+    "display": "Uttar Pradesh > Varanasi"
+  },
+  {
+    "key": 533,
+    "value": "Almora",
+    "display": "Uttarakhand > Almora"
+  },
+  {
+    "key": 534,
+    "value": "Bāgeshwar",
+    "display": "Uttarakhand > Bageshwar > Bāgeshwar"
+  },
+  {
+    "key": 395,
+    "value": "Dehradun",
+    "display": "Uttarakhand > Dehradun"
+  },
+  {
+    "key": 394,
+    "value": "Haridwar",
+    "display": "Uttarakhand > Haridwar"
+  },
+  {
+    "key": 392,
+    "value": "Roorkee",
+    "display": "Uttarakhand > Haridwar > Roorkee"
+  },
+  {
+    "key": 81,
+    "value": "Haldwani",
+    "display": "Uttarakhand > Nainital > Haldwani"
+  },
+  {
+    "key": 532,
+    "value": "Haldwani",
+    "display": "Uttarakhand > Nainital > Haldwani"
+  },
+  {
+    "key": 82,
+    "value": "Nainital",
+    "display": "Uttarakhand > Nainital"
+  },
+  {
+    "key": 531,
+    "value": "Rudrapur",
+    "display": "Uttarakhand > Udham Singh Nagar > Rudrapur"
+  },
+  {
+    "key": 524,
+    "value": "Alipurduar",
+    "display": "West Bengal > Alipurduar"
+  },
+  {
+    "key": 461,
+    "value": "Bankura",
+    "display": "West Bengal > Bankura"
+  },
+  {
+    "key": 75,
+    "value": "Bolpur",
+    "display": "West Bengal > Birbhum > Bolpur"
+  },
+  {
+    "key": 490,
+    "value": "Bolpur",
+    "display": "West Bengal > Birbhum > Bolpur"
+  },
+  {
+    "key": 500,
+    "value": "Siuri",
+    "display": "West Bengal > Birbhum > Siuri"
+  },
+  {
+    "key": 503,
+    "value": "Balurghat",
+    "display": "West Bengal > Dakshin Dinajpur > Balurghat"
+  },
+  {
+    "key": 525,
+    "value": "Darjeeling",
+    "display": "West Bengal > Darjeeling"
+  },
+  {
+    "key": 80,
+    "value": "Siliguri",
+    "display": "West Bengal > Darjeeling > Siliguri"
+  },
+  {
+    "key": 520,
+    "value": "Siliguri",
+    "display": "West Bengal > Darjeeling > Siliguri"
+  },
+  {
+    "key": 471,
+    "value": "Bally",
+    "display": "West Bengal > Howrah > Bally"
+  },
+  {
+    "key": 474,
+    "value": "Howrah",
+    "display": "West Bengal > Howrah"
+  },
+  {
+    "key": 277,
+    "value": "Uluberia",
+    "display": "West Bengal > Howrah > Uluberia"
+  },
+  {
+    "key": 484,
+    "value": "Chandannagar",
+    "display": "West Bengal > Hugli > Chandannagar"
+  },
+  {
+    "key": 483,
+    "value": "Hugli-Chunchura",
+    "display": "West Bengal > Hugli > Hugli-Chunchura"
+  },
+  {
+    "key": 479,
+    "value": "Serampore",
+    "display": "West Bengal > Hugli > Serampore"
+  },
+  {
+    "key": 521,
+    "value": "Jalpaiguri",
+    "display": "West Bengal > Jalpaiguri"
+  },
+  {
+    "key": 522,
+    "value": "Cooch Behar",
+    "display": "West Bengal > Kochbihar > Cooch Behar"
+  },
+  {
+    "key": 502,
+    "value": "Malda",
+    "display": "West Bengal > Maldah > Malda"
+  },
+  {
+    "key": 501,
+    "value": "Berhampore",
+    "display": "West Bengal > Murshidabad > Berhampore"
+  },
+  {
+    "key": 487,
+    "value": "Chakdaha",
+    "display": "West Bengal > Nadia > Chakdaha"
+  },
+  {
+    "key": 485,
+    "value": "Kalyani",
+    "display": "West Bengal > Nadia > Kalyani"
+  },
+  {
+    "key": 493,
+    "value": "Krishnanagar",
+    "display": "West Bengal > Nadia > Krishnanagar"
+  },
+  {
+    "key": 492,
+    "value": "Nabadwip",
+    "display": "West Bengal > Nadia > Nabadwip"
+  },
+  {
+    "key": 486,
+    "value": "Ranaghat",
+    "display": "West Bengal > Nadia > Ranaghat"
+  },
+  {
+    "key": 491,
+    "value": "Shantipur",
+    "display": "West Bengal > Nadia > Shantipur"
+  },
+  {
+    "key": 495,
+    "value": "Tehatta",
+    "display": "West Bengal > Nadia > Tehatta"
+  },
+  {
+    "key": 497,
+    "value": "Ashoknagar Kalyangarh",
+    "display": "West Bengal > North 24 Parganas > Ashoknagar Kalyangarh"
+  },
+  {
+    "key": 499,
+    "value": "Bangaon",
+    "display": "West Bengal > North 24 Parganas > Bangaon"
+  },
+  {
+    "key": 476,
+    "value": "Baranagar",
+    "display": "West Bengal > North 24 Parganas > Baranagar"
+  },
+  {
+    "key": 481,
+    "value": "Barasat",
+    "display": "West Bengal > North 24 Parganas > Barasat"
+  },
+  {
+    "key": 482,
+    "value": "Barrackpore",
+    "display": "West Bengal > North 24 Parganas > Barrackpore"
+  },
+  {
+    "key": 496,
+    "value": "Basirhat",
+    "display": "West Bengal > North 24 Parganas > Basirhat"
+  },
+  {
+    "key": 76,
+    "value": "Bidhannagar",
+    "display": "West Bengal > North 24 Parganas > Bidhannagar"
+  },
+  {
+    "key": 478,
+    "value": "Dum Dum",
+    "display": "West Bengal > North 24 Parganas > Dum Dum"
+  },
+  {
+    "key": 498,
+    "value": "Habra",
+    "display": "West Bengal > North 24 Parganas > Habra"
+  },
+  {
+    "key": 480,
+    "value": "New Barrackpore",
+    "display": "West Bengal > North 24 Parganas > New Barrackpore"
+  },
+  {
+    "key": 477,
+    "value": "North Dumdum",
+    "display": "West Bengal > North 24 Parganas > North Dumdum"
+  },
+  {
+    "key": 475,
+    "value": "South Dumdum",
+    "display": "West Bengal > North 24 Parganas > South Dumdum"
+  },
+  {
+    "key": 462,
+    "value": "Asansol",
+    "display": "West Bengal > Paschim Bardhaman > Asansol"
+  },
+  {
+    "key": 488,
+    "value": "Durgapur",
+    "display": "West Bengal > Paschim Bardhaman > Durgapur"
+  },
+  {
+    "key": 273,
+    "value": "Kharagpur",
+    "display": "West Bengal > Paschim Medinipur > Kharagpur"
+  },
+  {
+    "key": 272,
+    "value": "Midnapore",
+    "display": "West Bengal > Paschim Medinipur > Midnapore"
+  },
+  {
+    "key": 77,
+    "value": "Bardhaman",
+    "display": "West Bengal > Purba Bardhaman > Bardhaman"
+  },
+  {
+    "key": 489,
+    "value": "Bardhaman",
+    "display": "West Bengal > Purba Bardhaman > Bardhaman"
+  },
+  {
+    "key": 494,
+    "value": "Katwa",
+    "display": "West Bengal > Purba Bardhaman > Katwa"
+  },
+  {
+    "key": 275,
+    "value": "Haldia",
+    "display": "West Bengal > Purba Medinipur > Haldia"
+  },
+  {
+    "key": 459,
+    "value": "Purulia",
+    "display": "West Bengal > Puruliya > Purulia"
+  },
+  {
+    "key": 30,
+    "value": "Baruipur",
+    "display": "West Bengal > South 24 Parganas > Baruipur"
+  },
+  {
+    "key": 282,
+    "value": "Baruipur",
+    "display": "West Bengal > South 24 Parganas > Baruipur"
+  },
+  {
+    "key": 28,
+    "value": "Budge Budge",
+    "display": "West Bengal > South 24 Parganas > Budge Budge"
+  },
+  {
+    "key": 280,
+    "value": "Budge Budge",
+    "display": "West Bengal > South 24 Parganas > Budge Budge"
+  },
+  {
+    "key": 32,
+    "value": "Canning",
+    "display": "West Bengal > South 24 Parganas > Canning"
+  },
+  {
+    "key": 283,
+    "value": "Canning",
+    "display": "West Bengal > South 24 Parganas > Canning"
+  },
+  {
+    "key": 27,
+    "value": "Diamond Harbour",
+    "display": "West Bengal > South 24 Parganas > Diamond Harbour"
+  },
+  {
+    "key": 276,
+    "value": "Diamond Harbour",
+    "display": "West Bengal > South 24 Parganas > Diamond Harbour"
+  },
+  {
+    "key": 31,
+    "value": "Jaynagar Majilpur",
+    "display": "West Bengal > South 24 Parganas > Jaynagar Majilpur"
+  },
+  {
+    "key": 281,
+    "value": "Jaynagar Majilpur",
+    "display": "West Bengal > South 24 Parganas > Jaynagar Majilpur"
+  },
+  {
+    "key": 26,
+    "value": "Kakdwip",
+    "display": "West Bengal > South 24 Parganas > Kakdwip"
+  },
+  {
+    "key": 274,
+    "value": "Kakdwip",
+    "display": "West Bengal > South 24 Parganas > Kakdwip"
+  },
+  {
+    "key": 74,
+    "value": "Maheshtala",
+    "display": "West Bengal > South 24 Parganas > Maheshtala"
+  },
+  {
+    "key": 472,
+    "value": "Maheshtala",
+    "display": "West Bengal > South 24 Parganas > Maheshtala"
+  },
+  {
+    "key": 473,
+    "value": "Maheshtala",
+    "display": "West Bengal > South 24 Parganas > Maheshtala"
+  },
+  {
+    "key": 29,
+    "value": "Pujali",
+    "display": "West Bengal > South 24 Parganas > Pujali"
+  },
+  {
+    "key": 278,
+    "value": "Pujali",
+    "display": "West Bengal > South 24 Parganas > Pujali"
+  },
+  {
+    "key": 33,
+    "value": "Rajpur Sonarpur",
+    "display": "West Bengal > South 24 Parganas > Rajpur Sonarpur"
+  },
+  {
+    "key": 279,
+    "value": "Rajpur Sonarpur",
+    "display": "West Bengal > South 24 Parganas > Rajpur Sonarpur"
+  },
+  {
+    "key": 518,
+    "value": "Raiganj",
+    "display": "West Bengal > Uttar Dinajpur > Raiganj"
+  }
+];

@@ -1,7 +1,7 @@
 import type { Category } from './categories';
 
 export const flattenCategories = (categories: Category) => {
-    const result: { key: string, value: string }[] = [];
+    const result: { key: number, value: string, display: string }[] = [];
   
     function traverse(obj: Category, path: string = "") {
       for (const key in obj) {
@@ -9,7 +9,7 @@ export const flattenCategories = (categories: Category) => {
           const currentPath = path ? `${path} > ${key}` : key;
           if (Array.isArray(obj[key])) {
             obj[key].forEach((item: string) => {
-              result.push({ key: `${currentPath} > ${item}`, value: `${currentPath} > ${item}`});
+              result.push({ key: Math.random(), value: item, display: `${currentPath} > ${item}`});
             });
           } else {
             traverse(obj[key], currentPath);

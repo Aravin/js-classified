@@ -1,34 +1,77 @@
 <script lang="ts">
-  export let options: { key: string, value: string }[] = [];
+  import Icon from '@iconify/svelte';
+  
+  export let options: { key: number, value: string, display: string }[] = [];
   export let searchTerm: string = '';
   export let placeholder: string = '';
   export let showDropdown: boolean = false;
+  export let icon: string = ''; // Optional icon name
+
+  let displayTerm: string = '';
+  let isSearching: boolean = false;
 
   function handleFocus() {
     showDropdown = true;
+    isSearching = true;
+    displayTerm = ''; // Clear for searching
   }
 
   function handleBlur() {
-    // Delay the hiding of the dropdown to allow option selection
     setTimeout(() => {
       showDropdown = false;
+      isSearching = false;
+      // Reset display term to match selected value if it exists
+      const selectedOption = options.find(opt => opt.value === searchTerm);
+      displayTerm = selectedOption ? selectedOption.value : '';
     }, 100);
   }
 
-  function selectOption(option: { key: string, value: string }) {
+  function selectOption(option: { key: number, value: string, display: string }) {
     searchTerm = option.value;
+    displayTerm = option.value; // Show the value (name) in textbox
+    isSearching = false;
     showDropdown = false;
-    // You can add additional logic here to handle the selected option
+  }
+
+  $: filteredOptions = options.filter(option => 
+    option.display.toLowerCase().includes(displayTerm.toLowerCase()) ||
+    option.value.toLowerCase().includes(displayTerm.toLowerCase())
+  );
+
+  // Initialize display term with selected value
+  $: if (!isSearching && searchTerm) {
+    const selectedOption = options.find(opt => opt.value === searchTerm);
+    if (selectedOption && !displayTerm) {
+      displayTerm = selectedOption.value;
+    }
   }
 </script>
 
 <style>
+  .searchable-select-container {
+    position: relative;
+    width: 100%;
+    display: inline-block;
+  }
+  
+  .searchable-select-input {
+    width: 100%;
+    position: relative;
+  }
+  
+  .input-group {
+    display: flex;
+    align-items: center;
+  }
+  
   .dropdown {
     position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
-    max-height: 150px;
+    max-height: 400px;
     overflow-y: auto;
     width: 100%;
     z-index: 1000;
@@ -47,21 +90,28 @@
   }
 </style>
 
-<div class="relative">
-  <input
-    type="text"
-    class="input input-bordered"
-    bind:value={searchTerm}
-    placeholder={placeholder}
-    on:focus={handleFocus}
-    on:blur={handleBlur}
-  />
+<div class="searchable-select-container">
+  <div class="searchable-select-input input-group">
+    {#if icon}
+      <span class="flex items-center px-4">
+        <Icon {icon} class="w-5 h-5" color="white" />
+      </span>
+    {/if}
+    <input
+      type="text"
+      class="input input-bordered w-full"
+      bind:value={displayTerm}
+      placeholder={placeholder}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
+    />
+  </div>
 
-  {#if showDropdown && options.filter(option => option.value.toLowerCase().includes(searchTerm.toLowerCase())).length > 0}
+  {#if showDropdown && filteredOptions.length > 0}
     <div class="dropdown">
-      {#each options.filter(option => option.value.toLowerCase().includes(searchTerm.toLowerCase())) as option}
+      {#each filteredOptions as option}
         <div class="dropdown-option" on:click={() => selectOption(option)}>
-          {option.value}
+          {option.display}
         </div>
       {/each}
     </div>
