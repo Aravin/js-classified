@@ -94,7 +94,7 @@
   <div class="searchable-select-input input-group">
     {#if icon}
       <span class="flex items-center px-4">
-        <Icon {icon} class="w-5 h-5" color="white" />
+        <Icon {icon} class="w-5 h-5 text-primary" />
       </span>
     {/if}
     <input
