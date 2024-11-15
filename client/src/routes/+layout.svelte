@@ -19,7 +19,7 @@
       
       <div class="flex items-center space-x-3">
         <button class="btn btn-ghost btn-sm normal-case">Login</button>
-        <button class="btn btn-primary btn-sm normal-case">Post Ad</button>
+        <a href="/post-ad" class="btn btn-primary btn-sm normal-case">Post Ad</a>
       </div>
     </div>
 
