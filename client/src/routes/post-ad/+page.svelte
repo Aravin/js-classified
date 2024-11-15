@@ -2,7 +2,6 @@
   import SearchableSelect from '$lib/SearchableSelect.svelte';
   import { locations } from '$lib/locations';
   import { categories } from '$lib/categories/categories';
-  import type { Category } from '$lib/categories/categories';
   import Icon from '@iconify/svelte';
   import { containsBadWords } from '$lib/badwords';
   import { onMount, onDestroy } from 'svelte';

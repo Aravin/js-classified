@@ -1,7 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import Icon from '@iconify/svelte';
-  import { categoryList } from '$lib/categories/index';
+  import { categories } from '$lib/categories/categories';
   import { locations } from '$lib/locations';
   import SearchableSelect from '$lib/SearchableSelect.svelte';
 </script>
@@ -35,7 +35,7 @@
 
       <div class="form-control flex-1">
         <SearchableSelect
-          options={categoryList}
+          options={categories as any}
           placeholder="Select category..."
           icon="material-symbols:category"
         />
