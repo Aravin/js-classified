@@ -97,7 +97,7 @@
             <li>
               <a 
                 href="#{item}" 
-                class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-primary transition-all duration-200 hover:translate-x-1"
+                class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
               >
                 <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
                 <span>{item}</span>
@@ -117,9 +117,9 @@
             <li>
               <a 
                 href="#{item}" 
-                class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-primary transition-all duration-200 hover:translate-x-1"
+                class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
               >
-                <Icon icon="material-symbols:chevron-right" class="text-primary/50" />
+                <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
                 <span>{item}</span>
               </a>
             </li>
@@ -141,7 +141,7 @@
           ] as { icon, label }}
             <a 
               href="#" 
-              class="text-neutral-content/70 hover:text-primary transition-all duration-200 hover:scale-110" 
+              class="text-neutral-content/70 hover:text-white transition-all duration-200 hover:scale-110" 
               aria-label={label}
             >
               <Icon {icon} font-size="24" />
