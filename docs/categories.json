@@ -1,61 +1,122 @@
 {
-    "vehicles": {
-      "cars": ["sedan", "suv", "truck", "van", "other"],
-      "motorcycles": ["sport bike", "cruiser", "scooter", "other"],
-      "rvs_campers": ["motorhome", "travel trailer", "other"],
-      "boats": ["sailboat", "powerboat", "other"],
-      "commercial_vehicles": ["truck", "van", "bus", "other"],
-      "heavy_equipment": ["excavator", "bulldozer", "other"],
-      "parts_accessories": ["tires", "wheels", "other"]
-    },
-    "real_estate": {
-      "for_sale": {
-        "residential": ["house", "apartment", "condo", "other"],
-        "commercial": ["office space", "retail space", "other"]
-      },
-      "for_rent": {
-        "residential": ["house", "apartment", "other"],
-        "commercial": ["office space", "retail space", "other"]
-      },
-      "vacation_rentals": ["house", "cabin", "other"]
-    },
-    "jobs": {
-      "by_type": ["full-time", "part-time", "contract", "other"],
-      "by_industry": ["technology", "healthcare", "finance", "other"]
-    },
-    "for_sale": {
-      "electronics": ["computers", "phones", "tvs", "other"],
-      "appliances": ["refrigerators", "washers & dryers", "other"],
-      "furniture": ["beds", "sofas", "other"],
-      "clothing_accessories": ["men's clothing", "women's clothing", "other"],
-      "baby_kids": ["toys", "clothes", "other"],
-      "home_garden": ["tools", "plants", "other"],
-      "sports_outdoors": ["bicycles", "camping gear", "other"],
-      "books_media": ["books", "movies", "other"],
-      "collectibles_art": ["antiques", "coins", "other"],
-      "pets_animals": ["dogs", "cats", "other"],
-      "musical_instruments": ["guitars", "pianos", "other"],
-      "business_industrial": ["office equipment", "machinery", "other"],
-      "tickets": ["concerts", "sports", "other"]
-    },
-    "services": {
-      "home_services": ["cleaning", "repairs", "other"],
-      "professional_services": ["legal", "financial", "other"],
-      "event_services": ["catering", "photography", "other"],
-      "health_beauty": ["hair salon", "massage", "other"],
-      "lessons_tutoring": ["music lessons", "academic tutoring", "other"],
-      "pet_services": ["dog walking", "pet sitting", "other"]
-    },
-    "community": {
-      "events": ["concerts", "festivals", "other"],
-      "classes_workshops": ["art classes", "cooking classes", "other"],
-      "groups_clubs": ["book clubs", "sports clubs", "other"],      
-      "lost_found": [],      
-      "rideshare": [],      
-      "volunteers": []      
-    },
-    "personals": {
-      "dating": [],  
-      "friendship": [] 
-    }
-  }
+  "Mobiles & Tablets": [
+    "Mobile Phones",
+    "Tablets",
+    "Mobile Accessories",
+    "Smart Watches",
+    "Smart Bands"
+  ],
+  "Computers & Laptops": [
+    "Laptops",
+    "Desktop PCs",
+    "Monitors",
+    "Computer Accessories",
+    "Printers & Scanners",
+    "Storage Devices"
+  ],
+  "Electronics & Appliances": [
+    "TV & Audio",
+    "Headphones & Earphones",
+    "Cameras & Lenses",
+    "Gaming Consoles & Accessories",
+    "Fridge, Washing Machine",
+    "Mixer, Grinder & Juicer",
+    "Air Conditioners",
+    "Other Kitchen Appliances",
+    "Other Electronics"
+  ],
+  "Real Estate": [
+    "Apartments",
+    "Independent Houses",
+    "PG & Co-living",
+    "Land & Plots",
+    "Office Space",
+    "Shops & Showrooms"
+  ],
+  "Vehicles & parts": [
+    "Cycle",
+    "Bike & Scooter",
+    "Car",
+    "Truck & Bus",
+    "Car Parts & Accessories",
+    "Bike Parts & Accessories",
+    "Commercial Vehicles",
+    "Other Auto Parts"
+  ],
+  "Home & Furniture": [
+    "Sofas",
+    "TV Units",
+    "Tables",
+    "Chairs",
+    "Bean Bags",
+    "Beds",
+    "Mattresses",
+    "Office Chairs",
+    "Office Tables",
+    "Conference Tables",
+    "Storage Units"
+  ],
+  "Fashion": [
+    "Men",
+    "Women",
+    "Kids",
+    "Unisex Fashion",
+    "Accessories"
+  ],
+  "Home Services": [
+    "Electronics Repair & Services",
+    "Plumbing Services",
+    "Cleaning",
+    "Repairs",
+    "Painting",
+    "Interior Design",
+    "Pest Control",
+    "Packers & Movers",
+    "Other Services"
+  ],
+  "Jobs": [
+    "Software Development",
+    "IT/BPO Services",
+    "Data Science",
+    "UI/UX Design",
+    "Testing & QA",
+    "Sales & Marketing",
+    "Business Development",
+    "Digital Marketing",
+    "HR & Accounting",
+    "Reception",
+    "Teaching",
+    "Healthcare",
+    "Hospitality",
+    "Manufacturing",
+    "Construction",
+    "Other Jobs"
+  ],
+  "Books & Magazines": [
+    "Educational Books",
+    "Fiction",
+    "Non-Fiction",
+    "Magazines",
+    "Comics",
+    "Other Books & Magazines"
+  ],
+  "Hobbies & Sports": [
+    "Guitars",
+    "Keyboards",
+    "Drums",
+    "Traditional Instruments",
+    "Cricket",
+    "Football",
+    "Badminton",
+    "Gym Equipment",
+    "Yoga & Fitness",
+    "Other Sports Accessories",
+    "Other Hobbies"
+  ],
+  "Pets": [
+    "Pet Animals",
+    "Pet Products",
+    "Pet Services",
+    "Other Pet Items"
+  ]
+}

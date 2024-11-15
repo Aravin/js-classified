@@ -9,68 +9,73 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Seed location data
-  const files = ['place-city.ndjson', 'place-town.ndjson', 'place-hamlet.ndjson', 'place-village.ndjson'];
+  // await populateLocations();
 
-  for (const file of files) {
-    // await populateLocations(file);
-  }
+  // clearn up locations
+  // await manualDataCleanup();
 
-  await manualDataCleanup();
-
+  // Seed category data
+  populateCategories();
 
   console.log('Seeding complete!');
 }
 
-async function populateLocations(fileName: string) {
-  const filePath = path.join(process.cwd(), '../', 'docs', fileName);
+async function populateLocations() {
+  const files = ['place-city.ndjson', 'place-town.ndjson', 'place-hamlet.ndjson', 'place-village.ndjson'];
+  for (const file of files) {
+    // await populateLocations(file);
 
-  const fileStream = fs.createReadStream(filePath);
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity, // Handle different line endings
-  });
+    const filePath = path.join(process.cwd(), '../', 'docs', fileName);
 
-  for await (const line of rl) {
-    try {
-      const jsonObject = JSON.parse(line);
-      // Process each JSON object individually here
-      console.log(jsonObject);
+    const fileStream = fs.createReadStream(filePath);
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity, // Handle different line endings
+    });
 
-      // fix data
-      // 1. remove ' district' from district name
-      jsonObject.address.state_district = replaceAllCases(jsonObject.address.state_district, ' district', '');
+    for await (const line of rl) {
+      try {
+        const jsonObject = JSON.parse(line);
+        // Process each JSON object individually here
+        console.log(jsonObject);
 
-      // 2. check if name is english
-      if (!isEnglishAlphabet(jsonObject.name)) {
-        jsonObject.name =jsonObject.other_names['name:en'];
+        // fix data
+        // 1. remove ' district' from district name
+        jsonObject.address.state_district = replaceAllCases(jsonObject.address.state_district, ' district', '');
+
+        // 2. check if name is english
+        if (!isEnglishAlphabet(jsonObject.name)) {
+          jsonObject.name = jsonObject.other_names['name:en'];
+        }
+
+        // 3. ignore if empty name and type
+        if (!jsonObject.name && !(jsonObject.address[jsonObject.type])) {
+          continue;
+        }
+
+        // Insert data into the database
+        const createdLocation = await prisma.location.create({
+          data: {
+            name: jsonObject.name ? jsonObject.name : jsonObject.address[jsonObject.type],
+            loc_type: jsonObject.type,
+            dist: jsonObject.address.state_district,
+            state: jsonObject.address.state,
+            state_code: jsonObject.address['ISO3166-2-lvl4'],
+            country: jsonObject.address.country,
+            country_code: jsonObject.address.country_code,
+            pincode: jsonObject.address.postcode,
+            coords: jsonObject.location?.join(','),
+            bbox: jsonObject.bbox?.join(',')
+          },
+        });
+        console.log(`Created location with id: ${createdLocation.id}`)
+      } catch (error: unknown) {
+        console.error(`Error parsing JSON on line: ${(error as Error).message}`);
+        // Handle the error (e.g., skip the line, log it, or throw)
       }
-
-      // 3. ignore if empty name and type
-      if (!jsonObject.name && !(jsonObject.address[jsonObject.type])) {
-        continue;
-      }
-
-      // Insert data into the database
-      const createdLocation = await prisma.location.create({
-        data: {
-          name: jsonObject.name ? jsonObject.name : jsonObject.address[jsonObject.type],
-          loc_type: jsonObject.type,
-          dist: jsonObject.address.state_district,
-          state: jsonObject.address.state,
-          state_code: jsonObject.address['ISO3166-2-lvl4'],
-          country: jsonObject.address.country,
-          country_code: jsonObject.address.country_code,
-          pincode: jsonObject.address.postcode,
-          coords: jsonObject.location?.join(','),
-          bbox: jsonObject.bbox?.join(',')
-        },
-      });
-      console.log(`Created location with id: ${createdLocation.id}`)
-    } catch (error: unknown) {
-      console.error(`Error parsing JSON on line: ${(error as Error).message}`);
-      // Handle the error (e.g., skip the line, log it, or throw)
     }
   }
+
 }
 
 async function manualDataCleanup() {
@@ -85,6 +90,48 @@ async function manualDataCleanup() {
   });
 
   console.log('Deleted locations with ids: ', idsToDelete);
+}
+
+async function populateCategories() {
+  const filePath = path.join(process.cwd(), '../', 'docs', 'categories.json');
+  
+  // Read and parse the JSON file
+  const categoriesData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+
+  // Create parent categories first
+  for (const [parentName, subCategories] of Object.entries(categoriesData)) {
+    // Create slug from parent category name
+    const parentSlug = parentName.toLowerCase().replace(/[&\s]+/g, '-');
+
+    // Create parent category
+    const parentCategory = await prisma.category.create({
+      data: {
+        name: parentName,
+        slug: parentSlug,
+      },
+    });
+
+    console.log(`Created parent category: ${parentCategory.name}`);
+
+    // Create subcategories
+    for (const subCategoryName of subCategories as string[]) {
+      // Create slug from subcategory name
+      const subCategorySlug = subCategoryName.toLowerCase().replace(/[&\s]+/g, '-');
+
+      // Create subcategory with parent reference
+      const subCategory = await prisma.category.create({
+        data: {
+          name: subCategoryName,
+          slug: subCategorySlug,
+          parent_category_id: parentCategory.id,
+        },
+      });
+
+      console.log(`Created subcategory: ${subCategory.name} under ${parentCategory.name}`);
+    }
+  }
+
+  console.log('Categories population complete!');
 }
 
 main()
