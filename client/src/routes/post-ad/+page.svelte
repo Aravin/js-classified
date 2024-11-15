@@ -5,6 +5,8 @@
   import type { Category } from '$lib/categories/categories';
   import Icon from '@iconify/svelte';
   import { containsBadWords } from '$lib/badwords';
+  import { onMount, onDestroy } from 'svelte';
+  import { beforeNavigate } from '$app/navigation';
 
   interface FormData {
     title: string;
@@ -45,6 +47,17 @@
     phone: '',
     email: ''
   };
+
+  let isFormDirty = false;
+
+  // Track form changes
+  $: isFormDirty = formData.title !== '' ||
+                   formData.description !== '' ||
+                   formData.price !== '' ||
+                   formData.location !== '' ||
+                   formData.category !== '' ||
+                   formData.phone !== '' ||
+                   formData.email !== '';
 
   const locationOptions = locations.map((loc) => ({
     key: loc.key,
@@ -235,6 +248,29 @@
     if (validateForm()) {
       console.log('Form submitted:', formData);
       // TODO: Add API call to submit the form
+    }
+  }
+
+  // Handle navigation attempts
+  beforeNavigate(({ cancel, to }) => {
+    if (isFormDirty && !window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
+      cancel();
+    }
+  });
+
+  // Handle browser back/forward/refresh
+  onMount(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  });
+
+  function handleBeforeUnload(e: BeforeUnloadEvent) {
+    if (isFormDirty) {
+      e.preventDefault();
+      e.returnValue = '';
     }
   }
 </script>
