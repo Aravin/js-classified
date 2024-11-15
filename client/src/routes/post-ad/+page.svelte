@@ -4,6 +4,7 @@
   import { categories } from '$lib/categories/categories';
   import type { Category } from '$lib/categories/categories';
   import Icon from '@iconify/svelte';
+  import { containsBadWords } from '$lib/badwords';
 
   interface FormData {
     title: string;
@@ -65,7 +66,12 @@
     } else if (formData.title.length > 70) {
       errors.title = 'Title must not exceed 70 characters';
     } else {
-      errors.title = '';
+      const badWordsCheck = containsBadWords(formData.title);
+      if (badWordsCheck.hasBadWords) {
+        errors.title = `Title contains inappropriate words: ${badWordsCheck.foundWords.join(', ')}`;
+      } else {
+        errors.title = '';
+      }
     }
   }
 
@@ -75,7 +81,12 @@
     } else if (formData.description.length > 500) {
       errors.description = 'Description must not exceed 500 characters';
     } else {
-      errors.description = '';
+      const badWordsCheck = containsBadWords(formData.description);
+      if (badWordsCheck.hasBadWords) {
+        errors.description = `Description contains inappropriate words: ${badWordsCheck.foundWords.join(', ')}`;
+      } else {
+        errors.description = '';
+      }
     }
   }
 
@@ -216,7 +227,9 @@
                    formData.category &&
                    (formData.email || formData.phone) &&
                    (!formData.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) &&
-                   (!formData.phone || /^\d{10}$/.test(formData.phone));
+                   (!formData.phone || /^\d{10}$/.test(formData.phone)) &&
+                   !containsBadWords(formData.title).hasBadWords &&
+                   !containsBadWords(formData.description).hasBadWords;
 
   function handleSubmit(): void {
     if (validateForm()) {
