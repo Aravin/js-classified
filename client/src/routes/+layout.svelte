@@ -46,7 +46,7 @@
           <input 
             type="text" 
             placeholder="Search for anything..." 
-            class="input input-bordered w-full focus:outline-none" 
+            class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary" 
           />
           <button class="btn btn-square btn-primary absolute right-0 top-0 rounded-l-none">
             <Icon icon="material-symbols:search" font-size="24" />

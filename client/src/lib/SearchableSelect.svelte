@@ -99,9 +99,9 @@
     {/if}
     <input
       type="text"
-      class="input input-bordered w-full"
-      bind:value={displayTerm}
+      class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
       placeholder={placeholder}
+      bind:value={displayTerm}
       on:focus={handleFocus}
       on:blur={handleBlur}
     />
