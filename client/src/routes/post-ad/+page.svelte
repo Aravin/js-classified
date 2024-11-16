@@ -7,7 +7,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { beforeNavigate } from '$app/navigation';
   import { goto } from '$app/navigation';
-  import { invalidateAll } from '$app/navigation';
+  import DOMPurify from 'dompurify';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -75,36 +75,69 @@
     display: category.display
   }));
 
+  // Validation utilities
+  function sanitizeInput(input: string): string {
+    // Use DOMPurify to prevent XSS
+    return DOMPurify.sanitize(input.trim(), {
+      ALLOWED_TAGS: [], // Strip all HTML tags
+      ALLOWED_ATTR: [] // Strip all attributes
+    });
+  }
+
+  function isValidAlphanumericTitle(title: string): boolean {
+    // Title must start with a letter or number and can contain spaces and basic punctuation
+    return /^[a-zA-Z0-9][a-zA-Z0-9\s.,!?-]*$/.test(title);
+  }
+
   function validateTitle(): void {
-    if (!formData.title) {
+    const sanitizedTitle = sanitizeInput(formData.title);
+    
+    if (!sanitizedTitle) {
       errors.title = 'Title is required';
-    } else if (formData.title.length < 10) {
-      errors.title = 'Title must be at least 10 characters';
-    } else if (formData.title.length > 70) {
-      errors.title = 'Title must not exceed 70 characters';
-    } else {
-      const badWordsCheck = containsBadWords(formData.title);
-      if (badWordsCheck.hasBadWords) {
-        errors.title = `Title contains inappropriate words: ${badWordsCheck.foundWords.join(', ')}`;
-      } else {
-        errors.title = '';
-      }
+      return;
     }
+
+    if (sanitizedTitle.length < 10 || sanitizedTitle.length > 70) {
+      errors.title = 'Title must be between 10 and 70 characters';
+      return;
+    }
+
+    if (!isValidAlphanumericTitle(sanitizedTitle)) {
+      errors.title = 'Title must start with a letter or number and contain only alphanumeric characters, spaces, and basic punctuation';
+      return;
+    }
+
+    const titleCheck = containsBadWords(sanitizedTitle);
+    if (titleCheck.hasBadWords) {
+      errors.title = 'Title contains inappropriate content';
+      return;
+    }
+
+    errors.title = '';
+    formData.title = sanitizedTitle; // Update with sanitized value
   }
 
   function validateDescription(): void {
-    if (!formData.description) {
+    const sanitizedDesc = sanitizeInput(formData.description);
+    
+    if (!sanitizedDesc) {
       errors.description = 'Description is required';
-    } else if (formData.description.length > 500) {
-      errors.description = 'Description must not exceed 500 characters';
-    } else {
-      const badWordsCheck = containsBadWords(formData.description);
-      if (badWordsCheck.hasBadWords) {
-        errors.description = `Description contains inappropriate words: ${badWordsCheck.foundWords.join(', ')}`;
-      } else {
-        errors.description = '';
-      }
+      return;
     }
+
+    if (sanitizedDesc.length > 500) {
+      errors.description = 'Description must not exceed 500 characters';
+      return;
+    }
+
+    const descCheck = containsBadWords(sanitizedDesc);
+    if (descCheck.hasBadWords) {
+      errors.description = 'Description contains inappropriate content';
+      return;
+    }
+
+    errors.description = '';
+    formData.description = sanitizedDesc; // Update with sanitized value
   }
 
   function validatePrice(): void {
@@ -166,64 +199,61 @@
       email: ''
     };
 
-    // Title validation (10-70 characters)
-    if (!formData.title) {
-      errors.title = 'Title is required';
-      isValid = false;
-    } else if (formData.title.length < 10) {
-      errors.title = 'Title must be at least 10 characters';
-      isValid = false;
-    } else if (formData.title.length > 70) {
-      errors.title = 'Title must not exceed 70 characters';
+    // Validate title
+    const sanitizedTitle = sanitizeInput(formData.title);
+    if (!sanitizedTitle || !isValidAlphanumericTitle(sanitizedTitle) || 
+        sanitizedTitle.length < 10 || sanitizedTitle.length > 70) {
+      errors.title = 'Title must be between 10 and 70 characters and start with a letter or number';
       isValid = false;
     }
 
-    // Description validation (max 500 characters)
-    if (!formData.description) {
-      errors.description = 'Description is required';
-      isValid = false;
-    } else if (formData.description.length > 500) {
-      errors.description = 'Description must not exceed 500 characters';
+    // Validate description
+    const sanitizedDesc = sanitizeInput(formData.description);
+    if (!sanitizedDesc || sanitizedDesc.length === 0 || sanitizedDesc.length > 500) {
+      errors.description = 'Description is required and must not exceed 500 characters';
       isValid = false;
     }
 
-    // Price validation (0-999999)
-    const priceNum = Number(formData.price);
-    if (!formData.price) {
-      errors.price = 'Price is required';
-      isValid = false;
-    } else if (isNaN(priceNum) || priceNum < 0) {
-      errors.price = 'Price must be 0 or greater';
-      isValid = false;
-    } else if (priceNum > 999999) {
-      errors.price = 'Price must not exceed 999,999';
+    // Price validation
+    if (!formData.price || Number(formData.price) < 0 || Number(formData.price) > 999999) {
+      errors.price = 'Please enter a valid price between 0 and 999,999';
       isValid = false;
     }
 
-    // Location validation
     if (!formData.location) {
       errors.location = 'Location is required';
       isValid = false;
     }
 
-    // Category validation
     if (!formData.category) {
       errors.category = 'Category is required';
       isValid = false;
     }
 
-    // Email or Phone validation (at least one required)
+    // Check for bad words
+    const titleCheck = containsBadWords(sanitizedTitle);
+    const descriptionCheck = containsBadWords(sanitizedDesc);
+
+    if (titleCheck.hasBadWords) {
+      errors.title = 'Title contains inappropriate content';
+      isValid = false;
+    }
+
+    if (descriptionCheck.hasBadWords) {
+      errors.description = 'Description contains inappropriate content';
+      isValid = false;
+    }
+
+    // Email/Phone validation
     if (!formData.email && !formData.phone) {
       errors.email = 'Either email or phone is required';
       errors.phone = 'Either email or phone is required';
       isValid = false;
     } else {
-      // Validate email if provided
       if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
         errors.email = 'Please enter a valid email address';
         isValid = false;
       }
-      // Validate phone if provided
       if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
         errors.phone = 'Please enter a valid 10-digit phone number';
         isValid = false;
@@ -269,8 +299,8 @@
       }
 
       const payload = {
-        title: formData.title,
-        description: formData.description,
+        title: sanitizeInput(formData.title),
+        description: sanitizeInput(formData.description),
         price: Number(formData.price),
         categoryId: selectedCategory.key,
         locationId: selectedLocation.key,

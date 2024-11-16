@@ -40,7 +40,7 @@
           </div>
         </div>
         <div class="text-2xl font-bold text-primary">
-          ₹ {listing.price}
+          ₹{listing.price}
         </div>
       </div>
 
