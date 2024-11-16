@@ -6,6 +6,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const baseSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().min(1),
+  price: z.number().min(0).nonnegative(),
   email: z.string().max(255).optional(),  
   phone: z.string().max(20).optional(),   
   categoryId: z.number().int().positive(),
@@ -53,6 +54,7 @@ export const createListingSchema = baseSchema
 export const updateListingSchema = z.object({
   title: z.string().min(1).max(255).optional(),
   description: z.string().min(1).optional(),
+  price: z.number().min(0).nonnegative().optional(),
   email: z.string().max(255).optional(),
   phone: z.string().max(20).optional(),
   categoryId: z.number().int().positive().optional(),
