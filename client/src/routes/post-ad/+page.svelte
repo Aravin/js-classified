@@ -9,6 +9,7 @@
   import { goto } from '$app/navigation';
   import DOMPurify from 'dompurify';
   import {config} from '$lib/config';
+  import { selectedLocation, selectedCategory } from '$lib/stores/filters';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -37,8 +38,8 @@
     title: '',
     description: '',
     price: '',
-    location: '',
-    category: '',
+    location: $selectedLocation,
+    category: $selectedCategory,
     phone: '',
     email: ''
   };
@@ -64,17 +65,13 @@
                    formData.phone !== '' ||
                    formData.email !== '';
 
-  const locationOptions = locations.map((loc) => ({
-    key: loc.key,
-    value: loc.value,
-    display: loc.display
-  }));
+  // Update formData when stores change
+  $: formData.location = $selectedLocation;
+  $: formData.category = $selectedCategory;
 
-  const categoryOptions = categories.map((category) => ({
-    key: category.key,
-    value: category.value,
-    display: category.display
-  }));
+  // Update stores when formData changes
+  $: $selectedLocation = formData.location;
+  $: $selectedCategory = formData.category;
 
   // Validation utilities
   function sanitizeInput(input: string): string {
@@ -292,8 +289,8 @@
     submitError = null;
 
     try {
-      const selectedLocation = locationOptions.find(loc => loc.value === formData.location);
-      const selectedCategory = categoryOptions.find(cat => cat.value === formData.category);
+      const selectedLocation = locations.find(loc => loc.value === formData.location);
+      const selectedCategory = categories.find(cat => cat.value === formData.category);
       
       if (!selectedLocation || !selectedCategory) {
         throw new Error('Invalid location or category selected');
@@ -461,7 +458,7 @@
       </label>
       <div class="w-full">
         <SearchableSelect
-          options={locationOptions}
+          options={locations}
           bind:searchTerm={formData.location}
           placeholder="Select location"
           icon="material-symbols:location-on"
@@ -486,7 +483,7 @@
       </label>
       <div class="w-full">
         <SearchableSelect
-          options={categoryOptions}
+          options={categories}
           bind:searchTerm={formData.category}
           placeholder="Select category"
           icon="material-symbols:category"

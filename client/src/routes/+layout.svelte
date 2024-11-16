@@ -4,6 +4,13 @@
   import { categories } from '$lib/categories/categories';
   import { locations } from '$lib/locations';
   import SearchableSelect from '$lib/SearchableSelect.svelte';
+  import { selectedLocation, selectedCategory } from '$lib/stores/filters';
+
+  let locationSearch = $selectedLocation;
+  let categorySearch = $selectedCategory;
+
+  $: $selectedLocation = locationSearch;
+  $: $selectedCategory = categorySearch;
 </script>
 
 <header class="border-b bg-base-100 shadow-sm">
@@ -28,6 +35,7 @@
       <div class="form-control flex-1">
         <SearchableSelect
           options={locations}
+          bind:searchTerm={locationSearch}
           placeholder="Select location..."
           icon="material-symbols:location-on"
         />
@@ -35,7 +43,8 @@
 
       <div class="form-control flex-1">
         <SearchableSelect
-          options={categories as any}
+          options={categories}
+          bind:searchTerm={categorySearch}
           placeholder="Select category..."
           icon="material-symbols:category"
         />
