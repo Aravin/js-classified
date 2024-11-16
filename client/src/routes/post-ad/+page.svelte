@@ -299,39 +299,35 @@
       const payload = {
         title: sanitizeInput(formData.title),
         description: sanitizeInput(formData.description),
-        price: Number(formData.price),
+        price: formData.price ? Number(formData.price) : undefined,
         categoryId: selectedCategory.key,
         locationId: selectedLocation.key,
-        email: formData.email,
-        phone: formData.phone,
+        email: formData.email ? sanitizeInput(formData.email) : undefined,
+        phone: formData.phone ? sanitizeInput(formData.phone) : undefined,
         images: []
       };
 
-      // Use fetch from SvelteKit
       const response = await fetch(`${config.api.baseUrl}/listings`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        mode: 'cors', // explicitly set CORS mode
-        credentials: 'omit', // don't send credentials
         body: JSON.stringify(payload)
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to submit listing');
+      }
+
       const result = await response.json();
       
-      if (response.status !== 201) {
-        throw new Error(result.message || 'Failed to create listing');
-      }
-
-      if (!result.id || !result.slug) {
-        throw new Error('Invalid response from server');
-      }
-
+      // Reset form dirty state before navigation
+      isFormDirty = false;
+      
       await goto(`/list/${result.slug}?id=${result.id}`);
     } catch (error) {
       console.error('Error submitting form:', error);
-      submitError = error instanceof Error ? error.message : 'An unexpected error occurred';
+      submitError = 'Failed to submit listing. Please try again.';
     } finally {
       submitting = false;
     }
