@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatDate } from '$lib/utils';
+  import { formatCurrency, formatDate } from '$lib/utils';
   import Icon from '@iconify/svelte';
   import { config } from '$lib/config';
 
@@ -19,12 +19,6 @@
 
   const LISTING_EXPIRY_DAYS = config.listing.expiryDays;
 
-  function formatCurrency(amount: number): string {
-    return new Intl.NumberFormat(
-      config.currency.locale,
-      config.currency.options
-    ).format(amount);
-  }
 
   async function fetchContactInfo(type: 'phone' | 'email' | 'both') {
     isLoading = true;

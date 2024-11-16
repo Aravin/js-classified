@@ -4,6 +4,7 @@ import { browser } from '$app/environment';
 // Initialize from localStorage if available
 const storedLocation = browser ? localStorage.getItem('selectedLocation') : null;
 const storedCategory = browser ? localStorage.getItem('selectedCategory') : null;
+const storedSearch = browser ? localStorage.getItem('searchTerm') : null;
 
 // Create stores with initial values
 export const selectedLocation = writable<string>(
@@ -11,6 +12,9 @@ export const selectedLocation = writable<string>(
 );
 export const selectedCategory = writable<string>(
     storedCategory || ''
+);
+export const searchTerm = writable<string>(
+    storedSearch || ''
 );
 
 // Subscribe to changes and update localStorage
@@ -28,6 +32,14 @@ if (browser) {
             localStorage.setItem('selectedCategory', value);
         } else {
             localStorage.removeItem('selectedCategory');
+        }
+    });
+
+    searchTerm.subscribe(value => {
+        if (value) {
+            localStorage.setItem('searchTerm', value);
+        } else {
+            localStorage.removeItem('searchTerm');
         }
     });
 }

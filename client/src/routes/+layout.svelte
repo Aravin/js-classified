@@ -4,13 +4,47 @@
   import { categories } from '$lib/categories/categories';
   import { locations } from '$lib/locations';
   import SearchableSelect from '$lib/SearchableSelect.svelte';
-  import { selectedLocation, selectedCategory } from '$lib/stores/filters';
+  import { selectedLocation, selectedCategory, searchTerm } from '$lib/stores/filters';
+  import { goto } from '$app/navigation';
 
   let locationSearch = $selectedLocation;
   let categorySearch = $selectedCategory;
+  let search = $searchTerm;
 
   $: $selectedLocation = locationSearch;
   $: $selectedCategory = categorySearch;
+  $: $searchTerm = search;
+
+  async function handleSearch(event: Event) {
+    event.preventDefault();
+    
+    const params = new URLSearchParams();
+    
+    if ($searchTerm) {
+      params.set('q', $searchTerm);
+    }
+    if ($selectedLocation) {
+      const location = locations.find(loc => loc.value === $selectedLocation);
+      if (location) {
+        params.set('location', location.key.toString());
+      }
+    }
+    if ($selectedCategory) {
+      const category = categories.find(cat => cat.value === $selectedCategory);
+      if (category) {
+        params.set('category', category.key.toString());
+      }
+    }
+
+    const queryString = params.toString();
+    await goto(`/search${queryString ? `?${queryString}` : ''}`);
+  }
+
+  function handleKeyPress(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      handleSearch(event);
+    }
+  }
 </script>
 
 <header class="border-b bg-base-100 shadow-sm">
@@ -20,7 +54,7 @@
       <a href="/" class="flex items-center space-x-2">
         <Icon icon="material-symbols:store" class="text-primary" font-size="32" />
         <h1 class="text-xl font-bold tracking-tight">
-          <span>JSC</span>
+          <span>TradeBee.in</span>
         </h1>
       </a>
       
@@ -53,11 +87,16 @@
       <div class="form-control flex-1">
         <div class="input-group relative">
           <input 
-            type="text" 
-            placeholder="Search for anything..." 
-            class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+            type="text"
+            placeholder="Search for anything..."
+            class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+            bind:value={search}
+            on:keypress={handleKeyPress}
           />
-          <button class="btn btn-square btn-primary absolute right-0 top-0 rounded-l-none">
+          <button 
+            class="btn btn-square btn-primary absolute right-0 top-0 rounded-l-none"
+            on:click={handleSearch}
+          >
             <Icon icon="material-symbols:search" font-size="24" />
           </button>
         </div>
