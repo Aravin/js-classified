@@ -1,0 +1,25 @@
+import { env } from '$env/dynamic/public';
+
+// Get environment variables with fallbacks
+const currencyCode = env.PUBLIC_CURRENCY_CODE ?? 'INR';
+const locale = env.PUBLIC_LOCALE ?? 'en-IN';
+const apiUrl = env.PUBLIC_API_URL ?? 'http://localhost:8080/api';
+const expiryDays = Number(env.PUBLIC_LISTING_EXPIRY_DAYS) || 30;
+
+export const config = {
+    listing: {
+        expiryDays
+    },
+    api: {
+        baseUrl: apiUrl
+    },
+    currency: {
+        code: currencyCode,
+        locale,
+        options: {
+            style: 'currency',
+            currency: currencyCode,
+            maximumFractionDigits: 0
+        }
+    }
+} as const;

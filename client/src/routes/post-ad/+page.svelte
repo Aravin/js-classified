@@ -8,6 +8,7 @@
   import { beforeNavigate } from '$app/navigation';
   import { goto } from '$app/navigation';
   import DOMPurify from 'dompurify';
+  import {config} from '$lib/config';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -310,7 +311,7 @@
       };
 
       // Use fetch from SvelteKit
-      const response = await fetch('http://localhost:8080/api/listings', {
+      const response = await fetch(`${config.api.baseUrl}/listings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

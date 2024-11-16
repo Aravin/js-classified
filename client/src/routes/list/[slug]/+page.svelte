@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatDate } from '$lib/utils';
   import Icon from '@iconify/svelte';
+  import { config } from '$lib/config';
 
   export let data;
   const { listing } = data;
@@ -16,12 +17,13 @@
     email: null
   };
 
+  const LISTING_EXPIRY_DAYS = config.listing.expiryDays;
+
   function formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount);
+    return new Intl.NumberFormat(
+      config.currency.locale,
+      config.currency.options
+    ).format(amount);
   }
 
   async function fetchContactInfo(type: 'phone' | 'email' | 'both') {
@@ -30,7 +32,7 @@
     try {
       // Only fetch if we don't have the data cached
       if (!cachedContactInfo.phone && !cachedContactInfo.email) {
-        const response = await fetch(`http://localhost:8080/api/listings/${listing.id}/contact`);
+        const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}/contact`);
         if (!response.ok) throw new Error('Failed to fetch contact information');
         const data = await response.json();
         cachedContactInfo = data.contactInfo;
@@ -55,6 +57,14 @@
   function formatPhoneNumber(phone: string): string {
     // Format: +91 XXXXX-XXXXX
     return `+91 ${phone.slice(0, 5)}-${phone.slice(5)}`;
+  }
+
+  function getDaysLeft(createdAt: string): number {
+    const created = new Date(createdAt);
+    const expiryDate = new Date(created.getTime() + LISTING_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, daysLeft);
   }
 </script>
 
@@ -90,6 +100,11 @@
             <div class="flex items-center gap-1">
               <Icon icon="material-symbols:calendar-month" class="w-4 h-4" />
               <span>{formatDate(listing.createdAt)}</span>
+            </div>
+            <div class="hidden sm:block text-gray-300">•</div>
+            <div class="flex items-center gap-1">
+              <Icon icon="material-symbols:timer-outline" class="w-4 h-4" />
+              <span>{getDaysLeft(listing.createdAt)} days left</span>
             </div>
           </div>
         </div>
