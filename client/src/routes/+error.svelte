@@ -3,7 +3,7 @@
   import Icon from '@iconify/svelte';
 </script>
 
-<div class="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8">
+<div class="min-h-screen pt-24 px-4 md:px-8">
   <div class="container mx-auto">
     <div class="max-w-2xl mx-auto text-center bg-base-100 shadow-xl rounded-xl p-8 md:p-12">
       {#if $page.status === 404}
