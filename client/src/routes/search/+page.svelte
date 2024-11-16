@@ -4,7 +4,7 @@
     import Icon from '@iconify/svelte';
     import { locations } from '$lib/locations';
     import { categories } from '$lib/categories/categories';
-    import { formatCurrency } from '$lib/utils';
+    import { formatCurrency, getExpiryDate } from '$lib/utils';
     import { config } from '$lib/config';
     import { selectedLocation, selectedCategory, searchTerm } from '$lib/stores/filters';
 
@@ -60,8 +60,8 @@
 
 <div class="container mx-auto px-4 py-8">
     <!-- Filters and Sort -->
-    <div class="mb-8 flex flex-wrap gap-4">
-        <!-- Sort Buttons -->
+    <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <!-- Left side: Sort Buttons -->
         <div class="flex gap-2">
             <button 
                 class="btn btn-sm {sortBy === 'price' ? 'btn-primary' : 'btn-ghost'}"
@@ -86,11 +86,56 @@
                 {/if}
             </button>
         </div>
+
+        <!-- Right side: Image Filter -->
+        <div class="flex items-center">
+            <label class="label cursor-pointer gap-2">
+                <input 
+                    type="checkbox" 
+                    class="checkbox checkbox-primary checkbox-sm"
+                    checked={data.hasImages}
+                    on:change={(e) => {
+                        updateSearch({ 
+                            hasImages: e.currentTarget.checked ? 'true' : '',
+                            page: '1'  // Reset to first page when filter changes
+                        });
+                    }}
+                />
+                <span class="label-text">Show listings with images only</span>
+            </label>
+        </div>
     </div>
 
     <!-- Results Count -->
-    <div class="mb-4 text-sm text-gray-600">
-        {data.pagination.total} results found
+    <div class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+        <span class="font-medium">{data.pagination.total} results found</span>
+        {#if data.location || data.category || data.q}
+            <span class="text-gray-400">•</span>
+        {/if}
+        {#if data.q}
+            <div class="flex items-center gap-1 text-gray-600">
+                <Icon icon="material-symbols:search" class="text-base" />
+                <span>"{data.q}"</span>
+            </div>
+        {/if}
+        {#if data.location}
+            {#if data.q}
+                <span class="text-gray-400">•</span>
+            {/if}
+            <div class="flex items-center gap-1 text-gray-600">
+                <Icon icon="material-symbols:location-on" class="text-base" />
+                <span>in {locations.find(loc => loc.key.toString() === data.location)?.value || ''}</span>
+            </div>
+        {/if}
+        {#if data.category}
+            {#if data.q || data.location}
+                <span class="text-gray-400">•</span>
+            {/if}
+            <div class="flex items-center gap-1 text-gray-600">
+                <Icon icon="material-symbols:category" class="text-base" />
+                <span>in {categories.find(cat => cat.key.toString() === data.category)?.value || ''}</span>
+            </div>
+        {/if}
     </div>
 
     <!-- Listings Grid -->
@@ -120,9 +165,15 @@
                             {formatCurrency(Number(listing.price))}
                         </p>
                     {/if}
-                    <div class="flex items-center gap-2 text-sm text-gray-500">
-                        <Icon icon="material-symbols:location-on" />
-                        <span>{listing.location.name}, {listing.location.state}</span>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <Icon icon="material-symbols:location-on" />
+                            <span>{listing.location.name}, {listing.location.state}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <Icon icon="material-symbols:schedule" />
+                            <span>{getExpiryDate(listing.createdAt)}</span>
+                        </div>
                     </div>
                 </div>
             </a>

@@ -21,5 +21,8 @@ export const config = {
             currency: currencyCode,
             maximumFractionDigits: 0
         }
+    },
+    pagination: {
+        defaultLimit: Number(env.PUBLIC_SEARCH_DEFAULT_LIMIT) || 5,
     }
 } as const;

@@ -93,10 +93,11 @@ export async function listingRoutes(fastify: FastifyInstance) {
         categoryId,
         locationId,
         sortBy,
-        sortOrder,
+        order,
         search,
         minPrice,
-        maxPrice
+        maxPrice,
+        hasImages
       } = query
 
       // Calculate skip for pagination
@@ -117,6 +118,11 @@ export async function listingRoutes(fastify: FastifyInstance) {
             ...(minPrice ? { gte: minPrice } : {}),
             ...(maxPrice ? { lte: maxPrice } : {})
           }
+        } : {}),
+        ...(hasImages ? {
+          images: {
+            some: {} // At least one image exists
+          }
         } : {})
       }
 
@@ -131,9 +137,10 @@ export async function listingRoutes(fastify: FastifyInstance) {
           location: true,
           images: true
         },
-        orderBy: {
-          [sortBy]: sortOrder
-        },
+        orderBy: [
+          { [sortBy]: order },
+          { createdAt: 'desc' } // Secondary sort by createdAt
+        ],
         skip,
         take: limit
       })
