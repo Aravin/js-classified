@@ -82,7 +82,6 @@ export async function listingRoutes(fastify: FastifyInstance) {
         limit,
         categoryId,
         locationId,
-        status,
         sortBy,
         sortOrder,
         search,
@@ -97,7 +96,6 @@ export async function listingRoutes(fastify: FastifyInstance) {
       const where: any = {
         ...(categoryId ? { categoryId } : {}),
         ...(locationId ? { locationId } : {}),
-        ...(status ? { status } : {}),
         ...(search ? {
           OR: [
             { title: { contains: search, mode: 'insensitive' } },
