@@ -15,7 +15,10 @@ async function main() {
   // await manualDataCleanup();
 
   // Seed category data
-  populateCategories();
+  // await populateCategories();
+
+  // Create sample listings
+  await createSampleListings();
 
   console.log('Seeding complete!');
 }
@@ -25,7 +28,7 @@ async function populateLocations() {
   for (const file of files) {
     // await populateLocations(file);
 
-    const filePath = path.join(process.cwd(), '../', 'docs', fileName);
+    const filePath = path.join(process.cwd(), '../', 'docs', file);
 
     const fileStream = fs.createReadStream(filePath);
     const rl = readline.createInterface({
@@ -132,6 +135,100 @@ async function populateCategories() {
   }
 
   console.log('Categories population complete!');
+}
+
+async function createSampleListings() {
+  // Get all locations and categories
+  const locations = await prisma.location.findMany({
+    where: {
+      loc_type: 'city'
+    }
+  });
+  console.log(`Found ${locations.length} cities`);
+  console.log('Sample cities:', locations.slice(0, 5).map(l => l.name));
+
+  // Get one subcategory from each parent category
+  const parentCategories = await prisma.category.findMany({
+    where: {
+      parent_category_id: null // Get parent categories
+    },
+    include: {
+      subcategories: {
+        take: 1 // Take only one subcategory from each parent
+      }
+    }
+  });
+
+  // Flatten the subcategories array
+  const categories = parentCategories.map(parent => parent.subcategories[0]).filter(Boolean);
+  console.log(`Found ${categories.length} subcategories (one per parent category)`);
+  console.log('Selected subcategories:', categories.map(c => c.name));
+
+  // Sample titles and descriptions for each category
+  const sampleContent = {
+    'electronics': {
+      titles: ['iPhone 13 Pro Max', 'Samsung 4K Smart TV', 'MacBook Pro M1', 'Sony PlayStation 5'],
+      descriptions: ['Excellent condition, barely used', 'Brand new in box with warranty', 'Perfect working condition, all accessories included']
+    },
+    'vehicles': {
+      titles: ['Honda Civic 2020', 'Toyota Camry', 'Royal Enfield Classic 350', 'Hyundai Creta'],
+      descriptions: ['Single owner, well maintained', 'Low mileage, all service records available', 'Recently serviced, excellent condition']
+    },
+    'property': {
+      titles: ['3BHK Luxury Apartment', '2BHK Independent House', 'Commercial Space for Rent', 'Plot for Sale'],
+      descriptions: ['Prime location, ready to move', 'Newly constructed, modern amenities', 'Great investment opportunity']
+    },
+    'furniture': {
+      titles: ['L-shaped Sofa Set', 'King Size Bed', 'Dining Table Set', 'Study Table'],
+      descriptions: ['Premium quality material', 'Modern design, comfortable', 'Excellent condition, moving sale']
+    }
+  };
+
+  // Create 2 listings for each category in each city
+  for (const location of locations) {
+    for (const category of categories) {
+      const content = sampleContent[category.slug as keyof typeof sampleContent] || {
+        titles: ['Sample Item', 'Quality Product'],
+        descriptions: ['Great condition', 'Must see to appreciate']
+      };
+
+      for (let i = 0; i < 2; i++) {
+        const title = content.titles[Math.floor(Math.random() * content.titles.length)];
+        const description = content.descriptions[Math.floor(Math.random() * content.descriptions.length)];
+        const price = Math.floor(Math.random() * 100000) + 1000; // Random price between 1000 and 101000
+
+        try {
+          const listing = await prisma.listing.create({
+            data: {
+              title: `${title} in ${location.name}`,
+              description: `${description}. Located in ${location.name}.`,
+              slug: `${title.toLowerCase().replace(/[&\s]+/g, '-')}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              price: price,
+              email: `seller${Math.floor(Math.random() * 1000)}@example.com`,
+              phone: `+91${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+              categoryId: category.id,
+              locationId: location.id,
+              status: 'A',
+              images: {
+                create: [
+                  {
+                    path: 'https://via.placeholder.com/800x600',
+                    thumbnailPath: 'https://via.placeholder.com/200x150',
+                    order: 0
+                  }
+                ]
+              }
+            }
+          });
+          console.log(`Created listing: ${listing.title}`);
+        } catch (error) {
+          console.error(`Error creating listing: ${error}`);
+        }
+      }
+    }
+  }
+
+  console.log('Sample listings creation complete!');
 }
 
 main()
