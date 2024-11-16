@@ -8,7 +8,7 @@ datasource db {
 }
 
 model location {
-  id           Int     @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   name         String?
   dist         String? // District
   state        String?
@@ -19,6 +19,7 @@ model location {
   loc_type     String?
   coords       String?
   bbox         String?
+  listings     listing[] // Relation field
 }
 
 model category {
@@ -28,6 +29,45 @@ model category {
   parent_category   category?  @relation("CategoryToSubcategories", fields: [parent_category_id], references: [id])
   parent_category_id Int?
   subcategories     category[] @relation("CategoryToSubcategories")
+  listings          listing[]  // Relation field
 
   @@index([parent_category_id])
+}
+
+enum ListingStatus {
+  A  @map("A") // Active
+  E  @map("E") // Ended
+  S  @map("S") // Suspended
+  D  @map("D") // Deleted
+}
+
+model listing {
+  id          Int           @id @default(autoincrement())
+  title       String        @db.VarChar(255)
+  description String        @db.Text
+  status      ListingStatus @default(A)
+  category    category      @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  location    location      @relation(fields: [locationId], references: [id])
+  locationId  Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  images      image[]
+
+  @@index([categoryId])
+  @@index([locationId])
+  @@index([status])
+}
+
+model image {
+  id           Int      @id @default(autoincrement())
+  path         String   // Original image path/URL
+  thumbnailPath String? // Thumbnail version path/URL
+  order        Int      @default(0)  // 0 = main image, 1+ for additional images
+  listing      listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId    Int
+  createdAt    DateTime @default(now())
+
+  @@index([listingId])
+  @@index([order])
 }
