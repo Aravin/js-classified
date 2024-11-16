@@ -170,15 +170,31 @@ export async function listingRoutes(fastify: FastifyInstance) {
   fastify.get('/:id', async (request, reply) => {
     const { id } = request.params as { id: string }
     try {
-      const numericId = parseInt(id)
-      const listing = await prisma.listing.findUnique({
-        where: { id: numericId },
-        include: {
-          category: true,
-          location: true,
-          images: true
-        }
-      })
+      // Check if id is a number or a slug
+      const isNumericId = /^\d+$/.test(id);
+      
+      let listing;
+      if (isNumericId) {
+        const numericId = parseInt(id);
+        listing = await prisma.listing.findUnique({
+          where: { id: numericId },
+          include: {
+            category: true,
+            location: true,
+            images: true
+          }
+        });
+      } else {
+        // If not numeric, treat as slug
+        listing = await prisma.listing.findUnique({
+          where: { slug: id },
+          include: {
+            category: true,
+            location: true,
+            images: true
+          }
+        });
+      }
 
       if (!listing) {
         return sendResponse(reply, 404, { error: 'Listing not found' })
@@ -186,7 +202,8 @@ export async function listingRoutes(fastify: FastifyInstance) {
 
       return sendResponse(reply, 200, maskSensitiveData(listing))
     } catch (error) {
-      throw error
+      console.error('Error fetching listing:', error);
+      return sendResponse(reply, 500, { error: 'Internal server error' })
     }
   })
 
