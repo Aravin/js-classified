@@ -4,15 +4,15 @@
     import { categories } from '$lib/categories/categories';
 
     export let total: number;
-    export let location: string | undefined = undefined;
-    export let category: string | undefined = undefined;
-    export let searchTerm: string | undefined = undefined;
+    export let location: string | null | undefined = undefined;
+    export let category: string | null | undefined = undefined;
+    export let searchTerm: string | null | undefined = undefined;
 </script>
 
 <div class="mb-4 flex flex-wrap items-center gap-2 text-sm">
     <span class="font-medium">{total} results found</span>
     
-    {#if searchTerm}
+    {#if searchTerm !== null && searchTerm !== undefined}
         <span class="text-gray-400">•</span>
         <div class="flex items-center gap-1 text-gray-600">
             <Icon icon="material-symbols:search" class="text-base" />
@@ -20,7 +20,7 @@
         </div>
     {/if}
     
-    {#if location}
+    {#if location !== null && location !== undefined}
         <span class="text-gray-400">•</span>
         <div class="flex items-center gap-1 text-gray-600">
             <Icon icon="material-symbols:location-on" class="text-base" />
@@ -28,7 +28,7 @@
         </div>
     {/if}
     
-    {#if category}
+    {#if category !== null && category !== undefined}
         <span class="text-gray-400">•</span>
         <div class="flex items-center gap-1 text-gray-600">
             <Icon icon="material-symbols:category" class="text-base" />
