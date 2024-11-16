@@ -16,6 +16,16 @@ function generateSlug(title: string, id: number): string {
   return `${baseSlug}-${id}`
 }
 
+// Helper function to mask sensitive data
+function maskSensitiveData(listing: any) {
+  const { email, phone, ...rest } = listing
+  return {
+    ...rest,
+    hasEmail: !!email,
+    hasPhone: !!phone
+  }
+}
+
 // Helper function to set CORS headers and send response
 function sendResponse(reply: any, statusCode: number, data: any) {
   return reply
@@ -128,6 +138,8 @@ export async function listingRoutes(fastify: FastifyInstance) {
         take: limit
       })
 
+      const maskedListings = listings.map(maskSensitiveData)
+
       // Calculate pagination metadata
       const totalPages = Math.ceil(total / limit)
       const hasMore = page < totalPages
@@ -135,7 +147,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       const prevPage = page > 1 ? page - 1 : null
 
       return sendResponse(reply, 200, {
-        data: listings,
+        data: maskedListings,
         pagination: {
           total,
           totalPages,
@@ -157,20 +169,55 @@ export async function listingRoutes(fastify: FastifyInstance) {
   // Get single listing
   fastify.get('/:id', async (request, reply) => {
     const { id } = request.params as { id: string }
-    const listing = await prisma.listing.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        category: true,
-        location: true,
-        images: true
+    try {
+      const numericId = parseInt(id)
+      const listing = await prisma.listing.findUnique({
+        where: { id: numericId },
+        include: {
+          category: true,
+          location: true,
+          images: true
+        }
+      })
+
+      if (!listing) {
+        return sendResponse(reply, 404, { error: 'Listing not found' })
       }
-    })
-    
-    if (!listing) {
-      return sendResponse(reply, 404, { error: 'Listing not found' })
+
+      return sendResponse(reply, 200, maskSensitiveData(listing))
+    } catch (error) {
+      throw error
     }
-    
-    return sendResponse(reply, 200, listing)
+  })
+
+  // Get listing contact information
+  fastify.get('/:id/contact', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    try {
+      const numericId = parseInt(id)
+      const listing = await prisma.listing.findUnique({
+        where: { id: numericId },
+        select: {
+          id: true,
+          email: true,
+          phone: true
+        }
+      })
+
+      if (!listing) {
+        return sendResponse(reply, 404, { error: 'Listing not found' })
+      }
+
+      return sendResponse(reply, 200, {
+        id: listing.id,
+        contactInfo: {
+          email: listing.email,
+          phone: listing.phone
+        }
+      })
+    } catch (error) {
+      throw error
+    }
   })
 
   // Update listing
