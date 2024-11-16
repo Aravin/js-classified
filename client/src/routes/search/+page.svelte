@@ -66,6 +66,7 @@
             <button 
                 class="btn btn-sm {sortBy === 'price' ? 'btn-primary' : 'btn-ghost'}"
                 on:click={() => handleSort('price')}
+                disabled={data.pagination.total === 0}
             >
                 Price
                 {#if sortBy === 'price'}
@@ -77,6 +78,7 @@
             <button 
                 class="btn btn-sm {sortBy === 'createdAt' ? 'btn-primary' : 'btn-ghost'}"
                 on:click={() => handleSort('createdAt')}
+                disabled={data.pagination.total === 0}
             >
                 Date
                 {#if sortBy === 'createdAt'}
@@ -89,11 +91,12 @@
 
         <!-- Right side: Image Filter -->
         <div class="flex items-center">
-            <label class="label cursor-pointer gap-2">
+            <label class="label cursor-pointer gap-2 {data.pagination.total === 0 ? 'cursor-not-allowed opacity-50' : ''}">
                 <input 
                     type="checkbox" 
                     class="checkbox checkbox-primary checkbox-sm"
                     checked={data.hasImages}
+                    disabled={data.pagination.total === 0}
                     on:change={(e) => {
                         updateSearch({ 
                             hasImages: e.currentTarget.checked ? 'true' : '',
