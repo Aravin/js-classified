@@ -64,10 +64,10 @@
     display: loc.display
   }));
 
-  const categoryOptions = Object.keys(categories).map((category, index) => ({
-    key: index,
-    value: category,
-    display: category
+  const categoryOptions = categories.map((category) => ({
+    key: category.key,
+    value: category.value,
+    display: category.display
   }));
 
   function validateTitle(): void {
@@ -243,12 +243,49 @@
                    !containsBadWords(formData.title).hasBadWords &&
                    !containsBadWords(formData.description).hasBadWords;
 
-  function handleSubmit(): void {
-    if (validateForm()) {
-      console.log('Form submitted:', formData);
-      // TODO: Add API call to submit the form
-    }
-  }
+ async function handleSubmit(): Promise<void> {
+   if (validateForm()) {
+     try {
+       // Find the location and category IDs based on selected values
+       const selectedLocation = locationOptions.find(loc => loc.value === formData.location);
+       const selectedCategory = categoryOptions.find(cat => cat.value === formData.category);
+       
+       const payload = {
+         title: formData.title,
+         description: formData.description,
+         price: Number(formData.price),
+         categoryId: selectedCategory?.key ?? 1,
+         locationId: selectedLocation?.key ?? 1,
+         contactInfo: {
+           email: formData.email,
+           phone: formData.phone
+         }
+       };
+ 
+       const response = await fetch('http://localhost:8080/api/listings', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(payload)
+       });
+ 
+       if (!response.ok) {
+         throw new Error(`HTTP error! status: ${response.status}`);
+       }
+ 
+       const result = await response.json();
+       console.log('Listing created successfully:', result);
+       
+       // TODO: Add success notification and redirect to the listing page
+       // You might want to use Svelte's goto function to redirect
+       
+     } catch (error) {
+       console.error('Error submitting form:', error);
+       // TODO: Add error notification to the user
+     }
+   }
+ }
 
   // Handle navigation attempts
   beforeNavigate(({ cancel, to }) => {

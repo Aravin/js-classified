@@ -44,7 +44,10 @@ enum ListingStatus {
 model listing {
   id          Int           @id @default(autoincrement())
   title       String        @db.VarChar(255)
+  slug        String        @unique @db.VarChar(255)
   description String        @db.Text
+  email       String?       @db.VarChar(255)
+  phone       String?       @db.VarChar(20)
   status      ListingStatus @default(A)
   category    category      @relation(fields: [categoryId], references: [id])
   categoryId  Int

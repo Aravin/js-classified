@@ -1,15 +1,32 @@
 import fastify from 'fastify'
+import { configureSecurityPlugins } from './plugins/security'
+import { listingRoutes } from './api/routes/listing.routes'
+import { config } from './config/config'
 
-const server = fastify()
-
-server.get('/ping', async (request, reply) => {
-  return 'pong 6 \n'
+const server = fastify({
+  logger: true
 })
 
-server.listen({ port: 8080, host: '::' }, (err, address) => {
-  if (err) {
-    console.error(err)
+// Configure security plugins
+server.register(configureSecurityPlugins)
+
+// Register routes
+server.register(listingRoutes, { prefix: '/api/listings' })
+
+// Health check route
+server.get('/ping', async () => 'pong\n')
+
+const start = async () => {
+  try {
+    await server.listen({
+      port: config.server.port,
+      host: config.server.host
+    })
+    console.log(`Server listening at ${server.server.address()}`)
+  } catch (err) {
+    server.log.error(err)
     process.exit(1)
   }
-  console.log(`Server listening at ${address}`)
-})
+}
+
+start()
