@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { PrismaClient } from '@prisma/client'
-import { createListingSchema, updateListingSchema } from '../schemas/listing.schema'
+import { createListingSchema, updateListingSchema, listingQuerySchema } from '../schemas/listing.schema'
 import { z } from 'zod'
 
 const prisma = new PrismaClient()
@@ -40,7 +40,6 @@ export async function listingRoutes(fastify: FastifyInstance) {
       const listing = await prisma.listing.create({
         data: {
           ...data,
-          // Temporarily set a placeholder slug as we need the ID first
           slug: 'temp-slug',
           images: data.images ? {
             create: data.images
@@ -53,7 +52,6 @@ export async function listingRoutes(fastify: FastifyInstance) {
         }
       })
 
-      // Update with the final slug using the ID
       const finalListing = await prisma.listing.update({
         where: { id: listing.id },
         data: {
@@ -75,22 +73,87 @@ export async function listingRoutes(fastify: FastifyInstance) {
     }
   })
 
-  // Get all listings
+  // Get all listings with pagination and filters
   fastify.get('/', async (request, reply) => {
-    const { categoryId, locationId, status } = request.query as any
-    const listings = await prisma.listing.findMany({
-      where: {
-        ...(categoryId ? { categoryId: parseInt(categoryId) } : {}),
-        ...(locationId ? { locationId: parseInt(locationId) } : {}),
-        ...(status ? { status } : {})
-      },
-      include: {
-        category: true,
-        location: true,
-        images: true
+    try {
+      const query = listingQuerySchema.parse(request.query)
+      const {
+        page,
+        limit,
+        categoryId,
+        locationId,
+        status,
+        sortBy,
+        sortOrder,
+        search,
+        minPrice,
+        maxPrice
+      } = query
+
+      // Calculate skip for pagination
+      const skip = (page - 1) * limit
+
+      // Build where clause
+      const where: any = {
+        ...(categoryId ? { categoryId } : {}),
+        ...(locationId ? { locationId } : {}),
+        ...(status ? { status } : {}),
+        ...(search ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } }
+          ]
+        } : {}),
+        ...(minPrice || maxPrice ? {
+          price: {
+            ...(minPrice ? { gte: minPrice } : {}),
+            ...(maxPrice ? { lte: maxPrice } : {})
+          }
+        } : {})
       }
-    })
-    return sendResponse(reply, 200, listings)
+
+      // Get total count for pagination
+      const total = await prisma.listing.count({ where })
+
+      // Get paginated results
+      const listings = await prisma.listing.findMany({
+        where,
+        include: {
+          category: true,
+          location: true,
+          images: true
+        },
+        orderBy: {
+          [sortBy]: sortOrder
+        },
+        skip,
+        take: limit
+      })
+
+      // Calculate pagination metadata
+      const totalPages = Math.ceil(total / limit)
+      const hasMore = page < totalPages
+      const nextPage = hasMore ? page + 1 : null
+      const prevPage = page > 1 ? page - 1 : null
+
+      return sendResponse(reply, 200, {
+        data: listings,
+        pagination: {
+          total,
+          totalPages,
+          currentPage: page,
+          limit,
+          hasMore,
+          nextPage,
+          prevPage
+        }
+      })
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return sendResponse(reply, 400, { error: error.errors })
+      }
+      throw error
+    }
   })
 
   // Get single listing
@@ -123,7 +186,6 @@ export async function listingRoutes(fastify: FastifyInstance) {
         where: { id: numericId },
         data: {
           ...data,
-          // Only update slug if title changes
           slug: data.title ? generateSlug(data.title, numericId) : undefined,
           images: data.images ? {
             deleteMany: {},
