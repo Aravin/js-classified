@@ -363,9 +363,12 @@
         on:blur={validateTitle}
         maxlength="70"
       />
-      <div class="error-container">
+      <div class="error-container mt-4">
         {#if errors.title}
-          <span class="label-text-alt text-error">{errors.title}</span>
+          <div class="flex items-center gap-2 text-error">
+            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <span class="text-sm font-medium">{errors.title}</span>
+          </div>
         {/if}
       </div>
     </div>
@@ -385,9 +388,12 @@
         maxlength="500"
         aria-describedby="description-hint"
       ></textarea>
-      <div class="error-container">
+      <div class="error-container mt-4">
         {#if errors.description}
-          <span class="label-text-alt text-error">{errors.description}</span>
+          <div class="flex items-center gap-2 text-error">
+            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <span class="text-sm font-medium">{errors.description}</span>
+          </div>
         {/if}
       </div>
     </div>
@@ -407,9 +413,12 @@
         max="999999"
         on:blur={validatePrice}
       />
-      <div class="error-container">
+      <div class="error-container mt-4">
         {#if errors.price}
-          <span class="label-text-alt text-error">{errors.price}</span>
+          <div class="flex items-center gap-2 text-error">
+            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <span class="text-sm font-medium">{errors.price}</span>
+          </div>
         {/if}
       </div>
     </div>
@@ -428,9 +437,12 @@
           on:blur={validateLocation}
           error={!!errors.location}
         />
-        <div class="error-container">
+        <div class="error-container mt-4">
           {#if errors.location}
-            <span class="label-text-alt text-error">{errors.location}</span>
+            <div class="flex items-center gap-2 text-error">
+              <Icon icon="material-symbols:error" class="w-5 h-5" />
+              <span class="text-sm font-medium">{errors.location}</span>
+            </div>
           {/if}
         </div>
       </div>
@@ -450,9 +462,12 @@
           on:blur={validateCategory}
           error={!!errors.category}
         />
-        <div class="error-container">
+        <div class="error-container mt-4">
           {#if errors.category}
-            <span class="label-text-alt text-error">{errors.category}</span>
+            <div class="flex items-center gap-2 text-error">
+              <Icon icon="material-symbols:error" class="w-5 h-5" />
+              <span class="text-sm font-medium">{errors.category}</span>
+            </div>
           {/if}
         </div>
       </div>
@@ -469,12 +484,16 @@
         bind:value={formData.phone}
         class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary {errors.phone ? 'ring-2 ring-error' : ''}"
         placeholder="Enter 10-digit phone number"
-        pattern="[0-9]{10}"
+        maxlength="10"
+        inputmode="numeric"
         on:blur={validateContact}
       />
-      <div class="error-container">
+      <div class="error-container mt-4">
         {#if errors.phone}
-          <span class="label-text-alt text-error">{errors.phone}</span>
+          <div class="flex items-center gap-2 text-error">
+            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <span class="text-sm font-medium">{errors.phone}</span>
+          </div>
         {/if}
       </div>
     </div>
@@ -492,9 +511,12 @@
         placeholder="Enter email address"
         on:blur={validateContact}
       />
-      <div class="error-container">
+      <div class="error-container mt-4">
         {#if errors.email}
-          <span class="label-text-alt text-error">{errors.email}</span>
+          <div class="flex items-center gap-2 text-error">
+            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <span class="text-sm font-medium">{errors.email}</span>
+          </div>
         {/if}
       </div>
     </div>
@@ -514,8 +536,11 @@
         {/if}
       </button>
       {#if submitError}
-        <div class="error-container">
-          <span class="label-text-alt text-error">{submitError}</span>
+        <div class="error-container mt-4">
+          <div class="flex items-center gap-2 text-error">
+            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <span class="text-sm font-medium">{submitError}</span>
+          </div>
         </div>
       {/if}
     </div>
