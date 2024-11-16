@@ -48,6 +48,7 @@ model listing {
   description String        @db.Text
   email       String?       @db.VarChar(255)
   phone       String?       @db.VarChar(20)
+  price       Decimal       @db.Decimal(10, 2) @default(0)
   status      ListingStatus @default(A)
   category    category      @relation(fields: [categoryId], references: [id])
   categoryId  Int
@@ -60,6 +61,7 @@ model listing {
   @@index([categoryId])
   @@index([locationId])
   @@index([status])
+  @@index([price])
 }
 
 model image {
