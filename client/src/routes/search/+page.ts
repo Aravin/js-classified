@@ -33,7 +33,6 @@ export const load: PageLoad = async ({ url }) => {
     }
 
     const result = await response.json();
-    console.log('API Response:', result);
 
     return {
         listings: result.data || [],

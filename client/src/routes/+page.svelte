@@ -25,7 +25,7 @@
           {#each items as item}
             <li>
               <a 
-                href="/{item.slug}" 
+                href="/category/{item.slug}?&category={item.key}" 
                 class="text-base-content/70 hover:text-primary transition-colors duration-200 hover:pl-1"
               >
                 {item.value}
