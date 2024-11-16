@@ -16,7 +16,22 @@ function generateSlug(title: string, id: number): string {
   return `${baseSlug}-${id}`
 }
 
+// Helper function to set CORS headers and send response
+function sendResponse(reply: any, statusCode: number, data: any) {
+  return reply
+    .code(statusCode)
+    .header('Access-Control-Allow-Origin', '*')
+    .send(data)
+}
+
 export async function listingRoutes(fastify: FastifyInstance) {
+  fastify.addHook('preHandler', async (request, reply) => {
+    // Ensure CORS headers are set for every response
+    reply.header('Access-Control-Allow-Origin', '*')
+    reply.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
+    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  })
+
   // Create a new listing
   fastify.post('/', async (request, reply) => {
     try {
@@ -51,10 +66,10 @@ export async function listingRoutes(fastify: FastifyInstance) {
         }
       })
       
-      return reply.status(201).send(finalListing)
+      return sendResponse(reply, 201, finalListing)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        reply.status(400).send({ error: error.errors })
+        return sendResponse(reply, 400, { error: error.errors })
       }
       throw error
     }
@@ -75,7 +90,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
         images: true
       }
     })
-    return listings
+    return sendResponse(reply, 200, listings)
   })
 
   // Get single listing
@@ -91,11 +106,10 @@ export async function listingRoutes(fastify: FastifyInstance) {
     })
     
     if (!listing) {
-      reply.status(404).send({ error: 'Listing not found' })
-      return
+      return sendResponse(reply, 404, { error: 'Listing not found' })
     }
     
-    return listing
+    return sendResponse(reply, 200, listing)
   })
 
   // Update listing
@@ -123,10 +137,10 @@ export async function listingRoutes(fastify: FastifyInstance) {
         }
       })
       
-      return listing
+      return sendResponse(reply, 200, listing)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        reply.status(400).send({ error: error.errors })
+        return sendResponse(reply, 400, { error: error.errors })
       }
       throw error
     }
@@ -138,6 +152,6 @@ export async function listingRoutes(fastify: FastifyInstance) {
     await prisma.listing.delete({
       where: { id: parseInt(id) }
     })
-    return { success: true }
+    return sendResponse(reply, 200, { success: true })
   })
 }

@@ -6,6 +6,11 @@
   import { containsBadWords } from '$lib/badwords';
   import { onMount, onDestroy } from 'svelte';
   import { beforeNavigate } from '$app/navigation';
+  import { goto } from '$app/navigation';
+  import { invalidateAll } from '$app/navigation';
+
+  /** @type {import('./$types').PageData} */
+  export let data;
 
   interface FormData {
     title: string;
@@ -243,49 +248,66 @@
                    !containsBadWords(formData.title).hasBadWords &&
                    !containsBadWords(formData.description).hasBadWords;
 
- async function handleSubmit(): Promise<void> {
-   if (validateForm()) {
-     try {
-       // Find the location and category IDs based on selected values
-       const selectedLocation = locationOptions.find(loc => loc.value === formData.location);
-       const selectedCategory = categoryOptions.find(cat => cat.value === formData.category);
-       
-       const payload = {
-         title: formData.title,
-         description: formData.description,
-         price: Number(formData.price),
-         categoryId: selectedCategory?.key ?? 1,
-         locationId: selectedLocation?.key ?? 1,
-         contactInfo: {
-           email: formData.email,
-           phone: formData.phone
-         }
-       };
- 
-       const response = await fetch('http://localhost:8080/api/listings', {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json',
-         },
-         body: JSON.stringify(payload)
-       });
- 
-       if (!response.ok) {
-         throw new Error(`HTTP error! status: ${response.status}`);
-       }
- 
-       const result = await response.json();
-       console.log('Listing created successfully:', result);
-       
-       // TODO: Add success notification and redirect to the listing page
-       // You might want to use Svelte's goto function to redirect
-       
-     } catch (error) {
-       console.error('Error submitting form:', error);
-       // TODO: Add error notification to the user
-     }
-   }
- }
+  let submitting = false;
+  let submitError: string | null = null;
+
+  async function handleSubmit(): Promise<void> {
+    if (!validateForm()) {
+      submitError = 'Please fix the validation errors before submitting.';
+      return;
+    }
+
+    submitting = true;
+    submitError = null;
+
+    try {
+      const selectedLocation = locationOptions.find(loc => loc.value === formData.location);
+      const selectedCategory = categoryOptions.find(cat => cat.value === formData.category);
+      
+      if (!selectedLocation || !selectedCategory) {
+        throw new Error('Invalid location or category selected');
+      }
+
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        price: Number(formData.price),
+        categoryId: selectedCategory.key,
+        locationId: selectedLocation.key,
+        email: formData.email,
+        phone: formData.phone,
+        images: []
+      };
+
+      // Use fetch from SvelteKit
+      const response = await fetch('http://localhost:8080/api/listings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors', // explicitly set CORS mode
+        credentials: 'omit', // don't send credentials
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      
+      if (response.status !== 201) {
+        throw new Error(result.message || 'Failed to create listing');
+      }
+
+      if (!result.id || !result.slug) {
+        throw new Error('Invalid response from server');
+      }
+
+      await goto(`/list/${result.slug}?id=${result.id}`);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      submitError = error instanceof Error ? error.message : 'An unexpected error occurred';
+    } finally {
+      submitting = false;
+    }
+  }
 
   // Handle navigation attempts
   beforeNavigate(({ cancel, to }) => {
@@ -479,10 +501,23 @@
 
     <!-- Submit Button -->
     <div class="form-control mt-8">
-      <button type="submit" class="btn btn-primary" disabled={!isFormValid}>
-        <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
-        Post Ad
+      <button type="submit" class="btn btn-primary" disabled={!isFormValid || submitting}>
+        {#if submitting}
+          <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
+        {:else}
+          <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
+        {/if}
+        {#if submitting}
+          Submitting...
+        {:else}
+          Post Ad
+        {/if}
       </button>
+      {#if submitError}
+        <div class="error-container">
+          <span class="label-text-alt text-error">{submitError}</span>
+        </div>
+      {/if}
     </div>
   </form>
 </div>
