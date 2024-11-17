@@ -1,0 +1,10 @@
+{
+  "client/**/*.{js,ts,svelte,json}": [
+    "cd client && npm run format",
+    "cd client && npm run lint:fix"
+  ],
+  "server/**/*.{js,ts,json,prisma}": [
+    "cd server && npm run format",
+    "cd server && npm run lint:fix"
+  ]
+}
