@@ -1,7 +1,7 @@
-import { FastifyInstance } from 'fastify'
-import cors from '@fastify/cors'
-import helmet from '@fastify/helmet'
-import { config } from '../config/config'
+import { FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
+// import helmet from '@fastify/helmet';
+// import { config } from '../config/config';
 
 export async function configureSecurityPlugins(fastify: FastifyInstance) {
   // Disable helmet temporarily for debugging
@@ -14,7 +14,7 @@ export async function configureSecurityPlugins(fastify: FastifyInstance) {
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
     credentials: false,
     maxAge: 86400,
-  })
+  });
 
   // Register other security plugins if needed
 }
