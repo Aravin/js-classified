@@ -5,21 +5,16 @@ import type { ListingType } from '$lib/types';
 
 interface ApiResponse<T> {
     listings: ListingType[];
-    pagination: {
-        total: number;
-        totalPages: number;
-        currentPage: number;
-        limit: number;
-        hasMore: boolean;
-    };
+    total: number;
+    page: number;
+    totalPages: number;
 }
 
 export const load = (async ({ url, params, fetch }) => {
     const searchParams = new URLSearchParams();
     
-    // Get category from URL params
-    const categoryId = url.searchParams.get('category');
-    const category = categories.find(cat => cat.key.toString() === categoryId);
+    // Get category from slug param
+    const category = categories.find(cat => cat.slug === params.slug);
     
     if (!category) {
         throw new Error('Category not found');
@@ -34,7 +29,7 @@ export const load = (async ({ url, params, fetch }) => {
     const location = url.searchParams.get('location');
 
     // Build API query
-    searchParams.set('categoryId', categoryId + '');
+    searchParams.set('categoryId', category.key.toString());
     if (location) searchParams.set('locationId', location);
     if (hasImages) searchParams.set('hasImages', 'true');
     searchParams.set('page', page.toString());
@@ -55,12 +50,12 @@ export const load = (async ({ url, params, fetch }) => {
 
         return {
             listings: result.listings || [],
-            pagination: result.pagination || {
-                total: 0,
-                totalPages: 1,
-                currentPage: 1,
+            pagination: {
+                total: result.total,
+                totalPages: result.totalPages,
+                currentPage: result.page,
                 limit: config.pagination.defaultLimit,
-                hasMore: false
+                hasMore: result.page < result.totalPages
             },
             category,
             location,
