@@ -38,6 +38,7 @@
 	},
 	"dependencies": {
 		"bad-words": "^4.0.0",
-		"dompurify": "^3.2.0"
+		"dompurify": "^3.2.0",
+		"svelte-dnd-action": "^0.9.52"
 	}
 }
