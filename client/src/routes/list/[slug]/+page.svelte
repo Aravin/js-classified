@@ -16,6 +16,7 @@
     phone: null,
     email: null
   };
+  let selectedImage: number | null = null;
 
   const LISTING_EXPIRY_DAYS = config.listing.expiryDays;
 
@@ -66,12 +67,34 @@
   <div class="bg-white rounded-lg shadow-lg overflow-hidden">
     <!-- Image Gallery -->
     {#if listing.images && listing.images.length > 0}
-      <div class="relative h-96">
-        <img 
-          src={listing.images[0].path} 
-          alt={listing.title}
-          class="w-full h-full object-cover"
-        />
+      <div class="space-y-4">
+        <!-- Main Image -->
+        <div class="relative h-96">
+          <img 
+            src={listing.images[selectedImage || 0].path} 
+            alt={listing.title}
+            class="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+        
+        <!-- Thumbnail Gallery -->
+        {#if listing.images.length > 1}
+          <div class="flex gap-2 overflow-x-auto py-2">
+            {#each listing.images as image, index}
+              <button 
+                class="relative w-24 h-24 flex-shrink-0 cursor-pointer transition-all duration-200 
+                       {selectedImage === index ? 'ring-2 ring-primary' : 'hover:ring-2 hover:ring-gray-300'}"
+                on:click={() => selectedImage = index}
+              >
+                <img 
+                  src={image.thumbnailPath || image.path} 
+                  alt={`${listing.title} - Image ${index + 1}`}
+                  class="w-full h-full object-cover rounded-md"
+                />
+              </button>
+            {/each}
+          </div>
+        {/if}
       </div>
     {/if}
 
