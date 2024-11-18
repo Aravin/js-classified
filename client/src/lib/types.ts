@@ -39,7 +39,7 @@ export interface PaginationType {
 }
 
 export interface ApiResponse<T> {
-    data: T[];
+    listings: T[];
     pagination: PaginationType;
 }
 

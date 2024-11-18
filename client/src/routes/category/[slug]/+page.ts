@@ -4,7 +4,7 @@ import { categories } from '$lib/categories/categories';
 import type { ListingType } from '$lib/types';
 
 interface ApiResponse<T> {
-    data: ListingType[];
+    listings: ListingType[];
     pagination: {
         total: number;
         totalPages: number;
@@ -54,7 +54,7 @@ export const load = (async ({ url, params, fetch }) => {
         const result: ApiResponse<ListingType> = await response.json();
 
         return {
-            listings: result.data || [],
+            listings: result.listings || [],
             pagination: result.pagination || {
                 total: 0,
                 totalPages: 1,
