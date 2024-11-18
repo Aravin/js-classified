@@ -125,13 +125,12 @@ export const updateListingSchema = z
 
 // Query schema for listing search
 export const listingQuerySchema = z.object({
-  page: z.number().int().positive().default(1),
-  limit: z.number().int().positive().default(10),
-  categoryId: z.string().optional(),
-  locationId: z.string().optional(),
-  minPrice: z.string().optional(),
-  maxPrice: z.string().optional(),
-  sortBy: z.enum(['price', 'createdAt']).optional().default('createdAt'),
-  order: z.enum(['asc', 'desc']).optional().default('desc'),
-  hasImages: z.boolean().optional().default(false),
+  categoryId: z.coerce.number().int().positive().optional(),
+  locationId: z.coerce.number().int().positive().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().default(10),
+  sortBy: z.enum(['createdAt', 'price', 'title']).default('createdAt'),
+  order: z.enum(['asc', 'desc']).default('desc'),
+  search: z.string().optional(),
+  status: z.nativeEnum(ListingStatus).optional(),
 });
