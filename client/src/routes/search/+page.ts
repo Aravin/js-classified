@@ -1,5 +1,13 @@
 import { config } from '$lib/config';
 import type { PageLoad } from './$types';
+import type { ListingType } from '$lib/types';
+
+interface ApiResponse<T> {
+    listings: ListingType[];
+    total: number;
+    page: number;
+    totalPages: number;
+}
 
 export const load: PageLoad = async ({ url }) => {
     const searchParams = new URLSearchParams();
@@ -24,30 +32,50 @@ export const load: PageLoad = async ({ url }) => {
     searchParams.set('sortBy', sortBy);
     searchParams.set('order', order);
 
-    const response = await fetch(
-        `${config.api.baseUrl}/listings?${searchParams.toString()}`
-    );
+    try {
+        const response = await fetch(
+            `${config.api.baseUrl}/listings?${searchParams.toString()}`
+        );
 
-    if (!response.ok) {
-        throw new Error('Failed to fetch listings');
+        if (!response.ok) {
+            throw new Error('Failed to fetch listings');
+        }
+
+        const result: ApiResponse<ListingType> = await response.json();
+
+        return {
+            listings: result.listings || [],
+            pagination: {
+                total: result.total,
+                totalPages: result.totalPages,
+                currentPage: result.page,
+                limit: config.pagination.defaultLimit,
+                hasMore: result.page < result.totalPages
+            },
+            q,
+            location,
+            category,
+            sortBy,
+            order,
+            hasImages
+        };
+    } catch (error) {
+        console.error('Error fetching listings:', error);
+        return {
+            listings: [],
+            pagination: {
+                total: 0,
+                totalPages: 1,
+                currentPage: 1,
+                limit: config.pagination.defaultLimit,
+                hasMore: false
+            },
+            q,
+            location,
+            category,
+            sortBy,
+            order,
+            hasImages
+        };
     }
-
-    const result = await response.json();
-
-    return {
-        listings: result.data || [],
-        pagination: result.pagination || {
-            total: 0,
-            totalPages: 1,
-            currentPage: 1,
-            limit: config.pagination.defaultLimit,
-            hasMore: false
-        },
-        q,
-        location,
-        category,
-        sortBy,
-        order,
-        hasImages
-    };
 };

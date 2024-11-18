@@ -138,14 +138,26 @@ export async function listingRoutes(fastify: FastifyInstance) {
   fastify.get('/', async (request, reply) => {
     try {
       const queryParams = listingQuerySchema.parse(request.query);
-      const { page = 1, limit = 10, categoryId, locationId, minPrice, maxPrice } = queryParams;
+      const { 
+        page = 1, 
+        limit = 10, 
+        categoryId, 
+        locationId, 
+        sortBy = 'createdAt',
+        order = 'desc',
+        search
+      } = queryParams;
 
       const where = {
         status: ListingStatus.ACTIVE,
-        ...(categoryId && { categoryId: parseInt(categoryId + '') }),
-        ...(locationId && { locationId: parseInt(locationId + '') }),
-        ...(minPrice && { price: { gte: parseFloat(minPrice + '') } }),
-        ...(maxPrice && { price: { lte: parseFloat(maxPrice + '') } }),
+        ...(categoryId && { categoryId }),
+        ...(locationId && { locationId }),
+        ...(search && {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } }
+          ]
+        })
       };
 
       // Calculate skip for pagination
@@ -154,7 +166,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       // Get total count for pagination
       const total = await prisma.listing.count({ where });
 
-      // Get paginated results
+      // Get paginated results with proper sorting
       const listings = await prisma.listing.findMany({
         where,
         include: {
@@ -162,7 +174,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
           location: true,
           images: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortBy]: order },
         skip,
         take: limit,
       });
