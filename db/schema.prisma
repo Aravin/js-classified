@@ -35,10 +35,11 @@ model category {
 }
 
 enum ListingStatus {
-  A  @map("A") // Active
-  E  @map("E") // Ended
-  S  @map("S") // Suspended
-  D  @map("D") // Deleted
+  ACTIVE    @map("ACTIVE")
+  DRAFT     @map("DRAFT")
+  ENDED     @map("ENDED")
+  SUSPENDED @map("SUSPENDED")
+  DELETED   @map("DELETED")
 }
 
 model listing {
@@ -49,7 +50,7 @@ model listing {
   email       String?       @db.VarChar(255)
   phone       String?       @db.VarChar(20)
   price       Decimal       @db.Decimal(10, 2) @default(0)
-  status      ListingStatus @default(A)
+  status      ListingStatus @default(DRAFT)
   category    category      @relation(fields: [categoryId], references: [id])
   categoryId  Int
   location    location      @relation(fields: [locationId], references: [id])

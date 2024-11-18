@@ -42,3 +42,12 @@ export interface ApiResponse<T> {
     data: T[];
     pagination: PaginationType;
 }
+
+export interface ImageUploadResult {
+  id: number;
+  path: string;
+  thumbnailPath: string | null;
+  order: number;
+  listingId: number;
+  createdAt: string;
+}

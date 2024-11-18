@@ -9,16 +9,16 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Seed location data
-  // await populateLocations();
+  await populateLocations();
 
   // clearn up locations
-  // await manualDataCleanup();
+  await manualDataCleanup();
 
   // Seed category data
-  // await populateCategories();
+  await populateCategories();
 
   // Create sample listings
-  await createSampleListings();
+  // await createSampleListings();
 
   console.log('Seeding complete!');
 }

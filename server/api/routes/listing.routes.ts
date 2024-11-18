@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ListingStatus } from '@prisma/client';
 import {
   createListingSchema,
   updateListingSchema,
@@ -43,32 +43,37 @@ export async function listingRoutes(fastify: FastifyInstance) {
     reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   });
 
-  // Create a new listing
+  // Create a new listing (in draft status)
   fastify.post('/', async (request, reply) => {
     try {
       const data = createListingSchema.parse(request.body);
 
       const listing = await prisma.listing.create({
         data: {
-          ...data,
-          slug: 'temp-slug',
-          images: data.images
-            ? {
-                create: data.images,
-              }
-            : undefined,
-        },
-        include: {
-          category: true,
-          location: true,
-          images: true,
+          title: data.title,
+          description: data.description,
+          price: data.price,
+          email: data.email,
+          phone: data.phone,
+          categoryId: data.categoryId,
+          locationId: data.locationId,
+          status: ListingStatus.DRAFT,
+          slug: 'temp',
+          images: data.images ? {
+            create: data.images.map(img => ({
+              path: img.path,
+              thumbnailPath: img.thumbnailPath,
+              order: img.order
+            }))
+          } : undefined
         },
       });
 
-      const finalListing = await prisma.listing.update({
+      // Update with proper slug after getting ID
+      const updatedListing = await prisma.listing.update({
         where: { id: listing.id },
         data: {
-          slug: generateSlug(data.title, listing.id),
+          slug: generateSlug(listing.title, listing.id),
         },
         include: {
           category: true,
@@ -77,63 +82,74 @@ export async function listingRoutes(fastify: FastifyInstance) {
         },
       });
 
-      return sendResponse(reply, 201, finalListing);
+      return sendResponse(reply, 201, updatedListing);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return sendResponse(reply, 400, { error: error.errors });
       }
-      throw error;
+      return sendResponse(reply, 500, { error: 'Internal Server Error' });
     }
   });
 
-  // Get all listings with pagination and filters
+  // Publish a listing (change status from draft to active)
+  fastify.patch('/:id/publish', async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const listingId = parseInt(id);
+
+      // Check if listing exists and is in draft status
+      const listing = await prisma.listing.findFirst({
+        where: {
+          id: listingId,
+          status: ListingStatus.DRAFT,
+        },
+        include: {
+          images: true,
+        },
+      });
+
+      if (!listing) {
+        return sendResponse(reply, 404, { error: 'Draft listing not found' });
+      }
+
+      // Validate that listing has at least one image
+      if (!listing.images || listing.images.length === 0) {
+        return sendResponse(reply, 400, { error: 'At least one image is required to publish a listing' });
+      }
+
+      // Update listing status to active
+      const publishedListing = await prisma.listing.update({
+        where: { id: listingId },
+        data: { status: ListingStatus.ACTIVE },
+        include: {
+          category: true,
+          location: true,
+          images: true,
+        },
+      });
+
+      return sendResponse(reply, 200, publishedListing);
+    } catch (error) {
+      return sendResponse(reply, 500, { error: 'Internal Server Error' });
+    }
+  });
+
+  // Get all listings (exclude drafts by default)
   fastify.get('/', async (request, reply) => {
     try {
-      const query = listingQuerySchema.parse(request.query);
-      const {
-        page,
-        limit,
-        categoryId,
-        locationId,
-        sortBy,
-        order,
-        search,
-        minPrice,
-        maxPrice,
-        hasImages,
-      } = query;
+      const queryParams = listingQuerySchema.parse(request.query);
+      const { page = 1, limit = 10, categoryId, locationId, minPrice, maxPrice } = queryParams;
+
+      const where = {
+        status: ListingStatus.ACTIVE,
+        ...(categoryId && { categoryId: parseInt(categoryId + '') }),
+        ...(locationId && { locationId: parseInt(locationId + '') }),
+        ...(minPrice && { price: { gte: parseFloat(minPrice + '') } }),
+        ...(maxPrice && { price: { lte: parseFloat(maxPrice + '') } }),
+      };
 
       // Calculate skip for pagination
       const skip = (page - 1) * limit;
-
-      // Build where clause
-      const where: any = {
-        ...(categoryId ? { categoryId } : {}),
-        ...(locationId ? { locationId } : {}),
-        ...(search
-          ? {
-              OR: [
-                { title: { contains: search, mode: 'insensitive' } },
-                { description: { contains: search, mode: 'insensitive' } },
-              ],
-            }
-          : {}),
-        ...(minPrice || maxPrice
-          ? {
-              price: {
-                ...(minPrice ? { gte: minPrice } : {}),
-                ...(maxPrice ? { lte: maxPrice } : {}),
-              },
-            }
-          : {}),
-        ...(hasImages
-          ? {
-              images: {
-                some: {}, // At least one image exists
-              },
-            }
-          : {}),
-      };
 
       // Get total count for pagination
       const total = await prisma.listing.count({ where });
@@ -146,39 +162,43 @@ export async function listingRoutes(fastify: FastifyInstance) {
           location: true,
           images: true,
         },
-        orderBy: [
-          { [sortBy]: order },
-          { createdAt: 'desc' }, // Secondary sort by createdAt
-        ],
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       });
 
       const maskedListings = listings.map(maskSensitiveData);
 
-      // Calculate pagination metadata
-      const totalPages = Math.ceil(total / limit);
-      const hasMore = page < totalPages;
-      const nextPage = hasMore ? page + 1 : null;
-      const prevPage = page > 1 ? page - 1 : null;
-
       return sendResponse(reply, 200, {
-        data: maskedListings,
-        pagination: {
-          total,
-          totalPages,
-          currentPage: page,
-          limit,
-          hasMore,
-          nextPage,
-          prevPage,
-        },
+        listings: maskedListings,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return sendResponse(reply, 400, { error: error.errors });
       }
       throw error;
+    }
+  });
+
+  // Get draft listings
+  fastify.get('/drafts', async (request, reply) => {
+    try {
+      const drafts = await prisma.listing.findMany({
+        where: { status: ListingStatus.DRAFT },
+        include: {
+          category: true,
+          location: true,
+          images: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return sendResponse(reply, 200, drafts);
+    } catch (error) {
+      return sendResponse(reply, 500, { error: 'Internal Server Error' });
     }
   });
 

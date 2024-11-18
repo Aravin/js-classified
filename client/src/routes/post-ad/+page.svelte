@@ -10,6 +10,7 @@
   import DOMPurify from 'dompurify';
   import {config} from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
+  import { page } from '$app/stores';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -279,6 +280,9 @@
   let submitting = false;
   let submitError: string | null = null;
 
+  let isPreview = $page.url.pathname.endsWith('/preview');
+  let draftListing: any = null;
+
   async function handleSubmit(): Promise<void> {
     if (!validateForm()) {
       submitError = 'Please fix the validation errors before submitting.';
@@ -304,32 +308,67 @@
         locationId: selectedLocation.key,
         email: formData.email ? sanitizeInput(formData.email) : undefined,
         phone: formData.phone ? sanitizeInput(formData.phone) : undefined,
-        images: []
+        status: 'draft'
       };
+
+      console.log('Submitting payload:', payload);
 
       const response = await fetch(`${config.api.baseUrl}/listings`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify(payload)
       });
 
+      const responseData = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Failed to submit listing');
+        console.error('Server response:', responseData);
+        throw new Error(responseData.message || 'Failed to submit listing');
       }
 
-      const result = await response.json();
+      // Store draft listing data
+      draftListing = responseData;
       
-      // Reset form dirty state before navigation
-      isFormDirty = false;
-      
-      await goto(`/list/${result.slug}?id=${result.id}`);
+      // Go to preview
+      await goto(`/post-ad/preview?id=${responseData.id}`);
     } catch (error) {
       console.error('Error submitting form:', error);
-      submitError = 'Failed to submit listing. Please try again.';
+      if (error instanceof Error) {
+        submitError = error.message;
+      } else {
+        submitError = 'Failed to submit listing. Please try again.';
+      }
     } finally {
       submitting = false;
+    }
+  }
+
+  async function publishListing() {
+    if (!draftListing) return;
+    
+    try {
+      const response = await fetch(`${config.api.baseUrl}/listings/${draftListing.id}/publish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Failed to publish listing');
+      }
+
+      // Navigate to the published listing
+      await goto(`/list/${responseData.slug}`);
+    } catch (error) {
+      console.error('Error publishing listing:', error);
+      submitError = error instanceof Error ? error.message : 'Failed to publish listing';
     }
   }
 
@@ -547,18 +586,25 @@
 
     <!-- Submit Button -->
     <div class="form-control mt-8">
-      <button type="submit" class="btn btn-primary" disabled={!isFormValid || submitting}>
-        {#if submitting}
-          <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
-        {:else}
+      {#if isPreview}
+        <button type="button" class="btn btn-primary" on:click={publishListing}>
           <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
-        {/if}
-        {#if submitting}
-          Submitting...
-        {:else}
-          Post Ad
-        {/if}
-      </button>
+          Publish Listing
+        </button>
+      {:else}
+        <button type="submit" class="btn btn-primary" disabled={!isFormValid || submitting}>
+          {#if submitting}
+            <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
+          {:else}
+            <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
+          {/if}
+          {#if submitting}
+            Submitting...
+          {:else}
+            Post Ad
+          {/if}
+        </button>
+      {/if}
       {#if submitError}
         <div class="error-container mt-4">
           <div class="flex items-center gap-2 text-error">

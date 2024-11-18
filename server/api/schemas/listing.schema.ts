@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ListingStatus } from '@prisma/client';
 
 const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,6 +13,11 @@ const baseSchema = z
     phone: z.string().max(20).optional(),
     categoryId: z.number().int().positive(),
     locationId: z.number().int().positive(),
+    status: z
+      .string()
+      .transform(val => val.toUpperCase())
+      .pipe(z.nativeEnum(ListingStatus))
+      .default(ListingStatus.DRAFT),
     images: z
       .array(
         z.object({
@@ -66,7 +72,11 @@ export const updateListingSchema = z
     phone: z.string().max(20).optional(),
     categoryId: z.number().int().positive().optional(),
     locationId: z.number().int().positive().optional(),
-    status: z.enum(['A', 'E', 'S', 'D']).optional(),
+    status: z
+      .string()
+      .transform(val => val.toUpperCase())
+      .pipe(z.nativeEnum(ListingStatus))
+      .optional(),
     images: z
       .array(
         z.object({
@@ -113,37 +123,15 @@ export const updateListingSchema = z
     }
   });
 
-// Add query parameters schema
+// Query schema for listing search
 export const listingQuerySchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : 1)),
-  limit: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : 10)),
-  categoryId: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : undefined)),
-  locationId: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : undefined)),
-  sortBy: z.enum(['createdAt', 'price']).optional().default('createdAt'),
+  page: z.number().int().positive().default(1),
+  limit: z.number().int().positive().default(10),
+  categoryId: z.string().optional(),
+  locationId: z.string().optional(),
+  minPrice: z.string().optional(),
+  maxPrice: z.string().optional(),
+  sortBy: z.enum(['price', 'createdAt']).optional().default('createdAt'),
   order: z.enum(['asc', 'desc']).optional().default('desc'),
-  search: z.string().optional(),
-  minPrice: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : undefined)),
-  maxPrice: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : undefined)),
-  hasImages: z
-    .string()
-    .optional()
-    .transform((val) => val === 'true'), // Transform string 'true'/'false' to boolean
+  hasImages: z.boolean().optional().default(false),
 });
