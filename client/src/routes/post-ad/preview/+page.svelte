@@ -62,19 +62,22 @@
     if (!listing) return;
     
     try {
-      const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}/publish`, {
-        method: 'POST',
+      const payload = {
+        status: 'ACTIVE',
+        images: uploadedImages.map((img, index) => ({
+          path: img.path,
+          thumbnailPath: img.thumbnailPath,
+          order: index
+        }))
+      };
+
+      const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          images: uploadedImages.map((img, index) => ({
-            path: img.path,
-            thumbnailPath: img.thumbnailPath,
-            order: index
-          }))
-        })
+        body: JSON.stringify(payload)
       });
 
       const responseData = await response.json();
@@ -85,9 +88,9 @@
 
       // Navigate to the published listing
       await goto(`/list/${responseData.slug}`);
-    } catch (err) {
-      error = 'Failed to publish listing';
-      console.error('Error publishing:', err);
+    } catch (error) {
+      console.error('Error publishing listing:', error);
+      error = error instanceof Error ? error.message : 'Failed to publish listing';
     }
   }
 

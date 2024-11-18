@@ -18,7 +18,7 @@
   
   let fileInput: HTMLInputElement;
   let uploadStates: Map<string, { progress: number, error: string | null }> = new Map();
-  let preview: Array<{ id: string, src: string, file: File, uploading: boolean, error: string | null }> = [];
+  let preview: Array<{ id: string, src: string, file: File, uploading: boolean, error: string | null, order: number | null }> = [];
   let error: string | null = null;
   let showDeleteConfirm: string | null = null;  // Store ID of image to delete
   
@@ -30,7 +30,11 @@
 
   function handleDndFinalize(e: CustomEvent<{ items: typeof preview }>) {
     preview = e.detail.items;
-    // Dispatch order change event if needed
+    // Update order of all images after drag and drop
+    preview = preview.map((item, index) => ({
+      ...item,
+      order: index + 1
+    }));
   }
   
   function confirmDelete(id: string) {
@@ -80,7 +84,8 @@
             src: result,
             file,
             uploading: false,
-            error: null
+            error: null,
+            order: null
           }];
         }
       };
@@ -97,7 +102,13 @@
     try {
       const formData = new FormData();
       formData.append('image', item.file);
-      formData.append('order', (preview.indexOf(item) + 1).toString());
+      
+      // Get current order of all images
+      const currentOrder = preview
+        .map((p, index) => ({ id: p.id, order: index + 1 }))
+        .find(p => p.id === item.id)?.order || 1;
+      
+      formData.append('order', currentOrder.toString());
       
       const apiUrl = `${config.api.baseUrl}/images/listings/${listingId}/images`;
       const response = await fetch(apiUrl, {

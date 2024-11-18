@@ -333,42 +333,12 @@
       draftListing = responseData;
       
       // Go to preview
-      await goto(`/post-ad/preview?id=${responseData.id}`);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      if (error instanceof Error) {
-        submitError = error.message;
-      } else {
-        submitError = 'Failed to submit listing. Please try again.';
-      }
+      await goto('/post-ad/preview?id=' + responseData.id);
+    } catch (err) {
+      console.error('Error submitting listing:', err);
+      submitError = err instanceof Error ? err.message : 'Failed to submit listing';
     } finally {
       submitting = false;
-    }
-  }
-
-  async function publishListing() {
-    if (!draftListing) return;
-    
-    try {
-      const response = await fetch(`${config.api.baseUrl}/listings/${draftListing.id}/publish`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-
-      const responseData = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Failed to publish listing');
-      }
-
-      // Navigate to the published listing
-      await goto(`/list/${responseData.slug}`);
-    } catch (error) {
-      console.error('Error publishing listing:', error);
-      submitError = error instanceof Error ? error.message : 'Failed to publish listing';
     }
   }
 
@@ -586,25 +556,18 @@
 
     <!-- Submit Button -->
     <div class="form-control mt-8">
-      {#if isPreview}
-        <button type="button" class="btn btn-primary" on:click={publishListing}>
+      <button type="submit" class="btn btn-primary" disabled={!isFormValid || submitting}>
+        {#if submitting}
+          <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
+        {:else}
           <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
-          Publish Listing
-        </button>
-      {:else}
-        <button type="submit" class="btn btn-primary" disabled={!isFormValid || submitting}>
-          {#if submitting}
-            <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
-          {:else}
-            <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
-          {/if}
-          {#if submitting}
-            Submitting...
-          {:else}
-            Post Ad
-          {/if}
-        </button>
-      {/if}
+        {/if}
+        {#if submitting}
+          Submitting...
+        {:else}
+          Post Ad
+        {/if}
+      </button>
       {#if submitError}
         <div class="error-container mt-4">
           <div class="flex items-center gap-2 text-error">
