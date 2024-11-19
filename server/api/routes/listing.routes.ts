@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { PrismaClient, ListingStatus } from '@prisma/client';
+import { PrismaClient, ListingStatus, Prisma } from '@prisma/client';
 import {
   createListingSchema,
   updateListingSchema,
@@ -148,14 +148,14 @@ export async function listingRoutes(fastify: FastifyInstance) {
         search
       } = queryParams;
 
-      const where = {
+      const where: Prisma.listingWhereInput = {
         status: ListingStatus.ACTIVE,
         ...(categoryId && { categoryId }),
         ...(locationId && { locationId }),
         ...(search && {
           OR: [
-            { title: { contains: search, mode: 'insensitive' } },
-            { description: { contains: search, mode: 'insensitive' } }
+            { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            { description: { contains: search, mode: Prisma.QueryMode.insensitive } }
           ]
         })
       };

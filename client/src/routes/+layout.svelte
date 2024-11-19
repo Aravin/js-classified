@@ -54,7 +54,7 @@
       <a href="/" class="flex items-center space-x-2">
         <Icon icon="material-symbols:store" class="text-primary" font-size="32" />
         <h1 class="text-xl font-bold tracking-tight">
-          <span>Bidy.in</span>
+          <span>locful.in</span>
         </h1>
       </a>
       
