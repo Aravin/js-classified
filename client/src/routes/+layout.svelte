@@ -6,6 +6,7 @@
   import SearchableSelect from '$lib/SearchableSelect.svelte';
   import { selectedLocation, selectedCategory, searchTerm } from '$lib/stores/filters';
   import { goto } from '$app/navigation';
+  import AuthNav from '$lib/components/AuthNav.svelte';
 
   let locationSearch = $selectedLocation;
   let categorySearch = $selectedCategory;
@@ -58,10 +59,7 @@
         </h1>
       </a>
       
-      <div class="flex items-center space-x-3">
-        <button class="btn btn-ghost btn-sm normal-case">Login</button>
-        <a href="/post-ad" class="btn btn-primary btn-sm normal-case">Post Ad</a>
-      </div>
+      <AuthNav />
     </div>
 
     <!-- Search bar section -->
