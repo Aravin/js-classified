@@ -11,8 +11,6 @@ import {
   UserListingsQueryParams,
 } from '../schemas/user.schema';
 
-
-
 const prisma = new PrismaClient();
 
 interface AuthUser {

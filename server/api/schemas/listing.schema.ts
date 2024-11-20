@@ -13,6 +13,7 @@ const baseSchema = z
     phone: z.string().max(20).optional(),
     categoryId: z.number().int().positive(),
     locationId: z.number().int().positive(),
+    userId: z.string().optional(),
     status: z
       .string()
       .transform(val => val.toUpperCase())
@@ -72,6 +73,7 @@ export const updateListingSchema = z
     phone: z.string().max(20).optional(),
     categoryId: z.number().int().positive().optional(),
     locationId: z.number().int().positive().optional(),
+    userId: z.string().optional(),
     status: z
       .string()
       .transform(val => val.toUpperCase())

@@ -11,6 +11,8 @@
   import {config} from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
   import { page } from '$app/stores';
+  import { user } from '$lib/auth/auth0';
+  import type { User } from '@auth0/auth0-spa-js';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -308,7 +310,8 @@
         locationId: selectedLocation.key,
         email: formData.email ? sanitizeInput(formData.email) : undefined,
         phone: formData.phone ? sanitizeInput(formData.phone) : undefined,
-        status: 'draft'
+        status: 'draft',
+        ...$user ? { userId: $user.sub } : {}
       };
 
       console.log('Submitting payload:', payload);

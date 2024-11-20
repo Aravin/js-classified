@@ -5,6 +5,7 @@ import {
   updateListingSchema,
   listingQuerySchema,
 } from '../schemas/listing.schema';
+import { createAuth0User } from '../../services/auth0.service';
 import { z } from 'zod';
 
 const prisma = new PrismaClient();
@@ -47,18 +48,30 @@ export async function listingRoutes(fastify: FastifyInstance) {
   fastify.post('/', async (request, reply) => {
     try {
       const data = createListingSchema.parse(request.body);
+      let userId = data.userId;
 
-      // First ensure user exists
-      const userId = '673cc3191dbe2a5b80994666';
+      // If no userId provided, create Auth0 user
+      if (!userId) {
+        userId = await createAuth0User(data.email, data.phone);
+        if (!userId) {
+          throw new Error('Failed to create Auth0 user');
+        }
+      }
+
+      // Check if user exists
       let user = await prisma.user.findUnique({
         where: { userId }
       });
 
       if (!user) {
+        // Create user if doesn't exist
         user = await prisma.user.create({
           data: {
-            userId,
-            username: `user_${userId.slice(0, 8)}`,
+            userId: userId,
+            email: data.email || undefined,
+            phone: data.phone || undefined,
+            createdAt: new Date(),
+            lastLogin: new Date(),
           }
         });
       }
@@ -314,18 +327,28 @@ export async function listingRoutes(fastify: FastifyInstance) {
       const data = updateListingSchema.parse(request.body);
       const numericId = parseInt(id);
 
+      // Prepare update data with proper type handling
+      const updateData: Prisma.listingUpdateInput = {
+        ...(data.title && { title: data.title }),
+        ...(data.description && { description: data.description }),
+        ...(data.price && { price: data.price }),
+        ...(data.email && { email: data.email }),
+        ...(data.phone && { phone: data.phone }),
+        ...(data.categoryId && { category: { connect: { id: data.categoryId } } }),
+        ...(data.locationId && { location: { connect: { id: data.locationId } } }),
+        ...(data.status && { status: data.status }),
+        ...(data.title && { slug: generateSlug(data.title, numericId) }),
+        ...(data.images && {
+          images: {
+            deleteMany: {},
+            create: data.images,
+          },
+        }),
+      };
+
       const listing = await prisma.listing.update({
         where: { id: numericId },
-        data: {
-          ...data,
-          slug: data.title ? generateSlug(data.title, numericId) : undefined,
-          images: data.images
-            ? {
-                deleteMany: {},
-                create: data.images,
-              }
-            : undefined,
-        },
+        data: updateData,
         include: {
           category: true,
           location: true,

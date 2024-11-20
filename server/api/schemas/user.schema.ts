@@ -15,7 +15,6 @@ const userBaseSchema = {
 // Schema for creating user
 export const createUserSchema = {
   type: 'object',
-  required: ['userId'],
   properties: {
     userId: { type: 'string' },
     username: { type: 'string', minLength: 3, maxLength: 50 },
@@ -23,7 +22,11 @@ export const createUserSchema = {
     phone: { type: 'string', pattern: phoneRegex.source },
     fullName: { type: 'string', minLength: 1, maxLength: 255 },
     avatar: { type: 'string', format: 'uri' },
-  }
+  },
+  anyOf: [
+    { required: ['email'] },
+    { required: ['phone'] }
+  ]
 };
 
 // Schema for updating user
