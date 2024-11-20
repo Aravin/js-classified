@@ -1,9 +1,10 @@
 import { createAuth0Client, type Auth0Client, type Auth0ClientOptions, type User } from '@auth0/auth0-spa-js';
 import { writable, get, type Writable } from 'svelte/store';
 import { env } from '$env/dynamic/public';
+import { config } from '$lib/config';
 
 // Auth0 configuration
-const config: Auth0ClientOptions = {
+const auth0Config: Auth0ClientOptions = {
     domain: env.PUBLIC_AUTH0_DOMAIN + '',
     clientId: env.PUBLIC_AUTH0_CLIENT_ID + '',
     authorizationParams: {
@@ -21,7 +22,7 @@ export const isLoading: Writable<boolean> = writable(true);
 
 async function createClient() {
     try {
-        const client = await createAuth0Client(config);
+        const client = await createAuth0Client(auth0Config);
         auth0Client.set(client);
 
         // Check if user is authenticated
@@ -56,6 +57,31 @@ export async function login() {
         const userData = await client.getUser();
         user.set(userData || null);
         isAuthenticated.set(true);
+
+        // Store user data in our database
+        if (userData) {
+            try {
+                const apiUrl = `${config.api.baseUrl}/users`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userData.sub,
+                        email: userData.email,
+                        fullName: userData.name,
+                        avatar: userData.picture
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to store user data:', await response.text());
+                }
+            } catch (e) {
+                console.error('Error storing user data:', e);
+            }
+        }
     } catch (e) {
         console.error('Error logging in:', e);
         error.set(e instanceof Error ? e.message : 'Unknown error');

@@ -42,6 +42,23 @@ enum ListingStatus {
   DELETED   @map("DELETED")
 }
 
+model user {
+  id         Int       @id @default(autoincrement())
+  userId     String    @unique // auth0 user id
+  username   String?   @unique
+  email      String?   @unique
+  phone      String?   @unique
+  fullName   String?
+  avatar     String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  lastLogin  DateTime?
+  listings   listing[]
+
+  @@index([userId])
+  @@index([username])
+}
+
 model listing {
   id          Int           @id @default(autoincrement())
   title       String        @db.VarChar(255)
@@ -55,12 +72,15 @@ model listing {
   categoryId  Int
   location    location      @relation(fields: [locationId], references: [id])
   locationId  Int
+  user        user          @relation(fields: [userId], references: [id])
+  userId      Int
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   images      image[]
 
   @@index([categoryId])
   @@index([locationId])
+  @@index([userId])
   @@index([status])
   @@index([price])
 }

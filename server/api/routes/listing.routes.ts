@@ -48,6 +48,21 @@ export async function listingRoutes(fastify: FastifyInstance) {
     try {
       const data = createListingSchema.parse(request.body);
 
+      // First ensure user exists
+      const userId = '673cc3191dbe2a5b80994666';
+      let user = await prisma.user.findUnique({
+        where: { userId }
+      });
+
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            userId,
+            username: `user_${userId.slice(0, 8)}`,
+          }
+        });
+      }
+
       const listing = await prisma.listing.create({
         data: {
           title: data.title,
@@ -55,8 +70,15 @@ export async function listingRoutes(fastify: FastifyInstance) {
           price: data.price,
           email: data.email,
           phone: data.phone,
-          categoryId: data.categoryId,
-          locationId: data.locationId,
+          category: {
+            connect: { id: data.categoryId }
+          },
+          location: {
+            connect: { id: data.locationId }
+          },
+          user: {
+            connect: { userId }
+          },
           status: ListingStatus.DRAFT,
           slug: 'temp',
           images: data.images ? {
@@ -87,7 +109,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       if (error instanceof z.ZodError) {
         return sendResponse(reply, 400, { error: error.errors });
       }
-      return sendResponse(reply, 500, { error: 'Internal Server Error' });
+      return sendResponse(reply, 500, { error: 'Internal Server Error'+ (error as Error).message });
     }
   });
 

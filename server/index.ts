@@ -4,6 +4,8 @@ import { v2 as cloudinary } from 'cloudinary';
 import { configureSecurityPlugins } from './plugins/security';
 import { listingRoutes } from './api/routes/listing.routes';
 import { imageRoutes } from './api/routes/image.routes';
+import { userRoutes } from './api/routes/user.routes';
+
 import { config } from './config/config';
 
 // Configure Cloudinary
@@ -34,6 +36,8 @@ server.register(configureSecurityPlugins);
 // Register routes
 server.register(listingRoutes, { prefix: '/api/listings' });
 server.register(imageRoutes, { prefix: '/api/images' });
+server.register(userRoutes, { prefix: '/api/users' });
+
 
 // Health check route
 server.get('/ping', async () => 'pong\n');
