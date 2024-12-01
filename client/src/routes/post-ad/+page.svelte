@@ -310,7 +310,7 @@
         email: formData.email ? sanitizeInput(formData.email) : undefined,
         phone: formData.phone ? sanitizeInput(formData.phone) : undefined,
         status: 'draft',
-        ...$user ? { userId: $user.sub } : {}
+        ...$user ? { authUserId: $user.sub } : {}
       };
 
       console.log('Submitting payload:', payload);
