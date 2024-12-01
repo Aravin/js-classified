@@ -133,9 +133,14 @@ export async function userRoutes(fastify: FastifyInstance) {
   fastify.get('/:id', {
     handler: async (request, reply) => {
       const { id } = request.params as { id: string };
+      const userId = parseInt(id, 10);
 
-      const user = await prisma.user.findUnique({
-        where: { userId: id },
+      if (isNaN(userId)) {
+        return reply.status(400).send({ message: 'Invalid user ID' });
+      }
+
+      const user = await prisma.user.findFirst({
+        where: { id: userId },
         select: userSelect,
       });
 
