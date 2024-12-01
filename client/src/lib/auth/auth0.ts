@@ -2,6 +2,7 @@ import { createAuth0Client, type Auth0Client, type Auth0ClientOptions, type User
 import { writable, get, type Writable } from 'svelte/store';
 import { env } from '$env/dynamic/public';
 import { config } from '$lib/config';
+import { goto } from '$app/navigation';
 
 // Auth0 configuration
 const auth0Config: Auth0ClientOptions = {
@@ -82,9 +83,18 @@ export async function login() {
                 console.error('Error storing user data:', e);
             }
         }
+
+        // Handle redirect after successful login
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectPath) {
+            sessionStorage.removeItem('redirectAfterLogin');
+            goto(redirectPath);
+        }
     } catch (e) {
         console.error('Error logging in:', e);
         error.set(e instanceof Error ? e.message : 'Unknown error');
+        // If login fails, redirect to home
+        goto('/');
     } finally {
         popupOpen.set(false);
     }

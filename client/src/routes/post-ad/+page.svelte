@@ -11,7 +11,7 @@
   import {config} from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
   import { page } from '$app/stores';
-  import { user } from '$lib/auth/auth0';
+  import { user, isAuthenticated } from '$lib/auth/auth0';
   import type { User } from '@auth0/auth0-spa-js';
 
   /** @type {import('./$types').PageData} */
@@ -282,7 +282,6 @@
   let submitting = false;
   let submitError: string | null = null;
 
-  let isPreview = $page.url.pathname.endsWith('/preview');
   let draftListing: any = null;
 
   async function handleSubmit(): Promise<void> {
@@ -355,6 +354,10 @@
   // Handle browser back/forward/refresh
   onMount(() => {
     window.addEventListener('beforeunload', handleBeforeUnload);
+    // Check if user is authenticated
+    if (!$isAuthenticated) {
+      goto('/');
+    }
   });
 
   onDestroy(() => {

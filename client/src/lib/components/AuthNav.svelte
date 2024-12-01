@@ -2,8 +2,20 @@
   import { isAuthenticated, login, logout, user, isLoading } from '$lib/auth/auth0';
   import Icon from '@iconify/svelte';
   import type { User } from '@auth0/auth0-spa-js';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
 
   $: currentUser = $user as User | null;
+
+  const handlePostAd = async () => {
+    if ($isAuthenticated) {
+      goto('/post-ad');
+    } else {
+      // Store the intended destination
+      sessionStorage.setItem('redirectAfterLogin', '/post-ad');
+      login();
+    }
+  };
 </script>
 
 <div class="flex items-center space-x-3">
@@ -15,10 +27,10 @@
       </div>
     </div>
   {:else if $isAuthenticated && currentUser}
-    <a href="/post-ad" class="btn btn-primary btn-sm normal-case gap-2">
+    <button on:click={handlePostAd} class="btn btn-primary btn-sm normal-case gap-2">
       <Icon icon="material-symbols:add" class="w-5 h-5" />
       Post Ad
-    </a>
+    </button>
     <div class="dropdown dropdown-end">
       <label tabindex="0" class="btn btn-ghost btn-circle avatar ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
         <div class="w-8 h-8 rounded-full overflow-hidden bg-base-200">
@@ -69,10 +81,10 @@
       </ul>
     </div>
   {:else}
-    <a href="/post-ad" class="btn btn-primary btn-sm normal-case gap-2">
+    <button on:click={handlePostAd} class="btn btn-primary btn-sm normal-case gap-2">
       <Icon icon="material-symbols:add" class="w-5 h-5" />
       Post Ad
-    </a>
+    </button>
     <button on:click={login} class="btn btn-ghost btn-sm normal-case gap-2 hover:bg-base-200">
       <Icon icon="material-symbols:login" class="w-5 h-5" />
       Login

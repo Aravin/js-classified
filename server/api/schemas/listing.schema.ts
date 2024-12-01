@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ListingStatus } from '@prisma/client';
 
-const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+const phoneRegex = /^\+[0-9]{1,3}[0-9]{10}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const baseSchema = z

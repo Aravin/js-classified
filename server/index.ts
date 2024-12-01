@@ -48,7 +48,7 @@ const start = async () => {
       port: config.server.port,
       host: config.server.host,
     });
-    console.log(`Server listening at ${server.server.address()}`);
+    console.log(`Server listening at ${config.server.host}:${config.server.port}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
