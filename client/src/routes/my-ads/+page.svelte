@@ -6,6 +6,8 @@
   import Icon from '@iconify/svelte';
   import { formatCurrency, formatDate } from '$lib/utils';
   import { browser } from '$app/environment';
+  import { fade, scale } from 'svelte/transition';
+  import { elasticOut } from 'svelte/easing';
 
   interface Listing {
     id: number;
@@ -206,9 +208,15 @@
               }}
             />
             <div class="absolute top-2 right-2">
-              <span class="badge badge-{listing.status === 'ACTIVE' ? 'success' : 'warning'} badge-sm">
-                {listing.status}
-              </span>
+              {#key listing.status}
+                <span 
+                  in:scale={{duration: 300, easing: elasticOut}}
+                  out:fade={{duration: 200}}
+                  class="badge {listing.status === 'ACTIVE' ? 'badge-success' : 'badge-warning'} badge-sm animate-pulse"
+                >
+                  {listing.status}
+                </span>
+              {/key}
             </div>
           </figure>
           <div class="card-body">
