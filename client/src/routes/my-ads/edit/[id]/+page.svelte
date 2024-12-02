@@ -9,6 +9,8 @@
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
   import { user, isAuthenticated } from '$lib/auth/auth0';
   import { page } from '$app/stores';
+  import ImageUpload from '$lib/components/ImageUpload.svelte';
+  import type { ImageUploadResult } from '$lib/types';
   import {
     type FormData,
     type FormErrors,
@@ -24,7 +26,7 @@
     sanitizeInput
   } from '$lib/form-validation';
 
-  const listingId = $page.params.id;
+  const listingId = Number($page.params.id);
   let loading = true;
   let loadError: string | null = null;
   let submitting = false;
@@ -32,6 +34,8 @@
 
   let formData: FormData = { ...initialFormData };
   let errors: FormErrors = { ...initialErrors };
+  let uploadedImages: ImageUploadResult[] = [];
+  let imageUploadError: string | null = null;
 
   // Update formData when stores change
   $: formData.location = $selectedLocation;
@@ -52,6 +56,11 @@
       const listing = await response.json();
       const locationObj = locations.find(loc => loc.key === listing.locationId);
       const categoryObj = categories.find(cat => cat.key === listing.categoryId);
+
+      // Load existing images
+      if (listing.images) {
+        uploadedImages = listing.images;
+      }
 
       formData = {
         title: listing.title,
@@ -97,7 +106,12 @@
         categoryId: selectedCategory.key,
         locationId: selectedLocation.key,
         email: formData.email ? sanitizeInput(formData.email) : undefined,
-        phone: formData.phone ? sanitizeInput(formData.phone) : undefined
+        phone: formData.phone ? sanitizeInput(formData.phone) : undefined,
+        images: uploadedImages.map((img, index) => ({
+          path: img.path,
+          thumbnailPath: img.thumbnailPath,
+          order: index
+        }))
       };
 
       const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`, {
@@ -303,6 +317,52 @@
             </label>
           {/if}
         </div>
+      </div>
+
+      <!-- Image Upload Section -->
+      <div class="form-control mt-6">
+        <h3 class="text-lg font-semibold mb-4">Images</h3>
+        <ImageUpload
+          listingId={listingId}
+          maxFiles={3}
+          on:upload={(event) => {
+            uploadedImages = [...uploadedImages, ...event.detail.images];
+            imageUploadError = null;
+          }}
+          on:error={(event) => {
+            imageUploadError = event.detail.message;
+          }}
+        />
+        {#if imageUploadError}
+          <div class="error-container mt-4">
+            <div class="flex items-center gap-2 text-error">
+              <Icon icon="material-symbols:error" class="w-5 h-5" />
+              <span class="text-sm font-medium">{imageUploadError}</span>
+            </div>
+          </div>
+        {/if}
+        {#if uploadedImages.length > 0}
+          <div class="grid grid-cols-3 gap-4 mt-4">
+            {#each uploadedImages as image (image.id)}
+              <div class="relative group">
+                <img
+                  src={image.thumbnailPath || image.path}
+                  alt="Uploaded"
+                  class="w-full aspect-square object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  class="absolute top-2 right-2 bg-error hover:bg-error-focus text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  on:click={() => {
+                    uploadedImages = uploadedImages.filter(img => img.id !== image.id);
+                  }}
+                >
+                  <Icon icon="material-symbols:delete" class="w-5 h-5" />
+                </button>
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
 
       <!-- Submit Button -->
