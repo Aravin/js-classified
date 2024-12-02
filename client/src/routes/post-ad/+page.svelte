@@ -10,9 +10,7 @@
   import DOMPurify from 'dompurify';
   import {config} from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
-  import { page } from '$app/stores';
   import { user, isAuthenticated } from '$lib/auth/auth0';
-  import type { User } from '@auth0/auth0-spa-js';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -37,7 +35,7 @@
     email: string;
   }
 
-  let formData: FormData = {
+  let initialFormData = {
     title: '',
     description: '',
     price: '',
@@ -46,6 +44,8 @@
     phone: '',
     email: ''
   };
+
+  let formData: FormData = { ...initialFormData };
 
   let errors: FormErrors = {
     title: '',
@@ -334,6 +334,9 @@
       // Store draft listing data
       draftListing = responseData;
       
+      // Reset form dirty state after successful submission
+      isFormDirty = false;
+      
       // Go to preview
       await goto('/post-ad/preview?id=' + responseData.id);
     } catch (err) {
@@ -344,9 +347,22 @@
     }
   }
 
+  // Check if form has actual changes
+  function hasFormChanges(): boolean {
+    return (
+      formData.title !== initialFormData.title ||
+      formData.description !== initialFormData.description ||
+      formData.price !== initialFormData.price ||
+      formData.location !== initialFormData.location ||
+      formData.category !== initialFormData.category ||
+      formData.phone !== initialFormData.phone ||
+      formData.email !== initialFormData.email
+    );
+  }
+
   // Handle navigation attempts
   beforeNavigate(({ cancel, to }) => {
-    if (isFormDirty && !window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
+    if (isFormDirty && hasFormChanges() && !window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
       cancel();
     }
   });
@@ -365,7 +381,7 @@
   });
 
   function handleBeforeUnload(e: BeforeUnloadEvent) {
-    if (isFormDirty) {
+    if (isFormDirty && hasFormChanges()) {
       e.preventDefault();
       e.returnValue = '';
     }
@@ -376,10 +392,6 @@
   .error-container {
     min-height: 1rem;
     margin-top: 0.125rem;
-  }
-  .label-text-alt.text-error {
-    font-size: 0.75rem;
-    line-height: 1rem;
   }
 </style>
 
