@@ -240,7 +240,7 @@
               </div>
               <div class="col-span-1">
                 <a 
-                  href="/post-ad/edit/{listing.id}" 
+                  href="/my-ads/edit/{listing.id}" 
                   class="btn btn-sm btn-info gap-1 w-full"
                 >
                   <Icon icon="material-symbols:edit" class="w-4 h-4" />

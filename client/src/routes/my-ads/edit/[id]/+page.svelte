@@ -3,12 +3,12 @@
   import { locations } from '$lib/locations';
   import { categories } from '$lib/categories/categories';
   import Icon from '@iconify/svelte';
-  import { onMount, onDestroy } from 'svelte';
-  import { beforeNavigate } from '$app/navigation';
+  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { config } from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
   import { user, isAuthenticated } from '$lib/auth/auth0';
+  import { page } from '$app/stores';
   import {
     type FormData,
     type FormErrors,
@@ -21,23 +21,17 @@
     validateCategory,
     validateContact,
     validateForm,
-    sanitizeInput,
-    hasFormChanges
+    sanitizeInput
   } from '$lib/form-validation';
-  import { browser } from '$app/environment';
 
-  /** @type {import('./$types').PageData} */
-  export let data;
+  const listingId = $page.params.id;
+  let loading = true;
+  let loadError: string | null = null;
+  let submitting = false;
+  let submitError: string | null = null;
 
-  // Initialize form data with store values
-  let formData: FormData = {
-    ...initialFormData,
-    location: $selectedLocation,
-    category: $selectedCategory
-  };
-  
+  let formData: FormData = { ...initialFormData };
   let errors: FormErrors = { ...initialErrors };
-  let isFormDirty = false;
 
   // Update formData when stores change
   $: formData.location = $selectedLocation;
@@ -47,12 +41,37 @@
   $: $selectedLocation = formData.location;
   $: $selectedCategory = formData.category;
 
-  let submitting = false;
-  let submitError: string | null = null;
-  let draftListing: any = null;
-  let isLoading = true;
+  // Load existing listing data
+  async function loadListingData() {
+    try {
+      const response = await fetch(`${config.api.baseUrl}/listings/${listingId}?showContact=true`);
+      if (!response.ok) {
+        throw new Error('Failed to load listing');
+      }
 
-  async function handleSubmit(): Promise<void> {
+      const listing = await response.json();
+      const locationObj = locations.find(loc => loc.key === listing.locationId);
+      const categoryObj = categories.find(cat => cat.key === listing.categoryId);
+
+      formData = {
+        title: listing.title,
+        description: listing.description,
+        price: listing.price?.toString() || '',
+        location: locationObj?.value || '',
+        category: categoryObj?.value || '',
+        phone: listing.phone || '',
+        email: listing.email || ''
+      };
+
+      loading = false;
+    } catch (err) {
+      console.error('Error loading listing:', err);
+      loadError = err instanceof Error ? err.message : 'Failed to load listing';
+      loading = false;
+    }
+  }
+
+  async function handleSubmit() {
     const validation = validateForm(formData);
     if (!validation.isValid) {
       errors = validation.errors;
@@ -78,13 +97,11 @@
         categoryId: selectedCategory.key,
         locationId: selectedLocation.key,
         email: formData.email ? sanitizeInput(formData.email) : undefined,
-        phone: formData.phone ? sanitizeInput(formData.phone) : undefined,
-        status: 'draft',
-        ...$user ? { authUserId: $user.sub } : {}
+        phone: formData.phone ? sanitizeInput(formData.phone) : undefined
       };
 
-      const response = await fetch(`${config.api.baseUrl}/listings`, {
-        method: 'POST',
+      const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -92,66 +109,43 @@
         body: JSON.stringify(payload)
       });
 
-      const responseData = await response.json();
-      
       if (!response.ok) {
-        throw new Error(responseData.message || 'Failed to submit listing');
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to update listing');
       }
 
-      draftListing = responseData;
-      isFormDirty = false;
-      await goto('/post-ad/preview?id=' + responseData.id);
+      const updatedListing = await response.json();
+      await goto(`/list/${updatedListing.slug}`);
     } catch (err) {
-      console.error('Error submitting listing:', err);
-      submitError = err instanceof Error ? err.message : 'Failed to submit listing';
+      console.error('Error updating listing:', err);
+      submitError = err instanceof Error ? err.message : 'Failed to update listing';
     } finally {
       submitting = false;
     }
   }
 
-  // Handle navigation attempts
-  beforeNavigate(({ cancel }) => {
-    if (isFormDirty && hasFormChanges(formData, initialFormData) && 
-        !window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
-      cancel();
+  onMount(async () => {
+    if (!$isAuthenticated) {
+      goto('/');
+      return;
     }
-  });
-
-  function handleBeforeUnload(e: BeforeUnloadEvent) {
-    if (isFormDirty && hasFormChanges(formData, initialFormData)) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-  }
-
-  onMount(() => {
-    if (browser) {
-      window.addEventListener('beforeunload', handleBeforeUnload);
-    }
-    isLoading = false;
-  });
-
-  onDestroy(() => {
-    if (browser) {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    }
+    await loadListingData();
   });
 </script>
 
 <div class="container mx-auto px-4 py-8 max-w-3xl">
-  {#if isLoading}
-    <div class="flex justify-center items-center min-h-[50vh]">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
+  <h1 class="text-3xl font-bold mb-8 text-center">Edit Your Ad</h1>
+
+  {#if loading}
+    <div class="flex justify-center items-center h-64">
+      <Icon icon="material-symbols:hourglass-bottom" class="w-8 h-8 animate-spin" />
     </div>
-  {:else if !$isAuthenticated}
-    <div class="text-center py-12">
-      <h2 class="text-2xl font-bold mb-4">Authentication Required</h2>
-      <p class="text-gray-600 mb-6">Please sign in to post an advertisement</p>
-      <a href="/" class="btn btn-primary">Go to Home</a>
+  {:else if loadError}
+    <div class="alert alert-error">
+      <Icon icon="material-symbols:error" class="w-6 h-6" />
+      <span>{loadError}</span>
     </div>
   {:else}
-    <h1 class="text-3xl font-bold mb-8 text-center">Post Your Ad</h1>
-
     <form on:submit|preventDefault={handleSubmit} class="space-y-6">
       <!-- Title -->
       <div class="form-control">
@@ -320,10 +314,10 @@
         >
           {#if submitting}
             <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
-            Submitting...
+            Updating...
           {:else}
-            <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
-            Post Ad
+            <Icon icon="material-symbols:edit-document" class="w-5 h-5 mr-2" />
+            Update Ad
           {/if}
         </button>
         {#if submitError}

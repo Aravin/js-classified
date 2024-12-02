@@ -242,6 +242,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
   // Get single listing
   fastify.get('/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
+    const { showContact } = request.query as { showContact?: string };
     try {
       // Check if id is a number or a slug
       const isNumericId = /^\d+$/.test(id);
@@ -273,7 +274,8 @@ export async function listingRoutes(fastify: FastifyInstance) {
         return sendResponse(reply, 404, { error: 'Listing not found' });
       }
 
-      return sendResponse(reply, 200, maskSensitiveData(listing));
+      // Return unmasked data if showContact=true
+      return sendResponse(reply, 200, showContact === 'true' ? listing : maskSensitiveData(listing));
     } catch (error) {
       console.error('Error fetching listing:', error);
       return sendResponse(reply, 500, { error: 'Internal server error' });
