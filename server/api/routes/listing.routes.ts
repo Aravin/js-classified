@@ -363,4 +363,39 @@ export async function listingRoutes(fastify: FastifyInstance) {
     });
     return sendResponse(reply, 200, { success: true });
   });
+
+  // Get listings by userId
+  fastify.get('/user/:userId', async (request, reply) => {
+    try {
+      const { userId } = request.params as { userId: string };
+      
+      // First find the user
+      const user = await prisma.user.findUnique({
+        where: { userId },
+      });
+
+      if (!user) {
+        return sendResponse(reply, 404, { error: 'User not found' });
+      }
+
+      // Then get all listings for this user
+      const listings = await prisma.listing.findMany({
+        where: { userId: user.id },
+        include: {
+          category: true,
+          location: true,
+          images: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return sendResponse(reply, 200, {
+        listings: listings.map(maskSensitiveData),
+        total: listings.length
+      });
+    } catch (error) {
+      console.error('Error fetching user listings:', error);
+      return sendResponse(reply, 500, { error: 'Internal server error' });
+    }
+  });
 }

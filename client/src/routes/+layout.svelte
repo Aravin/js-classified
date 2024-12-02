@@ -7,10 +7,19 @@
   import { selectedLocation, selectedCategory, searchTerm } from '$lib/stores/filters';
   import { goto } from '$app/navigation';
   import AuthNav from '$lib/components/AuthNav.svelte';
+  import { onMount } from 'svelte';
+  import { initAuth0, authState } from '$lib/auth/auth0';
+  import { browser } from '$app/environment';
 
   let locationSearch = $selectedLocation;
   let categorySearch = $selectedCategory;
   let search = $searchTerm;
+
+  onMount(async () => {
+    if (browser) {
+      await initAuth0();
+    }
+  });
 
   $: $selectedLocation = locationSearch;
   $: $selectedCategory = categorySearch;

@@ -24,5 +24,10 @@ export const config = {
     },
     pagination: {
         defaultLimit: Number(env.PUBLIC_SEARCH_DEFAULT_LIMIT) || 5,
+    },
+    auth0: {
+        domain: env.PUBLIC_AUTH0_DOMAIN + '',
+        clientId: env.PUBLIC_AUTH0_CLIENT_ID + '',
+        callbackUrl: env.PUBLIC_AUTH0_CALLBACK_URL
     }
 } as const;
