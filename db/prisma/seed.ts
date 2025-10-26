@@ -138,6 +138,19 @@ async function populateCategories() {
 }
 
 async function createSampleListings() {
+  // Create a test user first
+  const testUser = await prisma.user.upsert({
+    where: { userId: 'test-user-id' },
+    update: {},
+    create: {
+      userId: 'test-user-id',
+      username: 'testuser',
+      email: 'test@example.com',
+      fullName: 'Test User'
+    }
+  });
+  console.log(`Using test user: ${testUser.username}`);
+
   // Get all locations and categories
   const locations = await prisma.location.findMany({
     where: {
@@ -208,7 +221,8 @@ async function createSampleListings() {
               phone: `+91${Math.floor(Math.random() * 9000000000) + 1000000000}`,
               categoryId: category.id,
               locationId: location.id,
-              status: 'A',
+              userId: testUser.id,
+              status: 'ACTIVE',
               images: {
                 create: [
                   {

@@ -1,6 +1,56 @@
-TODO: Convert this to API spec
+# JS Classified Server
 
-http://localhost:3000/listings
+A Fastify-based backend API for a classified ads platform with image uploads via Cloudinary.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and configure the following variables:
+
+### Required Variables
+
+- **DATABASE_URL**: PostgreSQL connection string
+  - Format: `postgresql://username:password@host:port/database`
+  - Example: `postgresql://postgres:password@localhost:5432/jsclassified`
+
+- **CLOUDINARY_CLOUD_NAME**: Your Cloudinary cloud name
+  - Get from: https://cloudinary.com/console
+  
+- **CLOUDINARY_API_KEY**: Your Cloudinary API key
+
+- **CLOUDINARY_API_SECRET**: Your Cloudinary API secret
+
+### Optional Variables
+
+- **PORT**: Server port (default: `8080`)
+- **HOST**: Server host (default: `::`)
+
+## Setup
+
+1. Install dependencies:
+```bash
+yarn install
+```
+
+2. Configure environment:
+```bash
+cp .env.example .env
+# Edit .env with your actual credentials
+```
+
+3. Setup database:
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+4. Run development server:
+```bash
+yarn dev
+```
+
+## API Endpoints
+
+http://localhost:8080/api/listings
 
 Status Codes
 | Code | Description | |------|-------------| | 201 | Created (POST success) | | 200 | OK (GET, PATCH, DELETE success) | | 400 | Bad Request (validation errors) | | 404 | Not Found | | 500 | Internal Server Error |

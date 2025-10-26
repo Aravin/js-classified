@@ -2,10 +2,17 @@
   "name": "db",
   "version": "1.0.0",
   "main": "index.js",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset",
     "seed": "npx tsx prisma/seed.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",

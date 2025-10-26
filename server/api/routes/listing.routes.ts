@@ -110,7 +110,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       return sendResponse(reply, 201, updatedListing);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return sendResponse(reply, 400, { error: error.errors });
+        return sendResponse(reply, 400, { error: error.issues });
       }
       return sendResponse(reply, 500, { error: 'Internal Server Error'+ (error as Error).message });
     }
@@ -214,7 +214,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return sendResponse(reply, 400, { error: error.errors });
+        return sendResponse(reply, 400, { error: error.issues });
       }
       throw error;
     }
@@ -351,7 +351,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       return sendResponse(reply, 200, listing);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return sendResponse(reply, 400, { error: error.errors });
+        return sendResponse(reply, 400, { error: error.issues });
       }
       throw error;
     }
