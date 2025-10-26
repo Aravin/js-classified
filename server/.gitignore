@@ -24,3 +24,6 @@ build/
 
 # Sensitive information (if applicable)
 .env
+
+# Allow .env.example to be tracked
+!.env.example
