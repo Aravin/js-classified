@@ -6,7 +6,10 @@ import { listingRoutes } from './api/routes/listing.routes';
 import { imageRoutes } from './api/routes/image.routes';
 import { userRoutes } from './api/routes/user.routes';
 
-import { config } from './config/config';
+import { config, validateEnvConfig } from './config/config';
+
+// Validate environment variables before starting
+validateEnvConfig();
 
 // Configure Cloudinary
 cloudinary.config({
