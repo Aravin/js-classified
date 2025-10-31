@@ -45,7 +45,9 @@ images:
   - 'gcr.io/$PROJECT_ID/js-classified-server:latest'
 
 options:
-  machineType: 'E2_HIGHCPU_8'
+  # Use default machine type to avoid quota restrictions
+  # If you have quota, uncomment and use: machineType: 'E2_HIGHCPU_2' or 'E2_HIGHCPU_8'
+  # machineType: 'E2_HIGHCPU_2'
   logging: CLOUD_LOGGING_ONLY
 
 timeout: '1200s'
