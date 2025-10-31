@@ -47,12 +47,14 @@ server.get('/ping', async () => 'pong\n');
 
 const start = async () => {
   try {
-    await server.listen({
+    const address = await server.listen({
       port: config.server.port,
       host: config.server.host,
     });
-    console.log(`Server listening at ${config.server.host}:${config.server.port}`);
+    console.log(`✅ Server listening at ${address}`);
+    console.log(`📡 Health check available at ${address}/ping`);
   } catch (err) {
+    console.error('❌ Failed to start server:', err);
     server.log.error(err);
     process.exit(1);
   }

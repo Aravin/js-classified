@@ -51,7 +51,8 @@ export function validateEnvConfig(): void {
 export const config = {
   server: {
     port: Number(process.env.PORT) || 8080,
-    host: process.env.HOST || '::',
+    // Cloud Run requires binding to 0.0.0.0 (or :: for IPv6)
+    host: process.env.HOST || '0.0.0.0',
   },
   cors: {
     origin: process.env.CORS_ORIGIN 

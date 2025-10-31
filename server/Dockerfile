@@ -33,8 +33,8 @@ FROM node:22-alpine AS production
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json yarn.lock ./
+# Copy package files from builder
+COPY --from=builder /app/package.json /app/yarn.lock ./
 
 # Install only production dependencies
 RUN yarn install --frozen-lockfile --production && \
