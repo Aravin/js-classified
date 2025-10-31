@@ -1,6 +1,14 @@
 # JS Classified Server
 
-A Fastify-based backend API for a classified ads platform with image uploads via Cloudinary.
+A Fastify-based backend API for a classified ads platform with **flexible storage provider** support.
+
+## Features
+
+- 🎯 **No Vendor Lock-in** - Easy to switch between storage providers (Cloudinary, AWS S3, Cloudflare R2)
+- 📸 **Image Optimization** - Automatic resizing, compression, and thumbnail generation
+- 🔄 **Backward Compatible** - Existing images continue working when switching providers
+- ⚡ **Type-Safe** - Built with TypeScript
+- 🛡️ **Validated** - Environment variables checked on startup
 
 ## Environment Variables
 
@@ -12,12 +20,15 @@ Copy `.env.example` to `.env` and configure the following variables:
   - Format: `postgresql://username:password@host:port/database`
   - Example: `postgresql://postgres:password@localhost:5432/jsclassified`
 
-- **CLOUDINARY_CLOUD_NAME**: Your Cloudinary cloud name
-  - Get from: https://cloudinary.com/console
-  
-- **CLOUDINARY_API_KEY**: Your Cloudinary API key
+**Storage Provider Configuration:**
 
+- **STORAGE_PROVIDER** (optional): `cloudinary` (default), `aws-s3`, `cloudflare-r2`
+  
+**If using Cloudinary (default):**
+- **CLOUDINARY_CLOUD_NAME**: Your Cloudinary cloud name
+- **CLOUDINARY_API_KEY**: Your Cloudinary API key
 - **CLOUDINARY_API_SECRET**: Your Cloudinary API secret
+- Get credentials from: https://cloudinary.com/console
 
 ### Optional Variables
 

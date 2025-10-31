@@ -1,5 +1,6 @@
 interface RequiredEnvVars {
   DATABASE_URL?: string;
+  STORAGE_PROVIDER?: string; // Optional: 'cloudinary' (default), 'aws-s3', 'cloudflare-r2'
   CLOUDINARY_CLOUD_NAME?: string;
   CLOUDINARY_API_KEY?: string;
   CLOUDINARY_API_SECRET?: string;
@@ -11,6 +12,12 @@ const requiredEnvVars: (keyof RequiredEnvVars)[] = [
   'CLOUDINARY_API_KEY',
   'CLOUDINARY_API_SECRET',
 ];
+
+// Only require Cloudinary env vars if Cloudinary is the selected provider
+const storageProvider = process.env.STORAGE_PROVIDER?.toLowerCase() || 'cloudinary';
+if (storageProvider === 'cloudinary') {
+  requiredEnvVars.push('CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET');
+}
 
 /**
  * Validates that all required environment variables are present
@@ -47,7 +54,9 @@ export const config = {
     host: process.env.HOST || '::',
   },
   cors: {
-    origin: ['http://localhost:5173'],  // Your frontend URL
+    origin: process.env.CORS_ORIGIN 
+      ? process.env.CORS_ORIGIN.split(',').map(url => url.trim())
+      : ['http://localhost:5173'],  // Default to localhost for development
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
