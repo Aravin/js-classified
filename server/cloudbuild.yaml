@@ -1,5 +1,6 @@
 steps:
   # Build the Docker image
+  # Build from root directory to access both server/ and db/ directories
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -7,8 +8,10 @@ steps:
       - 'gcr.io/$PROJECT_ID/js-classified-server:$SHORT_SHA'
       - '-t'
       - 'gcr.io/$PROJECT_ID/js-classified-server:latest'
+      - '-f'
+      - 'server/Dockerfile'
       - '.'
-    dir: 'server'
+    # No 'dir' specified - build from repo root
 
   # Push the Docker image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'

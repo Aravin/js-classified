@@ -6,20 +6,23 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json yarn.lock ./
+# Copy package files from server directory
+COPY server/package.json server/yarn.lock ./
 
-# Copy Prisma schema before install (needed for prepare script)
-COPY prisma ./prisma
+# Install dependencies without running scripts (skip prepare hook)
+# We'll run prisma generate manually after copying the schema
+RUN yarn install --frozen-lockfile --ignore-scripts
 
-# Install all dependencies (including devDependencies for TypeScript compilation)
-# The prepare script will run prisma generate automatically
-RUN yarn install --frozen-lockfile
+# Create prisma directory and copy the actual schema file (not symlink)
+RUN mkdir -p prisma
+COPY db/schema.prisma ./prisma/schema.prisma
 
-# Copy rest of source files
-COPY . .
+# Copy rest of server source files (exclude prisma since we already have it)
+COPY server/ ./
+# Ensure we have the real schema file, not symlink
+COPY db/schema.prisma ./prisma/schema.prisma
 
-# Ensure Prisma Client is generated (prepare script should have done this, but ensure it)
+# Generate Prisma Client (now that schema is available)
 RUN npx prisma generate
 
 # Build TypeScript
