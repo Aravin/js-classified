@@ -9,13 +9,17 @@ WORKDIR /app
 # Copy package files
 COPY package.json yarn.lock ./
 
+# Copy Prisma schema before install (needed for prepare script)
+COPY prisma ./prisma
+
 # Install all dependencies (including devDependencies for TypeScript compilation)
+# The prepare script will run prisma generate automatically
 RUN yarn install --frozen-lockfile
 
-# Copy source files
+# Copy rest of source files
 COPY . .
 
-# Generate Prisma Client
+# Ensure Prisma Client is generated (prepare script should have done this, but ensure it)
 RUN npx prisma generate
 
 # Build TypeScript
