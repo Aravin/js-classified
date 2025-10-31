@@ -44,8 +44,6 @@ steps:
       - '--allow-unauthenticated'
       - '--set-secrets'
       - 'DATABASE_URL=DATABASE_URL:latest,CLOUDINARY_CLOUD_NAME=CLOUDINARY_CLOUD_NAME:latest,CLOUDINARY_API_KEY=CLOUDINARY_API_KEY:latest,CLOUDINARY_API_SECRET=CLOUDINARY_API_SECRET:latest'
-      - '--set-env-vars'
-      - 'PORT=8080'
 
 images:
   - 'gcr.io/$PROJECT_ID/locful-api:$SHORT_SHA'
