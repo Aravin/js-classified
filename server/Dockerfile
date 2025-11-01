@@ -6,20 +6,20 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Copy package files from server directory
+# Copy package files from server directory (for better layer caching)
 COPY server/package.json server/yarn.lock ./
 
 # Install dependencies without running scripts (skip prepare hook)
-# We'll run prisma generate manually after copying the schema
-RUN yarn install --frozen-lockfile --ignore-scripts
+# Use network-timeout to avoid slow builds, and enable cache if available
+RUN yarn install --frozen-lockfile --ignore-scripts --network-timeout 100000
 
-# Create prisma directory and copy the actual schema file (not symlink)
+# Create prisma directory first
 RUN mkdir -p prisma
-COPY db/schema.prisma ./prisma/schema.prisma
 
-# Copy rest of server source files (exclude prisma since we already have it)
+# Copy server source files first
 COPY server/ ./
-# Ensure we have the real schema file, not symlink
+
+# Copy the actual schema file (not symlink) - do this AFTER server/ to ensure it overwrites symlink
 COPY db/schema.prisma ./prisma/schema.prisma
 
 # Generate Prisma Client (now that schema is available)
@@ -37,7 +37,7 @@ WORKDIR /app
 COPY --from=builder /app/package.json /app/yarn.lock ./
 
 # Install only production dependencies
-RUN yarn install --frozen-lockfile --production && \
+RUN yarn install --frozen-lockfile --production --network-timeout 100000 && \
     yarn cache clean
 
 # Copy Prisma schema and generated client from builder
@@ -48,12 +48,10 @@ COPY --from=builder /app/prisma ./prisma
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 
-# Create non-root user for security
+# Create non-root user for security (combined for fewer layers)
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
-
-# Change ownership to nodejs user
-RUN chown -R nodejs:nodejs /app
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
 
 USER nodejs
 

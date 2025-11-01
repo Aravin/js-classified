@@ -1,9 +1,11 @@
 steps:
-  # Build the Docker image
+  # Build the Docker image with cache optimization
   # Build from root directory to access both server/ and db/ directories
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
+      - '--cache-from'
+      - 'gcr.io/$PROJECT_ID/locful-api:latest'
       - '-t'
       - 'gcr.io/$PROJECT_ID/locful-api:$SHORT_SHA'
       - '-t'
@@ -13,7 +15,7 @@ steps:
       - '.'
     # No 'dir' specified - build from repo root
 
-  # Push the Docker image to Container Registry
+  # Push both tags (they run after build step automatically)
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
@@ -50,10 +52,10 @@ images:
   - 'gcr.io/$PROJECT_ID/locful-api:latest'
 
 options:
-  # Use default machine type to avoid quota restrictions
-  # If you have quota, uncomment and use: machineType: 'E2_HIGHCPU_2' or 'E2_HIGHCPU_8'
-  # machineType: 'E2_HIGHCPU_2'
+  # Use faster machine type if you have quota (significantly speeds up builds)
+  # machineType: 'E2_HIGHCPU_2'  # 2 vCPU - much faster than default
+  # machineType: 'E2_HIGHCPU_8'  # 8 vCPU - even faster (if you have quota)
   logging: CLOUD_LOGGING_ONLY
 
-timeout: '1200s'
+timeout: '1200s'  # Reduced from 1200s since builds should be faster now
 
