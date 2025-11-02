@@ -81,3 +81,4 @@ export const securityConfig = {
     : ['http://localhost:5173'],
 };
 
+
