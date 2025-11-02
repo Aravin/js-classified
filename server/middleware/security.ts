@@ -45,6 +45,13 @@ export async function validateInputMiddleware(
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> {
+  // Skip validation for health check and other safe endpoints
+  const safePaths = ['/health', '/metrics', '/favicon.ico'];
+  const pathname = new URL(request.url, 'http://localhost').pathname;
+  if (safePaths.some(safe => pathname.startsWith(safe))) {
+    return;
+  }
+
   // Log large request bodies
   const contentLength = request.headers['content-length'];
   if (contentLength && parseInt(contentLength) > 1024 * 1024) { // > 1MB
@@ -55,22 +62,22 @@ export async function validateInputMiddleware(
     });
   }
 
-  // Check for common injection patterns in URL
+  // Check for common injection patterns in URL path (not query string)
+  // Query strings commonly use =, so we only check the path portion
   const injectionPatterns = [
     /(\%27)|(\')|(\-\-)|(\%23)|(#)/i, // SQL injection
-    /(\%3D)|(=)/i,
     /(\w*((\%27)|(\'))(\s|\+)*((\%6F)|o|(\%4F))((\%72)|r|(\%52)))/i,
     /((\%27)|(\'))\s*union/i,
     /exec(\s|\+)+(s|x)p\w+/i,
     /\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e%5c/i, // Path traversal
   ];
 
-  const url = request.url;
-  if (injectionPatterns.some(pattern => pattern.test(url))) {
+  // Only check pathname, not query string, to avoid false positives
+  if (injectionPatterns.some(pattern => pattern.test(pathname))) {
     logSecurityEvent(request, {
       type: 'SUSPICIOUS_ACTIVITY',
       message: 'Potential injection attack detected in URL',
-      metadata: { url },
+      metadata: { url: request.url },
     });
     
     reply.code(400).send({ 
