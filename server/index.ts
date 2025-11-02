@@ -5,11 +5,15 @@ import { configureSecurityPlugins } from './plugins/security';
 import { listingRoutes } from './api/routes/listing.routes';
 import { imageRoutes } from './api/routes/image.routes';
 import { userRoutes } from './api/routes/user.routes';
-
+import { validateInputMiddleware, securityErrorHandler } from './middleware/security';
 import { config, validateEnvConfig } from './config/config';
+import { validateSecurityConfig } from './config/security';
 
 // Validate environment variables before starting
 validateEnvConfig();
+
+// A02 - Cryptographic Failures: Validate security configuration
+validateSecurityConfig();
 
 // Configure Cloudinary
 cloudinary.config({
@@ -33,8 +37,16 @@ server.addHook('onClose', async (instance) => {
   await instance.prisma.$disconnect();
 });
 
-// Configure security plugins
+// Configure security plugins (OWASP A01-A10)
 server.register(configureSecurityPlugins);
+
+// A03 - Injection: Add input validation middleware
+server.addHook('onRequest', validateInputMiddleware);
+
+// A09 - Security Logging: Add error handler
+server.setErrorHandler((error, request, reply) => {
+  securityErrorHandler(error, request, reply);
+});
 
 // Register routes with /api prefix (for backward compatibility)
 server.register(listingRoutes, { prefix: '/api/listings' });
