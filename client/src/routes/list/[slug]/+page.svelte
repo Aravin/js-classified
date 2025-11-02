@@ -2,6 +2,7 @@
   import { formatCurrency, formatDate } from '$lib/utils';
   import Icon from '@iconify/svelte';
   import { config } from '$lib/config';
+  import RelevantListings from '$lib/components/RelevantListings.svelte';
 
   export let data;
   const { listing } = data;
@@ -202,4 +203,7 @@
       </div>
     </div>
   </div>
+
+  <!-- Relevant Listings Section -->
+  <RelevantListings {listing} />
 </div>

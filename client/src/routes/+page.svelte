@@ -1,6 +1,7 @@
 <script lang="ts">
   import { categories } from '$lib/categories/categories';
   import type { Category } from '$lib/categories/categories';
+  import RecentListings from '$lib/components/RecentListings.svelte';
 
   // Group categories by their parent category
   const groupedCategories = categories.reduce((acc, category) => {
@@ -36,4 +37,9 @@
       </div>
     </div>
   {/each}
+</div>
+
+<!-- Recent Listings Section -->
+<div class="mt-12">
+  <RecentListings />
 </div>

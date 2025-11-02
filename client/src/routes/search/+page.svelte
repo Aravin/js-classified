@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import Icon from '@iconify/svelte';
   import { locations } from '$lib/locations';
   import { categories } from '$lib/categories/categories';
   import { selectedLocation, selectedCategory, searchTerm } from '$lib/stores/filters';
@@ -96,6 +97,27 @@
     category={data.category}
     searchTerm={data.q}
   />
+
+  <!-- Fallback Note -->
+  {#if data.fallbackType && data.fallbackType !== 'none' && data.listings.length > 0}
+    <div class="mb-4 p-4 bg-warning/10 border border-warning/30 rounded-lg">
+      <div class="flex items-start gap-2">
+        <Icon icon="material-symbols:info-outline" class="text-warning flex-shrink-0 mt-0.5" />
+        <div class="text-sm">
+          <p class="font-medium text-warning-content">
+            No matching results found for your exact search criteria.
+          </p>
+          <p class="text-warning-content/80 mt-1">
+            {#if data.fallbackType === 'category'}
+              Showing listings from other categories in {locations.find(loc => loc.key.toString() === data.location)?.value || 'your location'}.
+            {:else if data.fallbackType === 'location'}
+              Showing listings from {categories.find(cat => cat.key.toString() === data.category)?.value || 'this category'} in other locations.
+            {/if}
+          </p>
+        </div>
+      </div>
+    </div>
+  {/if}
 
   <!-- Listings Grid -->
   <ListingGrid listings={data.listings} />
