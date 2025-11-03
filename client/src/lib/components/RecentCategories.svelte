@@ -37,7 +37,7 @@
       
       listings.forEach((listing: any) => {
         // Check if listing has categoryId directly or category object
-        const categoryId = (listing as any).categoryId || listing.category?.id;
+        const categoryId = (listing as any).categoryId || listing.category?.key;
         
         if (categoryId) {
           // Find the matching category from our categories array

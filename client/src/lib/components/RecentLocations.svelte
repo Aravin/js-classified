@@ -37,7 +37,7 @@
       
       listings.forEach((listing: any) => {
         // Check if listing has locationId directly or location object
-        const locationId = (listing as any).locationId || listing.location?.id;
+        const locationId = (listing as any).locationId || listing.location?.key;
         
         if (locationId) {
           // Find the matching location from our locations array
@@ -95,7 +95,7 @@
         {#each locations as { location }}
           <li>
             <a 
-              href="/search?locationId={location.key}" 
+              href="/search?location={location.key}" 
               class="block py-2 px-2 text-base-content hover:text-primary hover:bg-base-200 rounded transition-colors duration-200"
             >
               {location.value}
