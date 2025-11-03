@@ -112,6 +112,8 @@
               Showing listings from other categories in {locations.find(loc => loc.key.toString() === data.location)?.value || 'your location'}.
             {:else if data.fallbackType === 'location'}
               Showing listings from {data.category.value} in other locations.
+            {:else if data.fallbackType === 'hasImages'}
+              Showing all listings (including those without images) {#if data.location}in {locations.find(loc => loc.key.toString() === data.location)?.value || 'your location'}{/if}.
             {/if}
           </p>
         </div>

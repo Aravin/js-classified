@@ -43,15 +43,41 @@ export const load: PageLoad = async ({ url, fetch }) => {
         }
 
         let result: ApiResponse<ListingType> = await response.json();
-        let fallbackType: 'none' | 'location' | 'category' = 'none';
+        let fallbackType: 'none' | 'location' | 'category' | 'hasImages' = 'none';
+
+        // If no results and hasImages filter is active, try removing it first
+        if ((result.listings || []).length === 0 && hasImages) {
+            const fallbackParamsNoImages = new URLSearchParams();
+            if (q) fallbackParamsNoImages.set('search', q);
+            if (location) fallbackParamsNoImages.set('locationId', location);
+            if (category) fallbackParamsNoImages.set('categoryId', category);
+            // Note: hasImages filter removed to broaden search
+            fallbackParamsNoImages.set('page', page.toString());
+            fallbackParamsNoImages.set('limit', limit.toString());
+            fallbackParamsNoImages.set('sortBy', sortBy);
+            fallbackParamsNoImages.set('order', order);
+
+            const fallbackResponseNoImages = await fetch(
+                `${config.api.baseUrl}/listings?${fallbackParamsNoImages.toString()}`
+            );
+
+            if (fallbackResponseNoImages.ok) {
+                const fallbackResultNoImages = await fallbackResponseNoImages.json();
+                if ((fallbackResultNoImages.listings || []).length > 0) {
+                    result = fallbackResultNoImages;
+                    fallbackType = 'hasImages';
+                }
+            }
+        }
 
         // If no results and both category and location are specified, try fallback strategies
-        if ((result.listings || []).length === 0 && location && category) {
+        // (only if hasImages fallback didn't work)
+        if ((result.listings || []).length === 0 && location && category && fallbackType === 'none') {
             // Fallback 1: Same location, any category (remove category filter)
+            // Note: Don't include hasImages filter here since we already tried removing it
             const fallbackParams1 = new URLSearchParams();
             if (q) fallbackParams1.set('search', q);
             fallbackParams1.set('locationId', location);
-            if (hasImages) fallbackParams1.set('hasImages', 'true');
             fallbackParams1.set('page', page.toString());
             fallbackParams1.set('limit', limit.toString());
             fallbackParams1.set('sortBy', sortBy);
@@ -70,11 +96,11 @@ export const load: PageLoad = async ({ url, fetch }) => {
             }
 
             // Fallback 2: Same category, any location (if fallback 1 had no results)
+            // Note: Don't include hasImages filter here since we already tried removing it
             if (fallbackType === 'none') {
                 const fallbackParams2 = new URLSearchParams();
                 if (q) fallbackParams2.set('search', q);
                 fallbackParams2.set('categoryId', category);
-                if (hasImages) fallbackParams2.set('hasImages', 'true');
                 fallbackParams2.set('page', page.toString());
                 fallbackParams2.set('limit', limit.toString());
                 fallbackParams2.set('sortBy', sortBy);

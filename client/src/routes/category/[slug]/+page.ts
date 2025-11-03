@@ -48,14 +48,39 @@ export const load = (async ({ url, params, fetch }) => {
         }
 
         let result: ApiResponse<ListingType> = await response.json();
-        let fallbackType: 'none' | 'location' | 'category' = 'none';
+        let fallbackType: 'none' | 'location' | 'category' | 'hasImages' = 'none';
+
+        // If no results and hasImages filter is active, try removing it first
+        if ((result.listings || []).length === 0 && hasImages) {
+            const fallbackParamsNoImages = new URLSearchParams();
+            fallbackParamsNoImages.set('categoryId', category.key.toString());
+            if (location) fallbackParamsNoImages.set('locationId', location);
+            // Note: hasImages filter removed to broaden search
+            fallbackParamsNoImages.set('page', page.toString());
+            fallbackParamsNoImages.set('limit', limit.toString());
+            fallbackParamsNoImages.set('sortBy', sortBy);
+            fallbackParamsNoImages.set('order', order);
+
+            const fallbackResponseNoImages = await fetch(
+                `${config.api.baseUrl}/listings?${fallbackParamsNoImages.toString()}`
+            );
+
+            if (fallbackResponseNoImages.ok) {
+                const fallbackResultNoImages = await fallbackResponseNoImages.json();
+                if ((fallbackResultNoImages.listings || []).length > 0) {
+                    result = fallbackResultNoImages;
+                    fallbackType = 'hasImages';
+                }
+            }
+        }
 
         // If no results and location is specified, try fallback strategies
-        if ((result.listings || []).length === 0 && location) {
+        // (only if hasImages fallback didn't work)
+        if ((result.listings || []).length === 0 && location && fallbackType === 'none') {
             // Fallback 1: Same location, any category
+            // Note: Don't include hasImages filter here since we already tried removing it
             const fallbackParams1 = new URLSearchParams();
             fallbackParams1.set('locationId', location);
-            if (hasImages) fallbackParams1.set('hasImages', 'true');
             fallbackParams1.set('page', page.toString());
             fallbackParams1.set('limit', limit.toString());
             fallbackParams1.set('sortBy', sortBy);
@@ -74,10 +99,10 @@ export const load = (async ({ url, params, fetch }) => {
             }
 
             // Fallback 2: Same category, any location (if fallback 1 had no results)
+            // Note: Don't include hasImages filter here since we already tried removing it
             if (fallbackType === 'none') {
                 const fallbackParams2 = new URLSearchParams();
                 fallbackParams2.set('categoryId', category.key.toString());
-                if (hasImages) fallbackParams2.set('hasImages', 'true');
                 fallbackParams2.set('page', page.toString());
                 fallbackParams2.set('limit', limit.toString());
                 fallbackParams2.set('sortBy', sortBy);
@@ -95,33 +120,6 @@ export const load = (async ({ url, params, fetch }) => {
                     }
                 }
             }
-        } else if ((result.listings || []).length === 0 && !location) {
-            // If no location is specified and no results, try removing hasImages filter as fallback
-            // This only applies if hasImages filter was active
-            if (hasImages) {
-                const fallbackParams = new URLSearchParams();
-                fallbackParams.set('categoryId', category.key.toString());
-                // Note: hasImages filter removed to broaden search
-                fallbackParams.set('page', page.toString());
-                fallbackParams.set('limit', limit.toString());
-                fallbackParams.set('sortBy', sortBy);
-                fallbackParams.set('order', order);
-
-                const fallbackResponse = await fetch(
-                    `${config.api.baseUrl}/listings?${fallbackParams.toString()}`
-                );
-
-                if (fallbackResponse.ok) {
-                    const fallbackResult = await fallbackResponse.json();
-                    if ((fallbackResult.listings || []).length > 0) {
-                        result = fallbackResult;
-                        // Don't set fallbackType here since we're not changing location or category,
-                        // just relaxing the hasImages filter. The UI won't show a fallback message in this case.
-                    }
-                }
-            }
-            // If hasImages was already false and no results, there's no meaningful fallback
-            // since we're already searching all locations for this category
         }
 
         return {
