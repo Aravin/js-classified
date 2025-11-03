@@ -9,7 +9,7 @@ interface ApiResponse<T> {
     totalPages: number;
 }
 
-export const load: PageLoad = async ({ url }) => {
+export const load: PageLoad = async ({ url, fetch }) => {
     const searchParams = new URLSearchParams();
     
     // Get search parameters

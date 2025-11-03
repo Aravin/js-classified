@@ -2,6 +2,8 @@
   import { categories } from '$lib/categories/categories';
   import type { Category } from '$lib/categories/categories';
   import RecentListings from '$lib/components/RecentListings.svelte';
+  import RecentLocations from '$lib/components/RecentLocations.svelte';
+  import RecentCategories from '$lib/components/RecentCategories.svelte';
 
   // Group categories by their parent category
   const groupedCategories = categories.reduce((acc, category) => {
@@ -41,5 +43,13 @@
 
 <!-- Recent Listings Section -->
 <div class="mt-12">
-  <RecentListings />
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <RecentListings />
+    </div>
+    <div class="space-y-8">
+      <RecentLocations />
+      <RecentCategories />
+    </div>
+  </div>
 </div>

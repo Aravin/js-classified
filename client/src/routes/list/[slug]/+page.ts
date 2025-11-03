@@ -2,7 +2,7 @@ import type { PageLoad } from './$types';
 import { config } from '$lib/config';
 import { error } from '@sveltejs/kit';
 
-export const load: PageLoad = (async ({ params }) => {
+export const load: PageLoad = (async ({ params, fetch }) => {
   try {
     const id = params.slug;
     const response = await fetch(`${config.api.baseUrl}/listings/${id}`);

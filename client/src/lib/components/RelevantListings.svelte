@@ -14,8 +14,19 @@
   onMount(async () => {
     try {
       const searchParams = new URLSearchParams();
-      searchParams.set('categoryId', listing.category.key.toString());
-      searchParams.set('locationId', listing.location.key.toString());
+      
+      // Get categoryId - check both category.key or direct categoryId property
+      const categoryId = (listing as any).categoryId || listing.category?.key;
+      const locationId = (listing as any).locationId || listing.location?.key;
+      
+      if (!categoryId || !locationId) {
+        console.warn('Missing categoryId or locationId for relevant listings');
+        isLoading = false;
+        return;
+      }
+      
+      searchParams.set('categoryId', categoryId.toString());
+      searchParams.set('locationId', locationId.toString());
       searchParams.set('limit', limit.toString());
       searchParams.set('sortBy', 'createdAt');
       searchParams.set('order', 'desc');
@@ -49,7 +60,7 @@
   <div class="mt-12">
     <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
       <Icon icon="material-symbols:recommend" class="text-primary" />
-      Similar Listings in {listing.location.name}
+      Similar Listings in {listing.location?.name || listing.location?.value || ''}
     </h2>
     <ListingGrid listings={relevantListings} />
   </div>
