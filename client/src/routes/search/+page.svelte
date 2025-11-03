@@ -18,6 +18,9 @@
   let sortBy = data.sortBy;
   let order = data.order;
 
+  // Reactive checkbox state from URL
+  $: hasImages = data.hasImages ?? false;
+
   // Initialize filters from URL params
   $: {
     if (data.location) {
@@ -76,7 +79,7 @@
         <input
           type="checkbox"
           class="checkbox-primary checkbox checkbox-sm"
-          checked={data.hasImages}
+          checked={hasImages}
           disabled={data.pagination.total === 0}
           on:change={(e) => {
             updateSearch({

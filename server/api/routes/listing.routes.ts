@@ -170,7 +170,8 @@ export async function listingRoutes(fastify: FastifyInstance) {
         locationId, 
         sortBy = 'createdAt',
         order = 'desc',
-        search
+        search,
+        hasImages
       } = queryParams;
 
       const where: Prisma.listingWhereInput = {
@@ -182,6 +183,11 @@ export async function listingRoutes(fastify: FastifyInstance) {
             { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
             { description: { contains: search, mode: Prisma.QueryMode.insensitive } }
           ]
+        }),
+        ...(hasImages === true && {
+          images: {
+            some: {}
+          }
         })
       };
 

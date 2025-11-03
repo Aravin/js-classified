@@ -136,4 +136,5 @@ export const listingQuerySchema = z.object({
   order: z.enum(['asc', 'desc']).default('desc'),
   search: z.string().optional(),
   status: z.nativeEnum(ListingStatus).optional(),
+  hasImages: z.coerce.boolean().optional(),
 });
