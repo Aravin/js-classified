@@ -3,6 +3,8 @@
   import Icon from '@iconify/svelte';
   import { config } from '$lib/config';
   import RelevantListings from '$lib/components/RelevantListings.svelte';
+  import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
 
   export let data;
   const { listing } = data;
@@ -18,17 +20,78 @@
     email: null
   };
   let selectedImage: number | null = null;
+  let recaptchaReady = false;
 
   const LISTING_EXPIRY_DAYS = config.listing.expiryDays;
 
+  onMount(() => {
+    if (browser) {
+      // Wait for reCAPTCHA to be ready
+      if (window.grecaptcha?.enterprise) {
+        window.grecaptcha.enterprise.ready(() => {
+          recaptchaReady = true;
+        });
+      }
+    }
+  });
+
+  async function getRecaptchaToken(action: string): Promise<string | null> {
+    if (!browser) {
+      console.warn('reCAPTCHA not available (browser check)');
+      return null;
+    }
+
+    // Check if site key is configured
+    if (!config.recaptcha.siteKey || config.recaptcha.siteKey.trim() === '') {
+      console.warn('reCAPTCHA site key is not configured');
+      return null;
+    }
+
+    if (!window.grecaptcha?.enterprise) {
+      console.warn('reCAPTCHA not available - script may not have loaded');
+      return null;
+    }
+
+    try {
+      return new Promise((resolve) => {
+        window.grecaptcha!.enterprise.ready(async () => {
+          try {
+            const token = await window.grecaptcha!.enterprise.execute(config.recaptcha.siteKey, { action });
+            resolve(token);
+          } catch (err) {
+            console.error('Error executing reCAPTCHA:', err);
+            resolve(null);
+          }
+        });
+      });
+    } catch (err) {
+      console.error('Error getting reCAPTCHA token:', err);
+      return null;
+    }
+  }
 
   async function fetchContactInfo(type: 'phone' | 'email' | 'both') {
     isLoading = true;
     error = null;
     try {
+      // Get reCAPTCHA token before fetching contact info
+      const recaptchaToken = await getRecaptchaToken('VIEW_CONTACT');
+
       // Only fetch if we don't have the data cached
       if (!cachedContactInfo.phone && !cachedContactInfo.email) {
-        const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}/contact`);
+        // Build URL with query parameter to avoid CORS preflight
+        let url = `${config.api.baseUrl}/listings/${listing.id}/contact`;
+        if (recaptchaToken) {
+          url += `?recaptchaToken=${encodeURIComponent(recaptchaToken)}`;
+        }
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
         if (!response.ok) throw new Error('Failed to fetch contact information');
         const data = await response.json();
         cachedContactInfo = data.contactInfo;
@@ -63,6 +126,12 @@
     return Math.max(0, daysLeft);
   }
 </script>
+
+<svelte:head>
+  {#if config.recaptcha.siteKey && config.recaptcha.siteKey.trim() !== ''}
+    <script src="https://www.google.com/recaptcha/enterprise.js?render={config.recaptcha.siteKey}" async defer></script>
+  {/if}
+</svelte:head>
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
   <div class="bg-white rounded-lg shadow-lg overflow-hidden">

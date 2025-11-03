@@ -16,6 +16,13 @@ export const isLoading = writable(true);
 let _auth0Client: Auth0Client;
 
 export async function initAuth0() {
+  // Only run in browser - don't initialize during SSR
+  if (!browser) {
+    isInitializing.set(false);
+    isLoading.set(false);
+    return null;
+  }
+
   // Only initialize once
   if (_auth0Client) {
     isInitializing.set(false);
@@ -37,18 +44,16 @@ export async function initAuth0() {
     auth0Client.set(_auth0Client);
 
     // Check authentication state
-    if (browser) {
-      try {
-        const isAuth = await _auth0Client.isAuthenticated();
-        isAuthenticated.set(isAuth);
+    try {
+      const isAuth = await _auth0Client.isAuthenticated();
+      isAuthenticated.set(isAuth);
 
-        if (isAuth) {
-          const userProfile = await _auth0Client.getUser();
-          user.set(userProfile || null);
-        }
-      } catch (err) {
-        console.error('Error checking authentication', err);
+      if (isAuth) {
+        const userProfile = await _auth0Client.getUser();
+        user.set(userProfile || null);
       }
+    } catch (err) {
+      console.error('Error checking authentication', err);
     }
   } catch (err) {
     console.error('Error initializing auth0', err);
@@ -72,8 +77,10 @@ export const authState = derived(
   })
 );
 
-// Initialize the Auth0 client
-initAuth0();
+// Initialize the Auth0 client (only in browser)
+if (browser) {
+  initAuth0();
+}
 
 // Login function
 export async function login() {
