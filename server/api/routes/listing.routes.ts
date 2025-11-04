@@ -249,15 +249,6 @@ export async function listingRoutes(fastify: FastifyInstance) {
   // Get single listing
   fastify.get('/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const { showContact } = request.query as { showContact?: string };
-    
-    // Require authentication if showContact=true
-    if (showContact === 'true') {
-      const authResult = await verifyAuth0Token(request, reply);
-      if (!authResult) {
-        return; // verifyAuth0Token already sent the error response
-      }
-    }
     
     try {
       // Check if id is a number or a slug
@@ -290,20 +281,27 @@ export async function listingRoutes(fastify: FastifyInstance) {
         return sendResponse(reply, 404, { error: 'Listing not found' });
       }
 
-      // If showContact=true, verify user owns the listing
-      if (showContact === 'true') {
-        // Find user by Auth0 ID (request.user is guaranteed to exist because verifyAuth0Token passed)
-        const user = await prisma.user.findUnique({
-          where: { userId: request.user!.sub },
-        });
+      // If user is authenticated, check if they own the listing
+      // If they own it, return unmasked data (for editing)
+      const authHeader = request.headers.authorization;
+      if (authHeader?.startsWith('Bearer ')) {
+        const authResult = await verifyAuth0Token(request, reply);
+        if (authResult && request.user) {
+          // User is authenticated, check ownership
+          const user = await prisma.user.findUnique({
+            where: { userId: request.user.sub },
+          });
 
-        if (!user || listing.userId !== user.id) {
-          return sendResponse(reply, 403, { error: 'Access denied. You can only view contact info for your own listings.' });
+          if (user && listing.userId === user.id) {
+            // User owns the listing, return full data
+            return sendResponse(reply, 200, listing);
+          }
         }
+        // If auth failed or user doesn't own listing, continue to return masked data
       }
 
-      // Return unmasked data if showContact=true (only if authenticated and owns listing)
-      return sendResponse(reply, 200, showContact === 'true' ? listing : maskSensitiveData(listing));
+      // Return masked data for public access or if user doesn't own listing
+      return sendResponse(reply, 200, maskSensitiveData(listing));
     } catch (error) {
       console.error('Error fetching listing:', error);
       return sendResponse(reply, 500, { error: 'Internal server error' });
