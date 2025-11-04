@@ -7,8 +7,9 @@
   import { goto } from '$app/navigation';
   import { config } from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
-  import { isAuthenticated, getAuthHeaders } from '$lib/auth/auth0';
+  import { isAuthenticated, getAuthHeaders, user } from '$lib/auth/auth0';
   import { page } from '$app/stores';
+  import { checkActiveAdsLimit } from '$lib/utils';
   import ImageUpload from '$lib/components/ImageUpload.svelte';
   import type { ImageUploadResult } from '$lib/types';
   import {
@@ -31,6 +32,8 @@
   let loadError: string | null = null;
   let submitting = false;
   let submitError: string | null = null;
+  let listingStatus: string | null = null;
+  let limitWarning: string | null = null;
 
   let formData: FormData = { ...initialFormData };
   let errors: FormErrors = { ...initialErrors };
@@ -63,6 +66,9 @@
       const locationObj = locations.find(loc => loc.key === listing.locationId);
       const categoryObj = categories.find(cat => cat.key === listing.categoryId);
 
+      // Store listing status
+      listingStatus = listing.status;
+
       // Load existing images
       if (listing.images) {
         uploadedImages = listing.images;
@@ -77,6 +83,16 @@
         phone: listing.phone || '',
         email: listing.email || ''
       };
+
+      // Check active ads limit if listing is DRAFT
+      if (listingStatus === 'DRAFT' || listingStatus === 'draft') {
+        if ($user?.sub) {
+          const limitCheck = await checkActiveAdsLimit($user.sub, listingId);
+          if (limitCheck.hasReachedLimit) {
+            limitWarning = `You currently have ${limitCheck.activeCount} active ad${limitCheck.activeCount > 1 ? 's' : ''}. You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}.`;
+          }
+        }
+      }
 
       loading = false;
     } catch (err) {
@@ -155,6 +171,13 @@
 
 <div class="container mx-auto px-4 py-8 max-w-3xl">
   <h1 class="text-3xl font-bold mb-8 text-center">Edit Your Ad</h1>
+
+  {#if limitWarning}
+    <div class="alert alert-warning mb-6">
+      <Icon icon="material-symbols:warning" class="w-5 h-5" />
+      <span>{limitWarning}</span>
+    </div>
+  {/if}
 
   {#if loading}
     <div class="flex justify-center items-center h-64">
@@ -386,6 +409,12 @@
             Update Ad
           {/if}
         </button>
+        {#if limitWarning && (listingStatus === 'DRAFT' || listingStatus === 'draft')}
+          <div class="alert alert-info mt-4">
+            <Icon icon="material-symbols:info" class="w-5 h-5" />
+            <span>Your listing will remain as <strong>DRAFT</strong>. You can publish it later from your ads list if you have an available slot.</span>
+          </div>
+        {/if}
         {#if submitError}
           <div class="alert alert-error mt-4">
             <Icon icon="material-symbols:error" class="w-5 h-5" />

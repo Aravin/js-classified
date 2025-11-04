@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatCurrency, formatDate } from '$lib/utils';
+  import { formatCurrency, formatDate, checkActiveAdsLimit } from '$lib/utils';
   import Icon from '@iconify/svelte';
   import { config } from '$lib/config';
   import { page } from '$app/stores';
@@ -7,6 +7,7 @@
   import { onMount } from 'svelte';
   import ImageUpload from '$lib/components/ImageUpload.svelte';
   import type { ImageUploadResult } from '$lib/types';
+  import { user } from '$lib/auth/auth0';
 
   export let data;
   let listing: any = null;
@@ -14,6 +15,7 @@
   let error: string | null = null;
   let uploadedImages: ImageUploadResult[] = [];
   let imageUploadError: string | null = null;
+  let publishError: string | null = null;
 
   onMount(async () => {
     const listingId = $page.url.searchParams.get('id');
@@ -61,6 +63,17 @@
   async function publishListing() {
     if (!listing) return;
     
+    publishError = null;
+    
+    // Check active ads limit before publishing
+    if ($user?.sub) {
+      const limitCheck = await checkActiveAdsLimit($user.sub, listing.id);
+      if (limitCheck.hasReachedLimit) {
+        publishError = `You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}. To add more ads, please contact us.`;
+        return;
+      }
+    }
+    
     try {
       const payload = {
         status: 'ACTIVE',
@@ -88,9 +101,9 @@
 
       // Navigate to the published listing
       await goto(`/list/${responseData.slug}`);
-    } catch (error) {
-      console.error('Error publishing listing:', error);
-      error = error instanceof Error ? error.message : 'Failed to publish listing';
+    } catch (err) {
+      console.error('Error publishing listing:', err);
+      publishError = err instanceof Error ? err.message : 'Failed to publish listing';
     }
   }
 
@@ -130,6 +143,12 @@
           </button>
         </div>
       </div>
+      {#if publishError}
+        <div class="alert alert-error mt-4">
+          <Icon icon="material-symbols:error" class="w-5 h-5" />
+          <span>{publishError}</span>
+        </div>
+      {/if}
     </div>
 
     <!-- Image Upload Section -->

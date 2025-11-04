@@ -25,6 +25,7 @@
     hasFormChanges
   } from '$lib/form-validation';
   import { browser } from '$app/environment';
+  import { checkActiveAdsLimit } from '$lib/utils';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -51,6 +52,7 @@
   let submitError: string | null = null;
   let draftListing: any = null;
   let isLoading = true;
+  let limitWarning: string | null = null;
 
   async function handleSubmit(): Promise<void> {
     const validation = validateForm(formData);
@@ -124,10 +126,19 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     if (browser) {
       window.addEventListener('beforeunload', handleBeforeUnload);
     }
+    
+    // Check active ads limit on mount
+    if ($user?.sub && $isAuthenticated) {
+      const limitCheck = await checkActiveAdsLimit($user.sub);
+      if (limitCheck.hasReachedLimit) {
+        limitWarning = `You currently have ${limitCheck.activeCount} active ad${limitCheck.activeCount > 1 ? 's' : ''}. You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}. Your listing will be saved as draft. To publish more ads, please contact us.`;
+      }
+    }
+    
     isLoading = false;
   });
 
@@ -151,6 +162,13 @@
     </div>
   {:else}
     <h1 class="text-3xl font-bold mb-8 text-center">Post Your Ad</h1>
+
+    {#if limitWarning}
+      <div class="alert alert-warning mb-6">
+        <Icon icon="material-symbols:warning" class="w-5 h-5" />
+        <span>{limitWarning}</span>
+      </div>
+    {/if}
 
     <form on:submit|preventDefault={handleSubmit} class="space-y-6">
       <!-- Title -->
@@ -326,6 +344,12 @@
             Post Ad
           {/if}
         </button>
+        {#if limitWarning}
+          <div class="alert alert-info mt-4">
+            <Icon icon="material-symbols:info" class="w-5 h-5" />
+            <span>Your listing will be saved as <strong>DRAFT</strong>. You can publish it later from the preview page or your ads list.</span>
+          </div>
+        {/if}
         {#if submitError}
           <div class="alert alert-error mt-4">
             <Icon icon="material-symbols:error" class="w-5 h-5" />

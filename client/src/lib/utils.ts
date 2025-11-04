@@ -34,3 +34,39 @@ export function getExpiryDate(createdAt: string): string {
     return `Expires in ${daysLeft} days`;
   }
 }
+
+/**
+ * Check if user has reached the maximum active ads limit
+ * @param userId - Auth0 user ID (sub)
+ * @param excludeListingId - Optional listing ID to exclude from count (for editing existing ads)
+ * @returns Object with hasReachedLimit boolean and activeCount number
+ */
+export async function checkActiveAdsLimit(userId: string, excludeListingId?: number): Promise<{ hasReachedLimit: boolean; activeCount: number }> {
+  try {
+    const response = await fetch(`${config.api.baseUrl}/listings/user/${userId}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch user listings');
+    }
+    
+    const data = await response.json();
+    const listings = data.listings || [];
+    
+    // Count active ads, excluding the specified listing ID if provided
+    const activeCount = listings.filter((listing: any) => 
+      listing.status === 'ACTIVE' && (excludeListingId ? listing.id !== excludeListingId : true)
+    ).length;
+    
+    const hasReachedLimit = activeCount >= config.user.maxActiveAds;
+    
+    return { hasReachedLimit, activeCount };
+  } catch (error) {
+    console.error('Error checking active ads limit:', error);
+    // On error, allow the operation (fail open)
+    return { hasReachedLimit: false, activeCount: 0 };
+  }
+}
