@@ -58,7 +58,7 @@ export async function checkActiveAdsLimit(userId: string, excludeListingId?: num
     
     // Count active ads, excluding the specified listing ID if provided
     const activeCount = listings.filter((listing: any) => 
-      listing.status === 'ACTIVE' && (excludeListingId ? listing.id !== excludeListingId : true)
+      (listing.status === 'ACTIVE' || listing.status === 'active') && (excludeListingId ? listing.id !== excludeListingId : true)
     ).length;
     
     const hasReachedLimit = activeCount >= config.user.maxActiveAds;

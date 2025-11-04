@@ -6,9 +6,13 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { getAuthHeaders, authState, login } from '$lib/auth/auth0';
+  import { generateListingStructuredData } from '$lib/google-integration';
 
   export let data;
   const { listing } = data;
+  
+  // Generate structured data for SEO
+  const structuredData = generateListingStructuredData(listing);
 
   let contactInfo = {
     phone: null,
@@ -160,6 +164,28 @@
 <svelte:head>
   {#if config.recaptcha.siteKey && config.recaptcha.siteKey.trim() !== ''}
     <script src="https://www.google.com/recaptcha/enterprise.js?render={config.recaptcha.siteKey}" async defer></script>
+  {/if}
+  
+  <!-- Structured Data for Google -->
+  {@html `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`}
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="product" />
+  <meta property="og:title" content={listing.title} />
+  <meta property="og:description" content={listing.description} />
+  <meta property="og:url" content={`https://locful.in/list/${listing.slug}`} />
+  {#if listing.images?.[0]}
+    <meta property="og:image" content={`https://locful.in${listing.images[0].path}`} />
+  {/if}
+  <meta property="product:price:amount" content={listing.price?.toString() || '0'} />
+  <meta property="product:price:currency" content="INR" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={listing.title} />
+  <meta name="twitter:description" content={listing.description} />
+  {#if listing.images?.[0]}
+    <meta name="twitter:image" content={`https://locful.in${listing.images[0].path}`} />
   {/if}
 </svelte:head>
 
