@@ -67,6 +67,16 @@
     }
   }
 
+  function handleReset(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    searchTerm = '';
+    displayTerm = '';
+    showDropdown = false;
+    isSearching = false;
+    activeIndex = -1;
+  }
+
   $: filteredOptions = options.filter(option => 
     option.display.toLowerCase().includes(displayTerm.toLowerCase()) ||
     option.value.toLowerCase().includes(displayTerm.toLowerCase())
@@ -96,10 +106,29 @@
     padding-left: 56px;
   }
   
+  .input-group input.has-right-button {
+    padding-right: 56px;
+  }
+  
   .input-group button {
     position: absolute;
     left: 0;
     top: 0;
+  }
+  
+  .input-group button.reset-button {
+    left: auto;
+    right: 0;
+    border-radius: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  
+  .searchable-select-container:hover .input-group button.reset-button,
+  .input-group:focus-within button.reset-button {
+    opacity: 1;
+    pointer-events: auto;
   }
   
   .dropdown-options {
@@ -145,7 +174,7 @@
     {/if}
     <input
       type="text"
-      class="input input-bordered w-full {icon ? 'pl-12' : ''} focus:outline-none focus:ring-2 focus:ring-primary relative {error ? 'ring-2 ring-error' : ''}"
+      class="input input-bordered w-full {icon ? 'pl-12' : ''} {searchTerm || displayTerm ? 'has-right-button pr-12' : ''} focus:outline-none focus:ring-2 focus:ring-primary relative {error ? 'ring-2 ring-error' : ''}"
       {placeholder}
       bind:value={displayTerm}
       on:focus={handleFocus}
@@ -157,6 +186,17 @@
       aria-activedescendant={activeIndex >= 0 ? `option-${options[activeIndex].key}` : undefined}
       autocomplete="off"
     />
+    {#if searchTerm || displayTerm}
+      <button 
+        class="btn btn-square btn-ghost reset-button absolute right-0 top-0 z-10 hover:bg-base-200"
+        type="button"
+        on:mousedown={handleReset}
+        aria-label="Clear selection"
+        tabindex="-1"
+      >
+        <Icon icon="material-symbols:close" class="w-5 h-5" />
+      </button>
+    {/if}
   </div>
 
   {#if showDropdown}
