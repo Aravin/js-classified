@@ -37,6 +37,7 @@ export async function verifyAuth0Token(
   reply: FastifyReply
 ): Promise<boolean> {
   const authHeader = request.headers.authorization;
+  
   if (!authHeader?.startsWith('Bearer ')) {
     reply.code(401).send({ error: 'Missing Authorization header' });
     return false;
@@ -61,20 +62,91 @@ export async function verifyAuth0Token(
   }
 
   const auth0Domain = process.env.AUTH0_DOMAIN;
-  const auth0Audience = process.env.AUTH0_AUDIENCE;
+  const auth0Audience = process.env.AUTH0_AUDIENCE; // API audience (for access tokens)
+  const auth0ClientId = process.env.AUTH0_CLIENT_ID; // Client ID (for ID tokens)
 
-  if (!auth0Domain || !auth0Audience) {
-    reply.code(500).send({ error: 'Auth0 configuration missing' });
+  if (!auth0Domain) {
+    reply.code(500).send({ error: 'Auth0 configuration missing: AUTH0_DOMAIN' });
     return false;
   }
 
+  // Variables for error reporting
+  let unverified: (jwt.JwtPayload & { header?: jwt.JwtHeader }) | null = null;
+  let isIdToken = false;
+  let expectedAudience: string | undefined;
+
   try {
-    const decoded = await new Promise<jwt.JwtPayload>((resolve, reject) => {
+    // First, decode without verification to check token type
+    const decoded = jwt.decode(token, { complete: true }) as { header?: jwt.JwtHeader; payload?: jwt.JwtPayload } | null;
+    
+    if (!decoded || !decoded.payload) {
+      reply.code(401).send({ error: 'Invalid token format' });
+      return false;
+    }
+
+    // Store for error reporting
+    unverified = decoded.payload as jwt.JwtPayload & { header?: jwt.JwtHeader };
+    
+    // Determine if this is an ID token or access token
+    // ID tokens have 'aud' (audience) = client ID
+    // Access tokens have 'aud' (audience) = API identifier
+    const tokenAudience = decoded.payload.aud;
+    
+    // Auto-detect token type: ID tokens have client ID as audience, access tokens have API URL
+    // If audience is not a URL, it's likely a client ID (ID token)
+    // If audience is a URL, it's likely an API identifier (access token)
+    const isLikelyIdToken = typeof tokenAudience === 'string' && !tokenAudience.startsWith('http');
+    
+    if (isLikelyIdToken) {
+      // ID token - audience must match configured client ID
+      isIdToken = true;
+      if (!auth0ClientId) {
+        reply.code(500).send({ 
+          error: 'Auth0 configuration missing',
+          details: 'AUTH0_CLIENT_ID is required for ID token validation'
+        });
+        return false;
+      }
+      
+      // Validate token audience matches configured client ID
+      if (tokenAudience !== auth0ClientId && (!Array.isArray(tokenAudience) || !tokenAudience.includes(auth0ClientId))) {
+        reply.code(401).send({ 
+          error: 'Invalid token audience',
+          details: 'Token audience does not match configured client ID'
+        });
+        return false;
+      }
+      
+      expectedAudience = auth0ClientId;
+    } else {
+      // Access token - audience must match API identifier
+      isIdToken = false;
+      if (!auth0Audience) {
+        reply.code(500).send({ 
+          error: 'Auth0 configuration missing',
+          details: 'AUTH0_AUDIENCE is required for access token validation'
+        });
+        return false;
+      }
+      
+      // Validate token audience matches configured API audience
+      if (tokenAudience !== auth0Audience && (!Array.isArray(tokenAudience) || !tokenAudience.includes(auth0Audience))) {
+        reply.code(401).send({ 
+          error: 'Invalid token audience',
+          details: 'Token audience does not match configured API audience'
+        });
+        return false;
+      }
+      
+      expectedAudience = auth0Audience;
+    }
+
+    const verifiedToken = await new Promise<jwt.JwtPayload>((resolve, reject) => {
       jwt.verify(
         token,
         getKey,
         {
-          audience: auth0Audience,
+          audience: expectedAudience,
           issuer: `https://${auth0Domain}/`,
           algorithms: ['RS256'],
         },
@@ -86,13 +158,13 @@ export async function verifyAuth0Token(
     });
 
     // A07 - Authentication Failures: Verify token hasn't expired
-    if (decoded.exp && decoded.exp < Date.now() / 1000) {
+    if (verifiedToken.exp && verifiedToken.exp < Date.now() / 1000) {
       reply.code(401).send({ error: 'Token expired' });
       return false;
     }
 
     // Attach user to request
-    request.user = decoded;
+    request.user = verifiedToken;
     return true;
   } catch (error: any) {
     const errorMessage = error?.message || 'Invalid or expired token';

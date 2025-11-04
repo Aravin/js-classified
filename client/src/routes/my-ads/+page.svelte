@@ -63,7 +63,10 @@
 
     try {
       const response = await fetch(`${config.api.baseUrl}/listings/${idToDelete}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json'
+        }
       });
 
       if (!response.ok) {
@@ -97,7 +100,8 @@
       const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ status: newStatus })
       });
@@ -141,7 +145,11 @@
     if (!$authState.user?.sub) return;
 
     try {
-      const response = await fetch(`${config.api.baseUrl}/listings/user/${$authState.user.sub}`);
+      const response = await fetch(`${config.api.baseUrl}/listings/user/${$authState.user.sub}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch listings');
       }

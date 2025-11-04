@@ -29,7 +29,8 @@ export const config = {
     auth0: {
         domain: env.PUBLIC_AUTH0_DOMAIN + '',
         clientId: env.PUBLIC_AUTH0_CLIENT_ID + '',
-        callbackUrl: env.PUBLIC_AUTH0_CALLBACK_URL
+        callbackUrl: env.PUBLIC_AUTH0_CALLBACK_URL,
+        audience: env.PUBLIC_AUTH0_AUDIENCE || '' // API audience for JWT tokens
     },
     recaptcha: {
         siteKey: recaptchaSiteKey

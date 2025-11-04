@@ -5,6 +5,7 @@
   import RelevantListings from '$lib/components/RelevantListings.svelte';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
+  import { getAuthHeaders, authState, login } from '$lib/auth/auth0';
 
   export let data;
   const { listing } = data;
@@ -21,6 +22,7 @@
   };
   let selectedImage: number | null = null;
   let recaptchaReady = false;
+  let showLoginPrompt = false;
 
   const LISTING_EXPIRY_DAYS = config.listing.expiryDays;
 
@@ -71,8 +73,16 @@
   }
 
   async function fetchContactInfo(type: 'phone' | 'email' | 'both') {
+    // Check if user is authenticated first
+    if (!$authState.isAuthenticated) {
+      showLoginPrompt = true;
+      return;
+    }
+
     isLoading = true;
     error = null;
+    showLoginPrompt = false;
+    
     try {
       // Get reCAPTCHA token before fetching contact info
       const recaptchaToken = await getRecaptchaToken('VIEW_CONTACT');
@@ -85,14 +95,30 @@
           url += `?recaptchaToken=${encodeURIComponent(recaptchaToken)}`;
         }
 
+        // Get auth headers for secured contact API
+        const authHeaders = await getAuthHeaders();
+        
+        if (!authHeaders.Authorization) {
+          showLoginPrompt = true;
+          return;
+        }
+        
         const response = await fetch(url, {
           method: 'GET',
           headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            ...authHeaders
           }
         });
         
-        if (!response.ok) throw new Error('Failed to fetch contact information');
+        if (!response.ok) {
+          if (response.status === 401) {
+            showLoginPrompt = true;
+            return;
+          }
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errorData.error || 'Failed to fetch contact information');
+        }
         const data = await response.json();
         cachedContactInfo = data.contactInfo;
       }
@@ -107,10 +133,14 @@
       }
     } catch (err) {
       error = 'Failed to load contact information. Please try again.';
-      console.error('Error fetching contact info:', err);
     } finally {
       isLoading = false;
     }
+  }
+
+  async function handleLogin() {
+    showLoginPrompt = false;
+    await login();
   }
 
   function formatPhoneNumber(phone: string): string {
@@ -262,7 +292,30 @@
             </div>
           {/if}
 
-          {#if error}
+          {#if showLoginPrompt}
+            <div class="bg-info/10 border border-info rounded-lg p-4 mt-4">
+              <div class="flex items-start gap-3">
+                <Icon icon="material-symbols:info" class="w-6 h-6 text-info flex-shrink-0 mt-0.5" />
+                <div class="flex-1">
+                  <p class="font-medium text-info mb-2">Login Required</p>
+                  <p class="text-sm text-gray-600 mb-3">Please log in to view contact information.</p>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    on:click={handleLogin}
+                  >
+                    <Icon icon="material-symbols:login" class="w-4 h-4 mr-2" />
+                    Log In
+                  </button>
+                </div>
+                <button
+                  class="btn btn-sm btn-ghost"
+                  on:click={() => showLoginPrompt = false}
+                >
+                  <Icon icon="material-symbols:close" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          {:else if error}
             <div class="text-error text-sm mt-2 flex items-center gap-1">
               <Icon icon="material-symbols:error" class="w-5 h-5 flex-shrink-0" />
               <span>{error}</span>

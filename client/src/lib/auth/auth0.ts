@@ -31,15 +31,15 @@ export async function initAuth0() {
   }
 
   try {
-    const Auth0ClientModule = await import('@auth0/auth0-spa-js');
-    _auth0Client = await Auth0ClientModule.createAuth0Client({
-      domain: config.auth0.domain,
-      clientId: config.auth0.clientId,
-      authorizationParams: {
-        redirect_uri: config.auth0.callbackUrl
-      },
-      cacheLocation: 'localstorage'
-    });
+      const Auth0ClientModule = await import('@auth0/auth0-spa-js');
+      _auth0Client = await Auth0ClientModule.createAuth0Client({
+        domain: config.auth0.domain,
+        clientId: config.auth0.clientId,
+        authorizationParams: {
+          redirect_uri: config.auth0.callbackUrl
+        },
+        cacheLocation: 'localstorage'
+      });
 
     auth0Client.set(_auth0Client);
 
@@ -80,6 +80,43 @@ export const authState = derived(
 // Initialize the Auth0 client (only in browser)
 if (browser) {
   initAuth0();
+}
+
+/**
+ * Get the ID token for API authentication
+ * Returns ID token (JWT) if user is authenticated, null otherwise
+ */
+export async function getIdToken(): Promise<string | null> {
+  try {
+    const client = get(auth0Client);
+    if (!client) return null;
+
+    const isAuth = await client.isAuthenticated();
+    if (!isAuth) return null;
+
+    try {
+      const claims = await client.getIdTokenClaims();
+      return claims?.__raw || null;
+    } catch (err: any) {
+      return null;
+    }
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Get authorization headers for API requests
+ * Uses ID token for authentication
+ */
+export async function getAuthHeaders(): Promise<Record<string, string>> {
+  const token = await getIdToken();
+  if (token) {
+    return {
+      'Authorization': `Bearer ${token}`
+    };
+  }
+  return {};
 }
 
 // Login function

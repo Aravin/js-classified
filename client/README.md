@@ -65,7 +65,10 @@ All environment variables are loaded from `src/lib/config.ts` and must be prefix
 PUBLIC_AUTH0_DOMAIN=your-auth0-domain.auth0.com  # Your Auth0 domain (e.g., your-tenant.auth0.com)
 PUBLIC_AUTH0_CLIENT_ID=your-auth0-client-id       # Your Auth0 application client ID
 PUBLIC_AUTH0_CALLBACK_URL=http://localhost:5173  # The URL where Auth0 should redirect after authentication
+PUBLIC_AUTH0_AUDIENCE=https://api.yourdomain.com  # Auth0 API identifier (required for JWT tokens to authenticate with backend API)
 ```
+
+**Important:** The `PUBLIC_AUTH0_AUDIENCE` must match the API identifier configured in your Auth0 dashboard. This is required to get JWT tokens instead of opaque tokens, which are needed for backend API authentication.
 
 ### Optional Variables (with defaults)
 

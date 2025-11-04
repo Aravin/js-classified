@@ -6,6 +6,7 @@ import {
   listingQuerySchema,
 } from '../schemas/listing.schema';
 import { z } from 'zod';
+import { verifyAuth0Token } from '../../middleware/auth';
 
 const prisma = new PrismaClient();
 
@@ -249,6 +250,15 @@ export async function listingRoutes(fastify: FastifyInstance) {
   fastify.get('/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     const { showContact } = request.query as { showContact?: string };
+    
+    // Require authentication if showContact=true
+    if (showContact === 'true') {
+      const authResult = await verifyAuth0Token(request, reply);
+      if (!authResult) {
+        return; // verifyAuth0Token already sent the error response
+      }
+    }
+    
     try {
       // Check if id is a number or a slug
       const isNumericId = /^\d+$/.test(id);
@@ -280,7 +290,19 @@ export async function listingRoutes(fastify: FastifyInstance) {
         return sendResponse(reply, 404, { error: 'Listing not found' });
       }
 
-      // Return unmasked data if showContact=true
+      // If showContact=true, verify user owns the listing
+      if (showContact === 'true') {
+        // Find user by Auth0 ID (request.user is guaranteed to exist because verifyAuth0Token passed)
+        const user = await prisma.user.findUnique({
+          where: { userId: request.user!.sub },
+        });
+
+        if (!user || listing.userId !== user.id) {
+          return sendResponse(reply, 403, { error: 'Access denied. You can only view contact info for your own listings.' });
+        }
+      }
+
+      // Return unmasked data if showContact=true (only if authenticated and owns listing)
       return sendResponse(reply, 200, showContact === 'true' ? listing : maskSensitiveData(listing));
     } catch (error) {
       console.error('Error fetching listing:', error);
@@ -288,8 +310,10 @@ export async function listingRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // Get listing contact information
-  fastify.get('/:id/contact', async (request, reply) => {
+  // Get listing contact information (requires authentication)
+  fastify.get('/:id/contact', {
+    preHandler: verifyAuth0Token
+  }, async (request, reply) => {
     const { id } = request.params as { id: string };
     try {
       const numericId = parseInt(id);

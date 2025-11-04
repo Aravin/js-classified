@@ -7,7 +7,7 @@
   import { goto } from '$app/navigation';
   import { config } from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
-  import { user, isAuthenticated } from '$lib/auth/auth0';
+  import { isAuthenticated, getAuthHeaders } from '$lib/auth/auth0';
   import { page } from '$app/stores';
   import ImageUpload from '$lib/components/ImageUpload.svelte';
   import type { ImageUploadResult } from '$lib/types';
@@ -48,7 +48,13 @@
   // Load existing listing data
   async function loadListingData() {
     try {
-      const response = await fetch(`${config.api.baseUrl}/listings/${listingId}?showContact=true`);
+      const authHeaders = await getAuthHeaders();
+      const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`, {
+        headers: {
+          'Accept': 'application/json',
+          ...authHeaders
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to load listing');
       }
