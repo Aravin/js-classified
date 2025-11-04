@@ -11,6 +11,15 @@
   import { initAuth0, authState } from '$lib/auth/auth0';
   import { browser } from '$app/environment';
 
+  // Popular categories mapping - find best matching category
+  const popularCategories = [
+    { name: 'Mobiles', category: categories.find(c => c.value === 'Mobile Phones') },
+    { name: 'Vehicles', category: categories.find(c => c.value === 'Car') },
+    { name: 'Property for Sale', category: categories.find(c => c.value === 'Apartments') },
+    { name: 'Fashion & Beauty', category: categories.find(c => c.display.includes('Fashion') && c.value === 'Men') },
+    { name: 'Home & Garden', category: categories.find(c => c.display.includes('Home & Furniture') && c.value === 'Sofas') }
+  ];
+
   let locationSearch = $selectedLocation;
   let categorySearch = $selectedCategory;
   let search = $searchTerm;
@@ -134,11 +143,11 @@
           <span class="text-white">Trending Searches</span>
         </h3>
         <div class="flex flex-wrap gap-2">
-          <a href="#" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Electronics</a>
-          <a href="#" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Cars</a>
-          <a href="#" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Real Estate</a>
-          <a href="#" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Jobs</a>
-          <a href="#" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Services</a>
+          <a href="/search?q=Electronics" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Electronics</a>
+          <a href="/search?q=Cars" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Cars</a>
+          <a href="/search?q=Real Estate" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Real Estate</a>
+          <a href="/search?q=Jobs" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Jobs</a>
+          <a href="/search?q=Services" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Services</a>
         </div>
       </div>
 
@@ -148,16 +157,28 @@
           <span class="text-white">Popular Categories</span>
         </h3>
         <ul class="space-y-2">
-          {#each ['Mobiles', 'Vehicles', 'Property for Sale', 'Fashion & Beauty', 'Home & Garden'] as item}
-            <li>
-              <a 
-                href="#{item}" 
-                class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
-              >
-                <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
-                <span>{item}</span>
-              </a>
-            </li>
+          {#each popularCategories as item}
+            {#if item.category}
+              <li>
+                <a 
+                  href="/category/{item.category.slug}?category={item.category.key}" 
+                  class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
+                >
+                  <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
+                  <span>{item.name}</span>
+                </a>
+              </li>
+            {:else}
+              <li>
+                <a 
+                  href="/search?q={item.name}" 
+                  class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
+                >
+                  <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
+                  <span>{item.name}</span>
+                </a>
+              </li>
+            {/if}
           {/each}
         </ul>
       </div>
@@ -168,14 +189,23 @@
           <span class="text-white">Company</span>
         </h3>
         <ul class="space-y-2">
-          {#each ['About Us', 'Contact Us', 'Terms & Conditions', 'Privacy Policy'] as item}
+          {#each [
+            { name: 'About Us', url: 'https://www.exaful.com/about' },
+            { name: 'Career', url: 'https://www.exaful.com/career' },
+            { name: 'Contact Us', url: 'https://www.exaful.com/contact' },
+            { name: 'Terms of Use', url: 'https://www.exaful.com/policies/terms' },
+            { name: 'Privacy Policy', url: 'https://www.exaful.com/policies/privacy' },
+            { name: 'Refund Policy', url: 'https://www.exaful.com/policies/refund' }
+          ] as item}
             <li>
               <a 
-                href="#{item}" 
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
               >
                 <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
-                <span>{item}</span>
+                <span>{item.name}</span>
               </a>
             </li>
           {/each}
@@ -189,13 +219,16 @@
         </h3>
         <div class="flex space-x-6">
           {#each [
-            { icon: 'line-md:facebook', label: 'Facebook' },
-            { icon: 'line-md:instagram', label: 'Instagram' },
-            { icon: 'line-md:twitter-x', label: 'Twitter' },
-            { icon: 'line-md:youtube', label: 'YouTube' }
-          ] as { icon, label }}
+            { icon: 'line-md:facebook', label: 'Facebook', url: 'https://www.fb.me/itarav' },
+            { icon: 'line-md:twitter-x', label: 'Twitter', url: 'https://twitter.com/itaravin' },
+            { icon: 'mdi:github', label: 'GitHub', url: 'https://github.com/Aravin/' },
+            { icon: 'mdi:linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/itaravin/' },
+            { icon: 'mdi:stack-overflow', label: 'Stack Overflow', url: 'https://stackoverflow.com/users/3058254/aravin' }
+          ] as { icon, label, url }}
             <a 
-              href="#" 
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
               class="text-neutral-content/70 hover:text-white transition-all duration-200 hover:scale-110" 
               aria-label={label}
             >
