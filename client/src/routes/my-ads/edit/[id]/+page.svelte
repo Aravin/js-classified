@@ -7,8 +7,7 @@
   import { goto } from '$app/navigation';
   import { config } from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
-  import { isAuthenticated, getAuthHeaders, user } from '$lib/auth/auth0';
-  import { page } from '$app/stores';
+  import { isAuthenticated, getAuthHeaders, user, authState } from '$lib/auth/auth0';
   import { checkActiveAdsLimit } from '$lib/utils';
   import ImageUpload from '$lib/components/ImageUpload.svelte';
   import type { ImageUploadResult } from '$lib/types';
@@ -27,7 +26,8 @@
     sanitizeInput
   } from '$lib/form-validation';
 
-  const listingId = Number($page.params.id);
+  export let data;
+  const listingId = Number(data.id);
   let loading = true;
   let loadError: string | null = null;
   let submitting = false;
@@ -52,14 +52,25 @@
   async function loadListingData() {
     try {
       const authHeaders = await getAuthHeaders();
+      
+      if (!authHeaders.Authorization) {
+        throw new Error('Authentication required. Please log in.');
+      }
+
       const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`, {
         headers: {
           'Accept': 'application/json',
           ...authHeaders
         }
       });
+      
       if (!response.ok) {
-        throw new Error('Failed to load listing');
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        
+        if (response.status === 401) {
+          throw new Error('Authentication failed. Please refresh the page.');
+        }
+        throw new Error(errorData.message || `Failed to load listing (${response.status})`);
       }
 
       const listing = await response.json();
@@ -96,7 +107,6 @@
 
       loading = false;
     } catch (err) {
-      console.error('Error loading listing:', err);
       loadError = err instanceof Error ? err.message : 'Failed to load listing';
       loading = false;
     }
@@ -136,11 +146,13 @@
         }))
       };
 
+      const authHeaders = await getAuthHeaders();
       const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify(payload)
       });
@@ -153,7 +165,6 @@
       const updatedListing = await response.json();
       await goto(`/list/${updatedListing.slug}`);
     } catch (err) {
-      console.error('Error updating listing:', err);
       submitError = err instanceof Error ? err.message : 'Failed to update listing';
     } finally {
       submitting = false;

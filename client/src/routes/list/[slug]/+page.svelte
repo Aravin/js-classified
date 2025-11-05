@@ -1,18 +1,31 @@
 <script lang="ts">
-  import { formatCurrency, formatDate } from '$lib/utils';
+  import { formatCurrency, formatDate, checkActiveAdsLimit } from '$lib/utils';
   import Icon from '@iconify/svelte';
   import { config } from '$lib/config';
   import RelevantListings from '$lib/components/RelevantListings.svelte';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import { getAuthHeaders, authState, login } from '$lib/auth/auth0';
+  import { getAuthHeaders, authState, login, user } from '$lib/auth/auth0';
   import { generateListingStructuredData } from '$lib/google-integration';
+  import { goto } from '$app/navigation';
 
   export let data;
   const { listing } = data;
   
   // Generate structured data for SEO
   const structuredData = generateListingStructuredData(listing);
+  
+  // Check if current user owns this listing
+  let isOwner = false;
+  let checkingOwnership = false;
+  
+  // Delete and status update state
+  let listingToDelete: typeof listing | null = null;
+  let listingToUpdateStatus: { listing: typeof listing; newStatus: 'ACTIVE' | 'DRAFT' } | null = null;
+  let deleteError: string | null = null;
+  let statusError: string | null = null;
+  let isDeleting = false;
+  let isUpdatingStatus = false;
 
   let contactInfo = {
     phone: null,
@@ -30,6 +43,61 @@
 
   const LISTING_EXPIRY_DAYS = config.listing.expiryDays;
 
+  // Check if listing belongs to current user
+  async function checkOwnership() {
+    if (!$authState.isAuthenticated || !$user?.sub) {
+      isOwner = false;
+      return;
+    }
+
+    if (!listing?.id && !listing?.slug) {
+      isOwner = false;
+      return;
+    }
+
+    checkingOwnership = true;
+    
+    try {
+      const authHeaders = await getAuthHeaders();
+      
+      // Check if listing ID is in user's listings
+      const userListingsResponse = await fetch(`${config.api.baseUrl}/listings/user/${$user.sub}`, {
+        headers: {
+          'Accept': 'application/json',
+          ...authHeaders
+        }
+      });
+      
+      if (userListingsResponse.ok) {
+        const userListings = await userListingsResponse.json();
+        isOwner = userListings.listings?.some((l: any) => {
+          return (listing.id && l.id === listing.id) || (listing.slug && l.slug === listing.slug);
+        }) || false;
+      } else {
+        // API call failed - assume user doesn't own the listing
+        isOwner = false;
+      }
+    } catch (err) {
+      isOwner = false;
+    } finally {
+      checkingOwnership = false;
+    }
+  }
+
+  // Reactive statement to check ownership when auth state changes
+  let prevUserId: string | null = null;
+  $: {
+    if (browser && $authState.isAuthenticated && $user?.sub && (listing?.id || listing?.slug)) {
+      if ($user.sub !== prevUserId) {
+        prevUserId = $user.sub;
+        checkOwnership();
+      }
+    } else if (!$authState.isAuthenticated) {
+      isOwner = false;
+      prevUserId = null;
+    }
+  }
+
   onMount(() => {
     if (browser) {
       // Wait for reCAPTCHA to be ready
@@ -38,23 +106,131 @@
           recaptchaReady = true;
         });
       }
+      
+      // Check ownership if user is already authenticated
+      if ($authState.isAuthenticated && $user?.sub && (listing?.id || listing?.slug)) {
+        prevUserId = $user.sub;
+        checkOwnership();
+      }
     }
   });
 
+  function handleEdit() {
+    if (!listing?.id) {
+      return;
+    }
+    goto(`/my-ads/edit/${listing.id}`);
+  }
+
+  function showDeleteConfirmation() {
+    listingToDelete = listing;
+    const modal = document.getElementById('delete-modal') as HTMLDialogElement;
+    modal?.showModal();
+  }
+
+  async function handleDelete() {
+    if (!listingToDelete?.id) return;
+    isDeleting = true;
+    deleteError = null;
+
+    try {
+      const authHeaders = await getAuthHeaders();
+      const response = await fetch(`${config.api.baseUrl}/listings/${listingToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          ...authHeaders
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete listing');
+      }
+
+      // Close modal and redirect to my-ads page
+      listingToDelete = null;
+      const modal = document.getElementById('delete-modal') as HTMLDialogElement;
+      modal?.close();
+      
+      await goto('/my-ads');
+    } catch (err) {
+      deleteError = err instanceof Error ? err.message : 'Failed to delete listing';
+    } finally {
+      isDeleting = false;
+    }
+  }
+
+  function showStatusConfirmation(newStatus: 'ACTIVE' | 'DRAFT') {
+    listingToUpdateStatus = { listing, newStatus };
+    const modal = document.getElementById('status-modal') as HTMLDialogElement;
+    modal?.showModal();
+  }
+
+  async function handleStatusUpdate() {
+    if (!listingToUpdateStatus || !listing?.id) return;
+    const { newStatus } = listingToUpdateStatus;
+    
+    statusError = null;
+    isUpdatingStatus = true;
+
+    // Check active ads limit before activating
+    if (newStatus === 'ACTIVE' && $user?.sub) {
+      const limitCheck = await checkActiveAdsLimit($user.sub, listing.id);
+      if (limitCheck.hasReachedLimit) {
+        statusError = `You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}. To add more ads, please contact us.`;
+        listingToUpdateStatus = null;
+        const modal = document.getElementById('status-modal') as HTMLDialogElement;
+        modal?.close();
+        isUpdatingStatus = false;
+        return;
+      }
+    }
+
+    try {
+      const authHeaders = await getAuthHeaders();
+      const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...authHeaders
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update status');
+      }
+
+      // Close modal and refresh the page
+      listingToUpdateStatus = null;
+      const modal = document.getElementById('status-modal') as HTMLDialogElement;
+      modal?.close();
+      
+      // Reload the page to show updated status
+      window.location.reload();
+    } catch (err) {
+      statusError = err instanceof Error ? err.message : 'Failed to update status';
+    } finally {
+      isUpdatingStatus = false;
+    }
+  }
+
+  // Get current listing status
+  $: listingStatus = listing?.status || 'ACTIVE';
+  $: isActive = listingStatus === 'ACTIVE' || listingStatus === 'active';
+
   async function getRecaptchaToken(action: string): Promise<string | null> {
     if (!browser) {
-      console.warn('reCAPTCHA not available (browser check)');
       return null;
     }
 
     // Check if site key is configured
     if (!config.recaptcha.siteKey || config.recaptcha.siteKey.trim() === '') {
-      console.warn('reCAPTCHA site key is not configured');
       return null;
     }
 
     if (!window.grecaptcha?.enterprise) {
-      console.warn('reCAPTCHA not available - script may not have loaded');
       return null;
     }
 
@@ -65,13 +241,11 @@
             const token = await window.grecaptcha!.enterprise.execute(config.recaptcha.siteKey, { action });
             resolve(token);
           } catch (err) {
-            console.error('Error executing reCAPTCHA:', err);
             resolve(null);
           }
         });
       });
     } catch (err) {
-      console.error('Error getting reCAPTCHA token:', err);
       return null;
     }
   }
@@ -250,6 +424,55 @@
               <span>{getDaysLeft(listing.createdAt)} days left</span>
             </div>
           </div>
+
+          <!-- Action Buttons for Owner -->
+          {#if $authState.isAuthenticated}
+            {#if isOwner && listing?.id}
+              <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
+                <button
+                  class="btn btn-sm btn-primary"
+                  on:click={handleEdit}
+                  disabled={checkingOwnership}
+                >
+                  <Icon icon="material-symbols:edit" class="w-4 h-4 mr-2" />
+                  Edit
+                </button>
+                <button
+                  class="btn btn-sm btn-outline {isActive ? 'btn-warning' : 'btn-success'}"
+                  on:click={() => showStatusConfirmation(isActive ? 'DRAFT' : 'ACTIVE')}
+                  disabled={checkingOwnership || isUpdatingStatus}
+                >
+                  {#if isUpdatingStatus}
+                    <Icon icon="material-symbols:hourglass-bottom" class="w-4 h-4 mr-2 animate-spin" />
+                  {:else if isActive}
+                    <Icon icon="material-symbols:pause" class="w-4 h-4 mr-2" />
+                  {:else}
+                    <Icon icon="material-symbols:play-arrow" class="w-4 h-4 mr-2" />
+                  {/if}
+                  {isActive ? 'Pause' : 'Activate'}
+                </button>
+                <button
+                  class="btn btn-sm btn-error btn-outline"
+                  on:click={showDeleteConfirmation}
+                  disabled={checkingOwnership || isDeleting}
+                >
+                  {#if isDeleting}
+                    <Icon icon="material-symbols:hourglass-bottom" class="w-4 h-4 mr-2 animate-spin" />
+                  {:else}
+                    <Icon icon="material-symbols:delete" class="w-4 h-4 mr-2" />
+                  {/if}
+                  Delete
+                </button>
+              </div>
+            {:else if checkingOwnership}
+              <div class="mt-4 pt-4 border-t border-gray-200">
+                <div class="btn btn-sm btn-ghost opacity-50 cursor-not-allowed">
+                  <Icon icon="material-symbols:hourglass-bottom" class="w-4 h-4 mr-2 animate-spin" />
+                  Checking ownership...
+                </div>
+              </div>
+            {/if}
+          {/if}
         </div>
         <div class="text-2xl font-bold text-primary whitespace-nowrap">
           {formatCurrency(listing.price)}
@@ -355,3 +578,83 @@
   <!-- Relevant Listings Section -->
   <RelevantListings {listing} />
 </div>
+
+<!-- Delete Confirmation Modal -->
+<dialog id="delete-modal" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Confirm Deletion</h3>
+    <p class="py-4">
+      Are you sure you want to delete "{listingToDelete?.title}"? This action cannot be undone.
+    </p>
+    {#if deleteError}
+      <div class="alert alert-error mb-4">
+        <Icon icon="material-symbols:error" class="w-5 h-5" />
+        <span>{deleteError}</span>
+      </div>
+    {/if}
+    <div class="modal-action">
+      <form method="dialog">
+        <div class="flex gap-2">
+          <button class="btn" disabled={isDeleting}>Cancel</button>
+          <button 
+            class="btn btn-error" 
+            on:click|preventDefault={handleDelete}
+            disabled={isDeleting}
+          >
+            {#if isDeleting}
+              <Icon icon="material-symbols:hourglass-bottom" class="w-4 h-4 mr-2 animate-spin" />
+              Deleting...
+            {:else}
+              Delete
+            {/if}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<!-- Status Update Confirmation Modal -->
+<dialog id="status-modal" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Confirm Status Change</h3>
+    <p class="py-4">
+      {#if listingToUpdateStatus}
+        Are you sure you want to 
+        {listingToUpdateStatus.newStatus === 'DRAFT' ? 'pause' : 'activate'} 
+        "{listingToUpdateStatus.listing.title}"?
+      {/if}
+    </p>
+    {#if statusError}
+      <div class="alert alert-error mb-4">
+        <Icon icon="material-symbols:error" class="w-5 h-5" />
+        <span>{statusError}</span>
+      </div>
+    {/if}
+    <div class="modal-action">
+      <form method="dialog">
+        <div class="flex gap-2">
+          <button class="btn" disabled={isUpdatingStatus}>Cancel</button>
+          <button 
+            class="btn {listingToUpdateStatus?.newStatus === 'DRAFT' ? 'btn-warning' : 'btn-success'}" 
+            on:click|preventDefault={handleStatusUpdate}
+            disabled={isUpdatingStatus}
+          >
+            {#if isUpdatingStatus}
+              <Icon icon="material-symbols:hourglass-bottom" class="w-4 h-4 mr-2 animate-spin" />
+              {listingToUpdateStatus?.newStatus === 'DRAFT' ? 'Pausing...' : 'Activating...'}
+            {:else}
+              {listingToUpdateStatus?.newStatus === 'DRAFT' ? 'Pause' : 'Activate'}
+            {/if}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

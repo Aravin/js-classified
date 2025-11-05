@@ -38,7 +38,9 @@ export async function initAuth0() {
         authorizationParams: {
           redirect_uri: config.auth0.callbackUrl
         },
-        cacheLocation: 'localstorage'
+        cacheLocation: 'localstorage',
+        useRefreshTokens: true, // Enable automatic token refresh
+        useRefreshTokensFallback: true // Fallback to refresh tokens
       });
 
     auth0Client.set(_auth0Client);
@@ -56,7 +58,6 @@ export async function initAuth0() {
       console.error('Error checking authentication', err);
     }
   } catch (err) {
-    console.error('Error initializing auth0', err);
     error.set(err instanceof Error ? err.message : 'Failed to initialize auth0');
   } finally {
     isInitializing.set(false);
@@ -85,6 +86,7 @@ if (browser) {
 /**
  * Get the ID token for API authentication
  * Returns ID token (JWT) if user is authenticated, null otherwise
+ * Automatically refreshes token if expired via Auth0 SDK
  */
 export async function getIdToken(): Promise<string | null> {
   try {
@@ -95,6 +97,8 @@ export async function getIdToken(): Promise<string | null> {
     if (!isAuth) return null;
 
     try {
+      // getIdTokenClaims automatically refreshes the token if expired
+      // The Auth0 SDK handles token refresh internally
       const claims = await client.getIdTokenClaims();
       return claims?.__raw || null;
     } catch (err: any) {
@@ -164,7 +168,6 @@ export async function login() {
       goto(redirectPath);
     }
   } catch (e) {
-    console.error('Error logging in:', e);
     error.set(e instanceof Error ? e.message : 'Unknown error');
     // If login fails, redirect to home
     goto('/');
@@ -187,7 +190,6 @@ export async function logout() {
     user.set(null);
     isAuthenticated.set(false);
   } catch (e) {
-    console.error('Error logging out:', e);
     error.set(e instanceof Error ? e.message : 'Unknown error');
   }
 }
