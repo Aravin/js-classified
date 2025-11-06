@@ -37,7 +37,7 @@ Generate product feeds that can be uploaded to Google Merchant Center.
      const listings = await fetchActiveListings();
      
      // Generate XML feed
-     const feedXml = generateGoogleShoppingFeed(listings, 'https://locful.in');
+     const feedXml = generateGoogleShoppingFeed(listings, 'https://locful.com');
      
      res.setHeader('Content-Type', 'application/xml');
      res.send(feedXml);
@@ -49,7 +49,7 @@ Generate product feeds that can be uploaded to Google Merchant Center.
    - Go to **Products** → **Feeds**
    - Click **+** to add a new feed
    - Choose **Scheduled fetch** or **Upload**
-   - Enter your feed URL: `https://locful.in/api/feeds/google-shopping.xml`
+   - Enter your feed URL: `https://locful.com/api/feeds/google-shopping.xml`
    - Set up automatic updates (daily recommended)
 
 #### Feed Formats Available:
@@ -66,7 +66,7 @@ import { generateSitemapEntry } from './lib/google-integration';
 
 // Generate sitemap entries for all listings
 const sitemapEntries = listings.map(listing => 
-  generateSitemapEntry(listing, 'https://locful.in')
+  generateSitemapEntry(listing, 'https://locful.com')
 );
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -124,7 +124,7 @@ export const GET: RequestHandler = async ({ fetch }) => {
     const data = await response.json();
     
     // Generate feed
-    const feedXml = generateGoogleShoppingFeed(data.listings, 'https://locful.in');
+    const feedXml = generateGoogleShoppingFeed(data.listings, 'https://locful.com');
     
     return new Response(feedXml, {
       headers: {

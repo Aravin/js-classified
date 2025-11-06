@@ -347,9 +347,9 @@
   <meta property="og:type" content="product" />
   <meta property="og:title" content={listing.title} />
   <meta property="og:description" content={listing.description} />
-  <meta property="og:url" content={`https://locful.in/list/${listing.slug}`} />
+  <meta property="og:url" content={`https://locful.com/list/${listing.slug}`} />
   {#if listing.images?.[0]}
-    <meta property="og:image" content={`https://locful.in${listing.images[0].path}`} />
+    <meta property="og:image" content={`https://locful.com${listing.images[0].path}`} />
   {/if}
   <meta property="product:price:amount" content={listing.price?.toString() || '0'} />
   <meta property="product:price:currency" content="INR" />
@@ -359,7 +359,7 @@
   <meta name="twitter:title" content={listing.title} />
   <meta name="twitter:description" content={listing.description} />
   {#if listing.images?.[0]}
-    <meta name="twitter:image" content={`https://locful.in${listing.images[0].path}`} />
+    <meta name="twitter:image" content={`https://locful.com${listing.images[0].path}`} />
   {/if}
 </svelte:head>
 

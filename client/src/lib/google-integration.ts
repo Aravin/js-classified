@@ -13,7 +13,7 @@ type ListingWithStatus = ListingType & {
  * Generate structured data (JSON-LD) for a listing
  * This helps Google understand and display your listings in search results
  */
-export function generateListingStructuredData(listing: ListingWithStatus, baseUrl: string = 'https://locful.in'): object {
+export function generateListingStructuredData(listing: ListingWithStatus, baseUrl: string = 'https://locful.com'): object {
   const imageUrls = listing.images?.map(img => `${baseUrl}${img.path}`) || [];
   const listingUrl = `${baseUrl}/list/${listing.slug}`;
   const status = (listing as any).status || 'ACTIVE';
@@ -37,7 +37,7 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
     category: (listing.category as any)?.name || listing.category?.value,
     brand: {
       '@type': 'Brand',
-      name: 'locful.in'
+      name: 'locful.com'
     },
     aggregateRating: undefined, // Add if you have ratings
     sku: listing.id.toString(),
@@ -50,13 +50,13 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
  * Generate Google Shopping Feed XML format
  * This can be uploaded to Google Merchant Center
  */
-export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUrl: string = 'https://locful.in'): string {
+export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUrl: string = 'https://locful.com'): string {
   const header = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
-    <title>locful.in Classified Ads</title>
+    <title>locful.com Classified Ads</title>
     <link>${baseUrl}</link>
-    <description>Classified ads from locful.in</description>`;
+    <description>Classified ads from locful.com</description>`;
 
   const items = listings
     .filter(listing => {
@@ -80,7 +80,7 @@ export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUr
       <g:price>${price} INR</g:price>
       <g:availability>in stock</g:availability>
       <g:condition>new</g:condition>
-      <g:brand>locful.in</g:brand>
+      <g:brand>locful.com</g:brand>
       <g:mpn>${listing.id}</g:mpn>
       <g:google_product_category>${categoryName}</g:google_product_category>
       <g:product_type>${categoryName} > Classified</g:product_type>
@@ -97,7 +97,7 @@ export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUr
 /**
  * Generate Google Shopping Feed in CSV format (alternative format)
  */
-export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], baseUrl: string = 'https://locful.in'): string {
+export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], baseUrl: string = 'https://locful.com'): string {
   const headers = [
     'id',
     'title',
@@ -142,7 +142,7 @@ export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], bas
         `${price} INR`,
         'in stock',
         'new',
-        'locful.in',
+        'locful.com',
         listing.id.toString(),
         categoryName,
         `${categoryName} > Classified`
@@ -155,7 +155,7 @@ export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], bas
 /**
  * Generate sitemap entry for listings
  */
-export function generateSitemapEntry(listing: ListingWithStatus, baseUrl: string = 'https://locful.in'): string {
+export function generateSitemapEntry(listing: ListingWithStatus, baseUrl: string = 'https://locful.com'): string {
   const listingUrl = `${baseUrl}/list/${listing.slug}`;
   const lastmod = listing.updatedAt || listing.createdAt;
   const status = (listing as any).status || 'ACTIVE';
