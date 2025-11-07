@@ -1,55 +1,108 @@
 import type { ListingType } from './types';
-import { config } from './config';
 
-// Extended listing type for Google integration
 type ListingWithStatus = ListingType & {
-  status?: string;
+  status?: 'ACTIVE' | 'DRAFT' | 'active' | 'draft';
   category?: ListingType['category'] & {
     name?: string;
   };
 }
 
-/**
- * Generate structured data (JSON-LD) for a listing
- * This helps Google understand and display your listings in search results
- */
-export function generateListingStructuredData(listing: ListingWithStatus, baseUrl: string = 'https://locful.com'): object {
-  const imageUrls = listing.images?.map(img => `${baseUrl}${img.path}`) || [];
-  const listingUrl = `${baseUrl}/list/${listing.slug}`;
-  const status = (listing as any).status || 'ACTIVE';
+function getAbsoluteImageUrl(imagePath: string, baseUrl: string): string | null {
+  if (!imagePath || typeof imagePath !== 'string') {
+    return null;
+  }
   
-  return {
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  if (imagePath.startsWith('/')) {
+    return `${baseUrl}${imagePath}`;
+  }
+  
+  return `${baseUrl}/${imagePath}`;
+}
+
+export function generateListingStructuredData(listing: ListingWithStatus, baseUrl: string = 'https://locful.com'): any {
+  const imageUrls = listing.images
+    ?.map(img => getAbsoluteImageUrl(img.path, baseUrl))
+    .filter((url): url is string => url !== null) || [];
+  
+  const listingUrl = `${baseUrl}/list/${listing.slug}`;
+  const status = listing.status?.toUpperCase() === 'ACTIVE' || !listing.status ? 'ACTIVE' : 'DRAFT';
+  
+  const structuredData: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: listing.title,
     description: listing.description,
-    image: imageUrls.length > 0 ? imageUrls : undefined,
+    ...(imageUrls.length > 0 && { image: imageUrls.length === 1 ? imageUrls[0] : imageUrls }),
     offers: {
       '@type': 'Offer',
       price: listing.price?.toString() || '0',
       priceCurrency: 'INR',
-      availability: status === 'ACTIVE' || status === 'active' 
+      availability: status === 'ACTIVE'
         ? 'https://schema.org/InStock' 
         : 'https://schema.org/OutOfStock',
       url: listingUrl,
-      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'IN',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 0,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn'
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'INR'
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'IN'
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 7,
+            unitCode: 'DAY'
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 14,
+            unitCode: 'DAY'
+          }
+        }
+      }
     },
-    category: (listing.category as any)?.name || listing.category?.value,
+    category: listing.category?.name || listing.category?.value,
     brand: {
       '@type': 'Brand',
       name: 'locful.com'
     },
-    aggregateRating: undefined, // Add if you have ratings
     sku: listing.id.toString(),
     mpn: listing.id.toString(),
-    url: listingUrl
+    url: listingUrl,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '0',
+      reviewCount: '0',
+      bestRating: '5',
+      worstRating: '1'
+    },
+    review: []
   };
+
+  return structuredData;
 }
 
-/**
- * Generate Google Shopping Feed XML format
- * This can be uploaded to Google Merchant Center
- */
 export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUrl: string = 'https://locful.com'): string {
   const header = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
@@ -60,8 +113,8 @@ export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUr
 
   const items = listings
     .filter(listing => {
-      const status = (listing as any).status || 'ACTIVE';
-      return status === 'ACTIVE' || status === 'active';
+      const status = listing.status?.toUpperCase() || 'ACTIVE';
+      return status === 'ACTIVE';
     })
     .map(listing => {
       const imageUrl = listing.images?.[0]?.path 
@@ -94,9 +147,6 @@ export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUr
   return `${header}\n${items}\n${footer}`;
 }
 
-/**
- * Generate Google Shopping Feed in CSV format (alternative format)
- */
 export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], baseUrl: string = 'https://locful.com'): string {
   const headers = [
     'id',
@@ -115,8 +165,8 @@ export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], bas
 
   const rows = listings
     .filter(listing => {
-      const status = (listing as any).status || 'ACTIVE';
-      return status === 'ACTIVE' || status === 'active';
+      const status = listing.status?.toUpperCase() || 'ACTIVE';
+      return status === 'ACTIVE';
     })
     .map(listing => {
       const imageUrl = listing.images?.[0]?.path 
@@ -124,7 +174,7 @@ export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], bas
         : '';
       const listingUrl = `${baseUrl}/list/${listing.slug}`;
       const price = listing.price || 0;
-      const categoryName = (listing.category as any)?.name || listing.category?.value || 'Other';
+      const categoryName = listing.category?.name || listing.category?.value || 'Other';
       
       const escapeCSV = (str: string) => {
         if (str.includes(',') || str.includes('"') || str.includes('\n')) {
@@ -152,14 +202,11 @@ export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], bas
   return [headers, ...rows].join('\n');
 }
 
-/**
- * Generate sitemap entry for listings
- */
 export function generateSitemapEntry(listing: ListingWithStatus, baseUrl: string = 'https://locful.com'): string {
   const listingUrl = `${baseUrl}/list/${listing.slug}`;
   const lastmod = listing.updatedAt || listing.createdAt;
-  const status = (listing as any).status || 'ACTIVE';
-  const priority = status === 'ACTIVE' || status === 'active' ? '0.8' : '0.5';
+  const status = listing.status?.toUpperCase() || 'ACTIVE';
+  const priority = status === 'ACTIVE' ? '0.8' : '0.5';
   
   return `  <url>
     <loc>${listingUrl}</loc>
