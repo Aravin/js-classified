@@ -77,5 +77,24 @@ export const config = {
     mainImageHeight: 800,
     quality: 80,
     folder: 'classified'
+  },
+  email: {
+    enabled: process.env.EMAIL_ENABLED === 'true',
+    provider: (process.env.EMAIL_PROVIDER || 'smtp') as 'smtp' | 'sendgrid',
+    // SMTP configuration
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: Number(process.env.EMAIL_PORT) || 587,
+    secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+    user: process.env.EMAIL_USER || '',
+    password: process.env.EMAIL_PASSWORD || '',
+    // SendGrid configuration
+    sendgridApiKey: process.env.SENDGRID_API_KEY || '',
+    // Common configuration
+    from: process.env.EMAIL_FROM || '',
+    to: process.env.EMAIL_TO || '', // Comma-separated list of recipients
+  },
+  cron: {
+    dailyReportEnabled: process.env.CRON_DAILY_REPORT_ENABLED === 'true',
+    dailyReportTime: process.env.CRON_DAILY_REPORT_TIME || '30 14 * * *', // Default: 8 PM IST (14:30 UTC)
   }
 };

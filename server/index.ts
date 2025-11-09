@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
+import cron from 'node-cron';
 import { configureSecurityPlugins } from './plugins/security';
 import { listingRoutes } from './api/routes/listing.routes';
 import { imageRoutes } from './api/routes/image.routes';
@@ -8,6 +9,8 @@ import { userRoutes } from './api/routes/user.routes';
 import { validateInputMiddleware, securityErrorHandler } from './middleware/security';
 import { config, validateEnvConfig } from './config/config';
 import { validateSecurityConfig } from './config/security';
+import { StatisticsService } from './services/statistics.service';
+import { EmailService } from './services/email.service';
 
 // Validate environment variables before starting
 validateEnvConfig();
@@ -58,6 +61,74 @@ server.register(listingRoutes, { prefix: '/listings' });
 server.register(imageRoutes, { prefix: '/images' });
 server.register(userRoutes, { prefix: '/users' });
 
+// Initialize services for cron jobs
+const statisticsService = new StatisticsService(prisma);
+let emailService: EmailService | null = null;
+
+// Setup email service if enabled
+if (config.email.enabled) {
+  const isSMTP = config.email.provider === 'smtp';
+  const isSendGrid = config.email.provider === 'sendgrid';
+
+  // Validate configuration based on provider
+  if (!config.email.from || !config.email.to) {
+    console.warn('⚠️  Email is enabled but missing required configuration (EMAIL_FROM or EMAIL_TO). Daily reports will be disabled.');
+  } else if (isSMTP && (!config.email.user || !config.email.password)) {
+    console.warn('⚠️  SMTP email is enabled but missing required configuration (EMAIL_USER or EMAIL_PASSWORD). Daily reports will be disabled.');
+  } else if (isSendGrid && !config.email.sendgridApiKey) {
+    console.warn('⚠️  SendGrid email is enabled but missing required configuration (SENDGRID_API_KEY). Daily reports will be disabled.');
+  } else {
+    if (isSMTP) {
+      emailService = new EmailService({
+        provider: 'smtp',
+        host: config.email.host,
+        port: config.email.port,
+        secure: config.email.secure,
+        auth: {
+          user: config.email.user,
+          pass: config.email.password,
+        },
+        from: config.email.from,
+        to: config.email.to,
+      });
+      console.log('📧 Email service configured: SMTP');
+    } else if (isSendGrid) {
+      emailService = new EmailService({
+        provider: 'sendgrid',
+        apiKey: config.email.sendgridApiKey,
+        from: config.email.from,
+        to: config.email.to,
+      });
+      console.log('📧 Email service configured: SendGrid');
+    }
+
+    // Verify email connection on startup
+    if (emailService) {
+      emailService.verifyConnection().catch((error) => {
+        console.error('⚠️  Email service verification failed:', error);
+      });
+    }
+  }
+}
+
+// Setup daily statistics report cron job
+if (config.cron.dailyReportEnabled && emailService) {
+  console.log(`📅 Daily statistics report cron job scheduled: ${config.cron.dailyReportTime}`);
+  
+  cron.schedule(config.cron.dailyReportTime, async () => {
+    try {
+      console.log('📊 Generating daily statistics report...');
+      const stats = await statisticsService.getYesterdayStatistics();
+      await emailService!.sendDailyStatisticsReport(stats);
+    } catch (error) {
+      console.error('❌ Failed to send daily statistics report:', error);
+    }
+  });
+} else if (config.cron.dailyReportEnabled && !emailService) {
+  console.warn('⚠️  Daily report cron job is enabled but email service is not configured.');
+} else {
+  console.log('ℹ️  Daily statistics report cron job is disabled.');
+}
 
 // Health check route with connection checks
 server.get('/health', async (request, reply) => {

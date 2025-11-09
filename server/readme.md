@@ -9,6 +9,7 @@ A Fastify-based backend API for a classified ads platform with **flexible storag
 - 🔄 **Backward Compatible** - Existing images continue working when switching providers
 - ⚡ **Type-Safe** - Built with TypeScript
 - 🛡️ **Validated** - Environment variables checked on startup
+- 📊 **Daily Reports** - Automated daily email reports with statistics (new users, logins, listings)
 
 ## Environment Variables
 
@@ -34,6 +35,37 @@ Copy `.env.example` to `.env` and configure the following variables:
 
 - **PORT**: Server port (default: `8080`)
 - **HOST**: Server host (default: `::`)
+
+**Daily Reports Configuration (Optional):**
+
+See [docs/daily-reports.md](./docs/daily-reports.md) for detailed setup instructions.
+
+**For GCP/Cloud Run:** Use SendGrid (Twilio SendGrid) - direct API, no port restrictions! 🆓 **FREE TIER: 12,000 emails/month**
+
+See [docs/free-email-services.md](./docs/free-email-services.md) for all free email service options.
+
+- **EMAIL_ENABLED**: Enable email service (`true`/`false`)
+- **EMAIL_PROVIDER**: Email provider (`smtp` or `sendgrid`, default: `smtp`)
+
+**SendGrid Configuration (Twilio SendGrid - Direct API):**
+- **SENDGRID_API_KEY**: SendGrid API key (get from [Twilio SendGrid dashboard](https://sendgrid.com) - free signup, no credit card)
+- **EMAIL_FROM**: Sender email address (must be verified in SendGrid)
+- **EMAIL_TO**: Recipient email(s) - comma-separated
+
+**SMTP Configuration:**
+- **EMAIL_HOST**: SMTP server host (default: `smtp.gmail.com`)
+- **EMAIL_PORT**: SMTP port (default: `587`)
+- **EMAIL_SECURE**: Use SSL (`true` for port 465, `false` for port 587)
+- **EMAIL_USER**: SMTP username
+- **EMAIL_PASSWORD**: SMTP password
+- **EMAIL_FROM**: Sender email address
+- **EMAIL_TO**: Recipient email(s) - comma-separated
+
+**Cron Job Configuration:**
+- **CRON_DAILY_REPORT_ENABLED**: Enable daily cron job (`true`/`false`)
+- **CRON_DAILY_REPORT_TIME**: Cron schedule (default: `30 14 * * *` - **8:00 PM IST / 2:30 PM UTC daily**)
+
+**When emails are sent:** Daily reports are sent at the time specified by `CRON_DAILY_REPORT_TIME`. If not set, defaults to **8:00 PM IST (2:30 PM UTC) daily**. The report contains statistics from the previous day (yesterday).
 
 ## Setup
 
