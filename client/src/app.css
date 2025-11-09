@@ -14,3 +14,13 @@
 .animate-gradient {
   animation: gradient 3s ease infinite;
 }
+
+/* Fix primary button text color to use light color */
+.btn-primary {
+  --fallback-bc: #f2f2f2;
+  color: #f2f2f2 !important;
+}
+
+.btn-primary * {
+  color: #f2f2f2 !important;
+}
