@@ -5,7 +5,19 @@ type ListingWithStatus = ListingType & {
   category?: ListingType['category'] & {
     name?: string;
   };
-}
+  ratingValue?: number | string;
+  averageRating?: number | string;
+  reviewCount?: number | string;
+  ratingCount?: number | string;
+  rating?: {
+    value?: number | string;
+    ratingValue?: number | string;
+    reviewCount?: number | string;
+    count?: number | string;
+    bestRating?: number | string;
+    worstRating?: number | string;
+  };
+};
 
 function getAbsoluteImageUrl(imagePath: string, baseUrl: string): string | null {
   if (!imagePath || typeof imagePath !== 'string') {
@@ -90,15 +102,80 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
     sku: listing.id.toString(),
     mpn: listing.id.toString(),
     url: listingUrl,
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '0',
-      reviewCount: '0',
-      bestRating: '5',
-      worstRating: '1'
-    },
     review: []
   };
+
+  const normalizeNumber = (value: unknown): number | null => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  };
+
+  // Normalize rating value - treat 0 as null (invalid)
+  const normalizeRatingValue = (value: unknown): number | null => {
+    const num = normalizeNumber(value);
+    return num !== null && num > 0 ? num : null;
+  };
+
+  // Normalize review count - treat 0 as null (invalid)
+  const normalizeReviewCount = (value: unknown): number | null => {
+    const num = normalizeNumber(value);
+    return num !== null && num > 0 ? num : null;
+  };
+
+  const ratingValue =
+    normalizeRatingValue(listing.ratingValue) ??
+    normalizeRatingValue(listing.averageRating) ??
+    normalizeRatingValue(listing.rating?.value) ??
+    normalizeRatingValue(listing.rating?.ratingValue);
+
+  const reviewCount =
+    normalizeReviewCount(listing.reviewCount) ??
+    normalizeReviewCount(listing.ratingCount) ??
+    normalizeReviewCount(listing.rating?.reviewCount) ??
+    normalizeReviewCount(listing.rating?.count);
+
+  const bestRating = normalizeNumber(listing.rating?.bestRating);
+  const worstRating = normalizeNumber(listing.rating?.worstRating);
+
+  // Ensure bestRating and worstRating are valid (bestRating > worstRating, both positive)
+  const validBestRating = bestRating !== null && bestRating > 0 ? bestRating : 5;
+  const validWorstRating = worstRating !== null && worstRating > 0 && worstRating < validBestRating ? worstRating : 1;
+
+  // Validate ratingValue: must be positive, within range, and not null
+  const hasValidRating =
+    ratingValue !== null &&
+    ratingValue > 0 &&
+    ratingValue >= validWorstRating &&
+    ratingValue <= validBestRating &&
+    Number.isFinite(ratingValue);
+
+  // Validate reviewCount: must be positive integer, not null, and not zero
+  const hasValidReviewCount =
+    reviewCount !== null &&
+    reviewCount > 0 &&
+    Number.isFinite(reviewCount) &&
+    Math.round(reviewCount) > 0;
+
+  // Only include aggregateRating if both rating and reviewCount are valid
+  // This ensures we never include aggregateRating with invalid values
+  if (hasValidRating && hasValidReviewCount) {
+    structuredData.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: ratingValue.toString(),
+      reviewCount: Math.round(reviewCount).toString(),
+      bestRating: validBestRating.toString(),
+      worstRating: validWorstRating.toString()
+    };
+  }
 
   return structuredData;
 }
