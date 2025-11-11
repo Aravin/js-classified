@@ -79,6 +79,7 @@ PUBLIC_LOCALE=en-IN                               # Locale string for number for
 PUBLIC_LISTING_EXPIRY_DAYS=30                     # Number of days before a listing expires (default: 30)
 PUBLIC_SEARCH_DEFAULT_LIMIT=5                     # Default number of results per page (default: 5)
 PUBLIC_RECAPTCHA_SITE_KEY=your-site-key           # Google reCAPTCHA Enterprise site key (required for contact info feature)
+PUBLIC_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX           # Google Analytics 4 tracking ID (optional, e.g., G-QGK4WP6WPS)
 ```
 
 ### Notes

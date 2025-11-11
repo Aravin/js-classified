@@ -10,6 +10,7 @@
   import { onMount } from 'svelte';
   import { initAuth0, authState } from '$lib/auth/auth0';
   import { browser } from '$app/environment';
+  import { config } from '$lib/config';
 
   // Popular categories mapping - find best matching category
   const popularCategories = [
@@ -65,6 +66,19 @@
     }
   }
 </script>
+
+<svelte:head>
+  {#if browser && config.googleAnalytics.id}
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={config.googleAnalytics.id}"></script>
+    {@html `<script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${config.googleAnalytics.id}');
+    </script>`}
+  {/if}
+</svelte:head>
 
 <header class="border-b bg-base-100 shadow-sm">
   <div class="container mx-auto px-4">
