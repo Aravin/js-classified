@@ -28,6 +28,24 @@
   onMount(async () => {
     if (browser) {
       await initAuth0();
+      
+      // Initialize Google Analytics if configured
+      if (config.googleAnalytics.id) {
+        // Initialize dataLayer before loading gtag.js
+        window.dataLayer = window.dataLayer || [];
+        function gtag(...args: any[]) {
+          window.dataLayer!.push(args);
+        }
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', config.googleAnalytics.id);
+        
+        // Load gtag.js script asynchronously
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${config.googleAnalytics.id}`;
+        document.head.appendChild(script);
+      }
     }
   });
 
@@ -66,19 +84,6 @@
     }
   }
 </script>
-
-<svelte:head>
-  {#if browser && config.googleAnalytics.id}
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={config.googleAnalytics.id}"></script>
-    {@html `<script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '${config.googleAnalytics.id}');
-    </script>`}
-  {/if}
-</svelte:head>
 
 <header class="border-b bg-base-100 shadow-sm">
   <div class="container mx-auto px-4">

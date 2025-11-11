@@ -16,6 +16,8 @@ declare global {
 				execute: (siteKey: string, options: { action: string }) => Promise<string>;
 			};
 		};
+		dataLayer?: any[];
+		gtag?: (...args: any[]) => void;
 	}
 }
 
