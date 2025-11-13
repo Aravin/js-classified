@@ -64,8 +64,44 @@ See [docs/free-email-services.md](./docs/free-email-services.md) for all free em
 **Cron Job Configuration:**
 - **CRON_DAILY_REPORT_ENABLED**: Enable daily cron job (`true`/`false`)
 - **CRON_DAILY_REPORT_TIME**: Cron schedule (default: `30 14 * * *` - **8:00 PM IST / 2:30 PM UTC daily**)
+- **CRON_JOB_SECRET**: Shared secret used by Cloud Scheduler (required when daily reports are enabled)
 
 **When emails are sent:** Daily reports are sent at the time specified by `CRON_DAILY_REPORT_TIME`. If not set, defaults to **8:00 PM IST (2:30 PM UTC) daily**. The report contains statistics from the previous day (yesterday).
+
+### Automating Cloud Scheduler provisioning (one-time setup)
+
+To let the provided Cloud Build pipeline manage the daily cron job automatically, finish these steps once per project:
+
+1. **Create Scheduler invoker service account**
+   ```bash
+   gcloud iam service-accounts create scheduler-invoker \
+     --display-name="Cloud Scheduler invoker"
+
+   gcloud run services add-iam-policy-binding locful-api \
+     --member="serviceAccount:scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com" \
+     --role="roles/run.invoker" \
+     --region=asia-southeast1
+   ```
+2. **Grant Cloud Build service account the extra roles**
+   ```bash
+   PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')
+   CLOUD_BUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
+
+   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+     --member="serviceAccount:${CLOUD_BUILD_SA}" \
+     --role="roles/secretmanager.secretAccessor"
+
+   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+     --member="serviceAccount:${CLOUD_BUILD_SA}" \
+     --role="roles/cloudscheduler.admin"
+
+   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+     --member="serviceAccount:${CLOUD_BUILD_SA}" \
+     --role="roles/run.admin"
+   ```
+3. **Store the secret** in Secret Manager as `CRON_JOB_SECRET` (use a strong random string).
+
+After this one-time setup, each Cloud Build run deploys the latest Cloud Run image, injects `CRON_JOB_SECRET`, and creates/updates the Cloud Scheduler job automatically.
 
 ## Setup
 

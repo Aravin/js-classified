@@ -1,7 +1,6 @@
 import fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
-import cron from 'node-cron';
 import { configureSecurityPlugins } from './plugins/security';
 import { listingRoutes } from './api/routes/listing.routes';
 import { imageRoutes } from './api/routes/image.routes';
@@ -112,20 +111,64 @@ if (config.email.enabled) {
 }
 
 // Setup daily statistics report cron job
-if (config.cron.dailyReportEnabled && emailService) {
-  console.log(`📅 Daily statistics report cron job scheduled: ${config.cron.dailyReportTime}`);
-  
-  cron.schedule(config.cron.dailyReportTime, async () => {
-    try {
-      console.log('📊 Generating daily statistics report...');
-      const stats = await statisticsService.getYesterdayStatistics();
-      await emailService!.sendDailyStatisticsReport(stats);
-    } catch (error) {
-      console.error('❌ Failed to send daily statistics report:', error);
-    }
+if (config.cron.dailyReportEnabled) {
+  if (!config.cron.jobSecret) {
+    console.warn('⚠️  CRON_DAILY_REPORT_ENABLED is true but CRON_JOB_SECRET is not set. Requests from Cloud Scheduler will be rejected.');
+  }
+
+  if (!emailService) {
+    console.warn('⚠️  Daily report cron job is enabled but email service is not configured.');
+  }
+
+  server.register(async (fastify) => {
+    fastify.post('/internal/cron/daily-statistics', async (request, reply) => {
+      if (!config.cron.dailyReportEnabled) {
+        return reply.code(503).send({
+          status: 'disabled',
+          message: 'Daily statistics email is disabled.',
+        });
+      }
+
+      if (!emailService) {
+        request.log.error('Daily statistics endpoint invoked but email service is not configured.');
+        return reply.code(503).send({
+          status: 'error',
+          message: 'Email service is not configured.',
+        });
+      }
+
+      const headerSecret = request.headers['x-cron-secret'];
+      const providedSecret = Array.isArray(headerSecret) ? headerSecret[0] : headerSecret;
+
+      if (!config.cron.jobSecret || providedSecret !== config.cron.jobSecret) {
+        request.log.warn('Unauthorized cron invocation attempt.');
+        return reply.code(401).send({
+          status: 'unauthorized',
+          message: 'Invalid cron secret.',
+        });
+      }
+
+      try {
+        request.log.info('Processing daily statistics cron request.');
+        const stats = await statisticsService.getYesterdayStatistics();
+        await emailService.sendDailyStatisticsReport(stats);
+        return reply.code(200).send({
+          status: 'ok',
+          message: 'Daily statistics report sent.',
+        });
+      } catch (error) {
+        request.log.error({ err: error }, 'Failed to send daily statistics report.');
+        return reply.code(500).send({
+          status: 'error',
+          message: 'Failed to send daily statistics report.',
+        });
+      }
+    });
   });
-} else if (config.cron.dailyReportEnabled && !emailService) {
-  console.warn('⚠️  Daily report cron job is enabled but email service is not configured.');
+
+  console.log('🌐 Daily statistics report endpoint ready at POST /internal/cron/daily-statistics');
+  console.log('   ➜ Trigger this endpoint from Cloud Scheduler using header X-Cron-Secret');
+  console.log(`   ➜ Suggested schedule (UTC): ${config.cron.dailyReportTime}`);
 } else {
   console.log('ℹ️  Daily statistics report cron job is disabled.');
 }

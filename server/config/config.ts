@@ -96,5 +96,6 @@ export const config = {
   cron: {
     dailyReportEnabled: process.env.CRON_DAILY_REPORT_ENABLED === 'true',
     dailyReportTime: process.env.CRON_DAILY_REPORT_TIME || '30 14 * * *', // Default: 8 PM IST (14:30 UTC)
+    jobSecret: process.env.CRON_JOB_SECRET || '',
   }
 };

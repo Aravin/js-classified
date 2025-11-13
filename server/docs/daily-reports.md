@@ -2,6 +2,8 @@
 
 This server supports automated daily email reports with statistics about your classified platform.
 
+> **Note:** When running in Cloud Run with Cloud Scheduler, store `CRON_JOB_SECRET` in Secret Manager so the job can authenticate securely.
+
 ## Features
 
 The daily report includes:
@@ -37,6 +39,8 @@ CRON_DAILY_REPORT_ENABLED=true
 CRON_DAILY_REPORT_TIME=0 9 * * *          # 9 AM daily (optional)
 ```
 
+> Set `CRON_JOB_SECRET` in Secret Manager when automating the cron job via Cloud Build.
+
 **Getting SendGrid API Key (Free - No Credit Card Required):**
 1. Sign up at [SendGrid](https://sendgrid.com) - **Free tier: 12,000 emails/month forever**
 2. Go to Settings → API Keys
@@ -66,6 +70,9 @@ EMAIL_TO=admin@example.com         # Recipient email(s) - comma-separated for mu
 CRON_DAILY_REPORT_ENABLED=true
 CRON_DAILY_REPORT_TIME=0 9 * * *   # 9 AM daily (optional)
 ```
+
+> Set `CRON_JOB_SECRET` in Secret Manager when automating the cron job via Cloud Build.
+
 
 ### GCP Deployment Notes
 
@@ -120,6 +127,16 @@ EMAIL_PASSWORD=your-sendgrid-api-key
 Use your provider's SMTP settings. Common ports:
 - **587**: TLS (EMAIL_SECURE=false)
 - **465**: SSL (EMAIL_SECURE=true)
+
+### Cloud Build automation
+
+If you use the provided `server/cloudbuild.yaml`, the build pipeline can create or update the Cloud Scheduler job automatically. Complete these one-time IAM steps (see `server/readme.md` for full commands):
+
+1. Create a `scheduler-invoker` service account and grant it `roles/run.invoker` on the Cloud Run service.
+2. Grant the Cloud Build service account access to Secret Manager (`roles/secretmanager.secretAccessor`), Cloud Scheduler (`roles/cloudscheduler.admin`), and Cloud Run (`roles/run.admin` or equivalent).
+3. Store a strong random `CRON_JOB_SECRET` value in Secret Manager.
+
+After that, Cloud Build will deploy the service, inject the secret, and ensure the Scheduler job is kept in sync with each deployment.
 
 ## Cron Schedule Format
 
