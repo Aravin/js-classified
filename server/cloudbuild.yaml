@@ -60,24 +60,24 @@ steps:
         SECRET=$(gcloud secrets versions access latest --secret=CRON_JOB_SECRET)
         JOB_NAME=daily-statistics-report
 
-        if ! gcloud scheduler jobs describe "${JOB_NAME}" >/dev/null 2>&1; then
-          gcloud scheduler jobs create http "${JOB_NAME}" \
+        if ! gcloud scheduler jobs describe "$${JOB_NAME}" >/dev/null 2>&1; then
+          gcloud scheduler jobs create http "$${JOB_NAME}" \
             --schedule="30 14 * * *" \
             --time-zone="UTC" \
-            --uri="${SERVICE_URL}/internal/cron/daily-statistics" \
+            --uri="$${SERVICE_URL}/internal/cron/daily-statistics" \
             --http-method=POST \
-            --headers="Content-Type=application/json,X-Cron-Secret=${SECRET}" \
+            --headers="Content-Type=application/json,X-Cron-Secret=$${SECRET}" \
             --oidc-service-account-email="scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --oidc-token-audience="${SERVICE_URL}"
+            --oidc-token-audience="$${SERVICE_URL}"
         else
-          gcloud scheduler jobs update http "${JOB_NAME}" \
+          gcloud scheduler jobs update http "$${JOB_NAME}" \
             --schedule="30 14 * * *" \
             --time-zone="UTC" \
-            --uri="${SERVICE_URL}/internal/cron/daily-statistics" \
+            --uri="$${SERVICE_URL}/internal/cron/daily-statistics" \
             --http-method=POST \
-            --headers="Content-Type=application/json,X-Cron-Secret=${SECRET}" \
+            --headers="Content-Type=application/json,X-Cron-Secret=$${SECRET}" \
             --oidc-service-account-email="scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --oidc-token-audience="${SERVICE_URL}"
+            --oidc-token-audience="$${SERVICE_URL}"
         fi
 
 images:
