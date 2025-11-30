@@ -68,11 +68,11 @@ See [docs/free-email-services.md](./docs/free-email-services.md) for all free em
 
 **When emails are sent:** Daily reports are sent at the time specified by `CRON_DAILY_REPORT_TIME`. If not set, defaults to **8:00 PM IST (2:30 PM UTC) daily**. The report contains statistics from the previous day (yesterday).
 
-### Automating Cloud Scheduler provisioning (one-time setup)
+### Provisioning Cloud Scheduler (one-time setup)
 
-To let the provided Cloud Build pipeline manage the daily cron job automatically, finish these steps once per project:
+Create the Cloud Scheduler trigger manually (Console or CLI) after completing these steps:
 
-1. **Create Scheduler invoker service account**
+1. **Create a Scheduler invoker service account**
    ```bash
    gcloud iam service-accounts create scheduler-invoker \
      --display-name="Cloud Scheduler invoker"
@@ -82,7 +82,7 @@ To let the provided Cloud Build pipeline manage the daily cron job automatically
      --role="roles/run.invoker" \
      --region=asia-southeast1
    ```
-2. **Grant Cloud Build service account the extra roles**
+2. **Allow Cloud Build to deploy with secrets** (if not already configured)
    ```bash
    PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')
    CLOUD_BUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
@@ -93,15 +93,15 @@ To let the provided Cloud Build pipeline manage the daily cron job automatically
 
    gcloud projects add-iam-policy-binding ${PROJECT_ID} \
      --member="serviceAccount:${CLOUD_BUILD_SA}" \
-     --role="roles/cloudscheduler.admin"
-
-   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
-     --member="serviceAccount:${CLOUD_BUILD_SA}" \
      --role="roles/run.admin"
    ```
 3. **Store the secret** in Secret Manager as `CRON_JOB_SECRET` (use a strong random string).
-
-After this one-time setup, each Cloud Build run deploys the latest Cloud Run image, injects `CRON_JOB_SECRET`, and creates/updates the Cloud Scheduler job automatically.
+4. **Create the Cloud Scheduler job** in the GCP console (or with `gcloud scheduler jobs create http`).
+   - Target URL: `https://<cloud-run-url>/internal/cron/daily-statistics`
+   - Method: `POST`
+   - Header: `X-Cron-Secret: <CRON_JOB_SECRET value>`
+   - Auth: OIDC using `scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com`
+   - Schedule: `30 14 * * *` (UTC) or your preferred time
 
 ## Setup
 

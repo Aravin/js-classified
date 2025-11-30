@@ -39,7 +39,7 @@ CRON_DAILY_REPORT_ENABLED=true
 CRON_DAILY_REPORT_TIME=0 9 * * *          # 9 AM daily (optional)
 ```
 
-> Set `CRON_JOB_SECRET` in Secret Manager when automating the cron job via Cloud Build.
+> Store `CRON_JOB_SECRET` in Secret Manager so the Cloud Scheduler job can authenticate.
 
 **Getting SendGrid API Key (Free - No Credit Card Required):**
 1. Sign up at [SendGrid](https://sendgrid.com) - **Free tier: 12,000 emails/month forever**
@@ -71,7 +71,7 @@ CRON_DAILY_REPORT_ENABLED=true
 CRON_DAILY_REPORT_TIME=0 9 * * *   # 9 AM daily (optional)
 ```
 
-> Set `CRON_JOB_SECRET` in Secret Manager when automating the cron job via Cloud Build.
+> Store `CRON_JOB_SECRET` in Secret Manager so the Cloud Scheduler job can authenticate.
 
 
 ### GCP Deployment Notes
@@ -128,15 +128,14 @@ Use your provider's SMTP settings. Common ports:
 - **587**: TLS (EMAIL_SECURE=false)
 - **465**: SSL (EMAIL_SECURE=true)
 
-### Cloud Build automation
+### Cloud Scheduler setup
 
-If you use the provided `server/cloudbuild.yaml`, the build pipeline can create or update the Cloud Scheduler job automatically. Complete these one-time IAM steps (see `server/readme.md` for full commands):
+Create the job manually in the GCP console or with `gcloud` after you deploy the service:
 
-1. Create a `scheduler-invoker` service account and grant it `roles/run.invoker` on the Cloud Run service.
-2. Grant the Cloud Build service account access to Secret Manager (`roles/secretmanager.secretAccessor`), Cloud Scheduler (`roles/cloudscheduler.admin`), and Cloud Run (`roles/run.admin` or equivalent).
-3. Store a strong random `CRON_JOB_SECRET` value in Secret Manager.
-
-After that, Cloud Build will deploy the service, inject the secret, and ensure the Scheduler job is kept in sync with each deployment.
+1. Create the `scheduler-invoker` service account and grant it `roles/run.invoker` on the Cloud Run service.
+2. Store a strong random `CRON_JOB_SECRET` value in Secret Manager.
+3. When creating the Scheduler job, target `POST https://<cloud-run-url>/internal/cron/daily-statistics`, add header `X-Cron-Secret: <your secret>`, and use OIDC auth with the `scheduler-invoker` service account.
+4. Set the schedule to `30 14 * * *` (UTC) or your preferred cadence.
 
 ## Cron Schedule Format
 
