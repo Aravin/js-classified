@@ -67,6 +67,9 @@ export const config = {
       contentSecurityPolicy: false,
     },
   },
+  listing: {
+    expiryDays: Number(process.env.LISTING_EXPIRY_DAYS) || 30,
+  },
   upload: {
     maxFileSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 5,

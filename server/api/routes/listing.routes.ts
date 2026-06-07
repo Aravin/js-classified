@@ -7,6 +7,7 @@ import {
 } from '../schemas/listing.schema';
 import { z } from 'zod';
 import { verifyAuth0Token } from '../../middleware/auth';
+import { config } from '../../config/config';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -217,8 +218,12 @@ export async function listingRoutes(fastify: FastifyInstance) {
         hasImages
       } = queryParams;
 
+      const minCreatedAt = new Date();
+      minCreatedAt.setDate(minCreatedAt.getDate() - config.listing.expiryDays);
+
       const where: Prisma.listingWhereInput = {
         status: ListingStatus.ACTIVE,
+        createdAt: { gte: minCreatedAt },
         ...(categoryId && { categoryId }),
         ...(locationId && { locationId }),
         ...(search && {
@@ -328,8 +333,13 @@ export async function listingRoutes(fastify: FastifyInstance) {
         return sendResponse(reply, 404, { error: 'Listing not found' });
       }
 
+      // Check if listing is expired
+      const expiryDate = new Date(listing.createdAt);
+      expiryDate.setDate(expiryDate.getDate() + config.listing.expiryDays);
+      const isExpired = new Date() > expiryDate;
+
       // If user is authenticated, check if they own the listing
-      // If they own it, return unmasked data (for editing)
+      // If they own it, return full data even if expired
       const authHeader = request.headers.authorization;
       if (authHeader?.startsWith('Bearer ')) {
         const authResult = await verifyAuth0Token(request, reply);
@@ -349,6 +359,11 @@ export async function listingRoutes(fastify: FastifyInstance) {
           }
         }
         // If auth failed or user doesn't own listing, continue to return masked data
+      }
+
+      // If listing is expired, hide from non-owners
+      if (isExpired) {
+        return sendResponse(reply, 404, { error: 'Listing not found' });
       }
 
       // Return masked data for public access or if user doesn't own listing
