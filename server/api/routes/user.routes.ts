@@ -10,11 +10,12 @@ import {
   UserQueryParams,
   UserListingsQueryParams,
 } from '../schemas/user.schema';
+import { verifyAuth0Token } from '../../middleware/auth';
 
-const prisma = new PrismaClient();
-
-interface AuthUser {
-  sub: string;
+declare module 'fastify' {
+  interface FastifyInstance {
+    prisma: PrismaClient;
+  }
 }
 
 const userSelect = {
@@ -31,14 +32,6 @@ const userSelect = {
 
 
 export async function userRoutes(fastify: FastifyInstance) {
-
-  fastify.addHook('preHandler', async (request, reply) => {
-    // Ensure CORS headers are set for every response
-    reply.header('Access-Control-Allow-Origin', '*');
-    reply.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  });
-
   // Create user
   fastify.post('/', {
     schema: {
@@ -48,15 +41,22 @@ export async function userRoutes(fastify: FastifyInstance) {
       const data = request.body as CreateUserParams;
 
       try {
+        const isAuthenticated = await verifyAuth0Token(request, reply);
+        if (!isAuthenticated || !request.user?.sub) {
+          return;
+        }
+
+        const authUserId = request.user.sub;
+
         // Check if user exists
-        const existingUser = await prisma.user.findUnique({
-          where: { userId: data.userId },
+        const existingUser = await fastify.prisma.user.findUnique({
+          where: { userId: authUserId },
         });
 
         if (existingUser) {
           // Update lastLogin for existing user
-          const user = await prisma.user.update({
-            where: { userId: data.userId },
+          const user = await fastify.prisma.user.update({
+            where: { userId: authUserId },
             data: {
               lastLogin: new Date(),
             },
@@ -66,9 +66,10 @@ export async function userRoutes(fastify: FastifyInstance) {
         }
 
         // Create new user with current timestamp
-        const user = await prisma.user.create({
+        const user = await fastify.prisma.user.create({
           data: {
             ...data,
+            userId: authUserId,
             createdAt: new Date(),
             lastLogin: new Date(),
           },
@@ -106,10 +107,10 @@ export async function userRoutes(fastify: FastifyInstance) {
       } : {};
 
       const skip = (page - 1) * limit;
-      const total = await prisma.user.count({ where });
+      const total = await fastify.prisma.user.count({ where });
       
       
-      const users = await prisma.user.findMany({
+      const users = await fastify.prisma.user.findMany({
         where,
         select: userSelect,
         skip,
@@ -139,7 +140,7 @@ export async function userRoutes(fastify: FastifyInstance) {
         return reply.status(400).send({ message: 'Invalid user ID' });
       }
 
-      const user = await prisma.user.findFirst({
+      const user = await fastify.prisma.user.findFirst({
         where: { id: userId },
         select: userSelect,
       });
@@ -162,7 +163,16 @@ export async function userRoutes(fastify: FastifyInstance) {
       const updates = request.body as UpdateUserParams;
 
       try {
-        const user = await prisma.user.update({
+        const isAuthenticated = await verifyAuth0Token(request, reply);
+        if (!isAuthenticated || !request.user?.sub) {
+          return;
+        }
+
+        if (request.user.sub !== id) {
+          return reply.status(403).send({ message: 'Access denied. You can only update your own profile.' });
+        }
+
+        const user = await fastify.prisma.user.update({
           where: { userId: id },
           data: updates,
           select: userSelect,
@@ -191,7 +201,16 @@ export async function userRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
 
       try {
-        await prisma.user.delete({
+        const isAuthenticated = await verifyAuth0Token(request, reply);
+        if (!isAuthenticated || !request.user?.sub) {
+          return;
+        }
+
+        if (request.user.sub !== id) {
+          return reply.status(403).send({ message: 'Access denied. You can only delete your own profile.' });
+        }
+
+        await fastify.prisma.user.delete({
           where: { userId: id },
         });
 
@@ -216,7 +235,16 @@ export async function userRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
       const { page = 1, limit = 10, status } = request.query as UserListingsQueryParams;
 
-      const user = await prisma.user.findUnique({
+      const isAuthenticated = await verifyAuth0Token(request, reply);
+      if (!isAuthenticated || !request.user?.sub) {
+        return;
+      }
+
+      if (request.user.sub !== id) {
+        return reply.status(403).send({ message: 'Access denied. You can only view your own listings.' });
+      }
+
+      const user = await fastify.prisma.user.findUnique({
         where: { userId: id },
         select: { id: true },
       });
@@ -231,9 +259,9 @@ export async function userRoutes(fastify: FastifyInstance) {
       };
 
       const skip = (page - 1) * limit;
-      const total = await prisma.listing.count({ where });
+      const total = await fastify.prisma.listing.count({ where });
 
-      const listings = await prisma.listing.findMany({
+      const listings = await fastify.prisma.listing.findMany({
         where,
         include: {
           category: true,

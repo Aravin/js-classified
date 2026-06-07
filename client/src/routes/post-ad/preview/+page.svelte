@@ -7,7 +7,7 @@
   import { onMount } from 'svelte';
   import ImageUpload from '$lib/components/ImageUpload.svelte';
   import type { ImageUploadResult } from '$lib/types';
-  import { user } from '$lib/auth/auth0';
+  import { user, getAuthHeaders } from '$lib/auth/auth0';
 
   export let data;
   let listing: any = null;
@@ -26,7 +26,13 @@
     }
 
     try {
-      const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`);
+      const authHeaders = await getAuthHeaders();
+      const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`, {
+        headers: {
+          'Accept': 'application/json',
+          ...authHeaders
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch listing');
       
       listing = await response.json();
@@ -84,11 +90,13 @@
         }))
       };
 
+      const authHeaders = await getAuthHeaders();
       const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify(payload)
       });

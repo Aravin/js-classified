@@ -6,6 +6,7 @@
   import { flip } from 'svelte/animate';
   import { dndzone } from 'svelte-dnd-action';
   import Icon from '@iconify/svelte';
+  import { getAuthHeaders } from '$lib/auth/auth0';
   
   const dispatch = createEventDispatcher<{
     upload: { images: ImageUploadResult[] };
@@ -109,10 +110,14 @@
         .find(p => p.id === item.id)?.order || 1;
       
       formData.append('order', currentOrder.toString());
-      
+       
       const apiUrl = `${config.api.baseUrl}/images/listings/${listingId}/images`;
+      const authHeaders = await getAuthHeaders();
       const response = await fetch(apiUrl, {
         method: 'POST',
+        headers: {
+          ...authHeaders
+        },
         body: formData
       });
       

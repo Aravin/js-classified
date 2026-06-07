@@ -8,7 +8,7 @@
   import { goto } from '$app/navigation';
   import { config } from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
-  import { user, isAuthenticated } from '$lib/auth/auth0';
+  import { user, isAuthenticated, getAuthHeaders } from '$lib/auth/auth0';
   import {
     type FormData,
     type FormErrors,
@@ -85,11 +85,13 @@
         ...$user ? { authUserId: $user.sub } : {}
       };
 
+      const authHeaders = await getAuthHeaders();
       const response = await fetch(`${config.api.baseUrl}/listings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify(payload)
       });

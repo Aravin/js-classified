@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient, ListingStatus, Prisma } from '@prisma/client';
 import {
   createListingSchema,
@@ -8,7 +8,11 @@ import {
 import { z } from 'zod';
 import { verifyAuth0Token } from '../../middleware/auth';
 
-const prisma = new PrismaClient();
+declare module 'fastify' {
+  interface FastifyInstance {
+    prisma: PrismaClient;
+  }
+}
 
 function generateSlug(title: string, id: number): string {
   const baseSlug = title
@@ -31,34 +35,74 @@ function maskSensitiveData(listing: any) {
   };
 }
 
-// Helper function to set CORS headers and send response
 function sendResponse(reply: any, statusCode: number, data: any) {
-  return reply.code(statusCode).header('Access-Control-Allow-Origin', '*').send(data);
+  return reply.code(statusCode).send(data);
+}
+
+async function getAuthenticatedUser(fastify: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
+  const isAuthenticated = await verifyAuth0Token(request, reply);
+  if (!isAuthenticated || !request.user?.sub) {
+    return null;
+  }
+
+  const user = await fastify.prisma.user.findUnique({
+    where: { userId: request.user.sub },
+  });
+
+  if (!user) {
+    reply.code(404).send({ error: 'User not found' });
+    return null;
+  }
+
+  return user;
+}
+
+async function getOwnedListing(fastify: FastifyInstance, request: FastifyRequest, reply: FastifyReply, listingId: number) {
+  const user = await getAuthenticatedUser(fastify, request, reply);
+  if (!user) {
+    return null;
+  }
+
+  const listing = await fastify.prisma.listing.findUnique({
+    where: { id: listingId },
+    include: { images: true },
+  });
+
+  if (!listing) {
+    reply.code(404).send({ error: 'Listing not found' });
+    return null;
+  }
+
+  if (listing.userId !== user.id) {
+    reply.code(403).send({ error: 'Access denied. You do not own this listing.' });
+    return null;
+  }
+
+  return { user, listing };
 }
 
 export async function listingRoutes(fastify: FastifyInstance) {
-  fastify.addHook('preHandler', async (request, reply) => {
-    // Ensure CORS headers are set for every response
-    reply.header('Access-Control-Allow-Origin', '*');
-    reply.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  });
-
   // Create a new listing (in draft status)
   fastify.post('/', async (request, reply) => {
     try {
+      const isAuthenticated = await verifyAuth0Token(request, reply);
+      if (!isAuthenticated || !request.user?.sub) {
+        return;
+      }
+
       const data = createListingSchema.parse(request.body);
+      const authUserId = request.user.sub;
 
       // Check if user exists
-      let user = await prisma.user.findUnique({
-        where: { userId: data.authUserId }
+      let user = await fastify.prisma.user.findUnique({
+        where: { userId: authUserId }
       });
 
       if (!user) {
         // Create user if doesn't exist
-        user = await prisma.user.create({
+        user = await fastify.prisma.user.create({
           data: {
-            userId: data.authUserId,
+            userId: authUserId,
             email: data.email || undefined,
             phone: data.phone || undefined,
             createdAt: new Date(),
@@ -67,7 +111,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const listing = await prisma.listing.create({
+      const listing = await fastify.prisma.listing.create({
         data: {
           title: data.title,
           description: data.description,
@@ -96,7 +140,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       });
 
       // Update with proper slug after getting ID
-      const updatedListing = await prisma.listing.update({
+      const updatedListing = await fastify.prisma.listing.update({
         where: { id: listing.id },
         data: {
           slug: generateSlug(listing.title, listing.id),
@@ -122,19 +166,17 @@ export async function listingRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params as { id: string };
       const listingId = parseInt(id);
+      if (Number.isNaN(listingId)) {
+        return sendResponse(reply, 400, { error: 'Invalid listing ID' });
+      }
 
-      // Check if listing exists and is in draft status
-      const listing = await prisma.listing.findFirst({
-        where: {
-          id: listingId,
-          status: ListingStatus.DRAFT,
-        },
-        include: {
-          images: true,
-        },
-      });
+      const owned = await getOwnedListing(fastify, request, reply, listingId);
+      if (!owned) {
+        return;
+      }
 
-      if (!listing) {
+      const { listing } = owned;
+      if (listing.status !== ListingStatus.DRAFT) {
         return sendResponse(reply, 404, { error: 'Draft listing not found' });
       }
 
@@ -144,7 +186,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       }
 
       // Update listing status to active
-      const publishedListing = await prisma.listing.update({
+      const publishedListing = await fastify.prisma.listing.update({
         where: { id: listingId },
         data: { status: ListingStatus.ACTIVE },
         include: {
@@ -196,10 +238,10 @@ export async function listingRoutes(fastify: FastifyInstance) {
       const skip = (page - 1) * limit;
 
       // Get total count for pagination
-      const total = await prisma.listing.count({ where });
+      const total = await fastify.prisma.listing.count({ where });
 
       // Get paginated results with proper sorting
-      const listings = await prisma.listing.findMany({
+      const listings = await fastify.prisma.listing.findMany({
         where,
         include: {
           category: true,
@@ -230,8 +272,13 @@ export async function listingRoutes(fastify: FastifyInstance) {
   // Get draft listings
   fastify.get('/drafts', async (request, reply) => {
     try {
-      const drafts = await prisma.listing.findMany({
-        where: { status: ListingStatus.DRAFT },
+      const user = await getAuthenticatedUser(fastify, request, reply);
+      if (!user) {
+        return;
+      }
+
+      const drafts = await fastify.prisma.listing.findMany({
+        where: { status: ListingStatus.DRAFT, userId: user.id },
         include: {
           category: true,
           location: true,
@@ -257,7 +304,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       let listing;
       if (isNumericId) {
         const numericId = parseInt(id);
-        listing = await prisma.listing.findUnique({
+        listing = await fastify.prisma.listing.findUnique({
           where: { id: numericId },
           include: {
             category: true,
@@ -267,7 +314,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
         });
       } else {
         // If not numeric, treat as slug
-        listing = await prisma.listing.findUnique({
+        listing = await fastify.prisma.listing.findUnique({
           where: { slug: id },
           include: {
             category: true,
@@ -286,9 +333,13 @@ export async function listingRoutes(fastify: FastifyInstance) {
       const authHeader = request.headers.authorization;
       if (authHeader?.startsWith('Bearer ')) {
         const authResult = await verifyAuth0Token(request, reply);
+        if (!authResult) {
+          return;
+        }
+
         if (authResult && request.user) {
           // User is authenticated, check ownership
-          const user = await prisma.user.findUnique({
+          const user = await fastify.prisma.user.findUnique({
             where: { userId: request.user.sub },
           });
 
@@ -315,7 +366,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
     const { id } = request.params as { id: string };
     try {
       const numericId = parseInt(id);
-      const listing = await prisma.listing.findUnique({
+      const listing = await fastify.prisma.listing.findUnique({
         where: { id: numericId },
         select: {
           id: true,
@@ -346,6 +397,14 @@ export async function listingRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
       const data = updateListingSchema.parse(request.body);
       const numericId = parseInt(id);
+      if (Number.isNaN(numericId)) {
+        return sendResponse(reply, 400, { error: 'Invalid listing ID' });
+      }
+
+      const owned = await getOwnedListing(fastify, request, reply, numericId);
+      if (!owned) {
+        return;
+      }
 
       // Prepare update data with proper type handling
       const updateData: Prisma.listingUpdateInput = {
@@ -366,7 +425,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
         }),
       };
 
-      const listing = await prisma.listing.update({
+      const listing = await fastify.prisma.listing.update({
         where: { id: numericId },
         data: updateData,
         include: {
@@ -388,8 +447,18 @@ export async function listingRoutes(fastify: FastifyInstance) {
   // Delete listing
   fastify.delete('/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    await prisma.listing.delete({
-      where: { id: parseInt(id) },
+    const listingId = parseInt(id);
+    if (Number.isNaN(listingId)) {
+      return sendResponse(reply, 400, { error: 'Invalid listing ID' });
+    }
+
+    const owned = await getOwnedListing(fastify, request, reply, listingId);
+    if (!owned) {
+      return;
+    }
+
+    await fastify.prisma.listing.delete({
+      where: { id: listingId },
     });
     return sendResponse(reply, 200, { success: true });
   });
@@ -398,9 +467,18 @@ export async function listingRoutes(fastify: FastifyInstance) {
   fastify.get('/user/:userId', async (request, reply) => {
     try {
       const { userId } = request.params as { userId: string };
+
+      const isAuthenticated = await verifyAuth0Token(request, reply);
+      if (!isAuthenticated || !request.user?.sub) {
+        return;
+      }
+
+      if (request.user.sub !== userId) {
+        return sendResponse(reply, 403, { error: 'Access denied. You can only view your own listings.' });
+      }
       
       // First find the user
-      const user = await prisma.user.findUnique({
+      const user = await fastify.prisma.user.findUnique({
         where: { userId },
       });
 
@@ -409,7 +487,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       }
 
       // Then get all listings for this user
-      const listings = await prisma.listing.findMany({
+      const listings = await fastify.prisma.listing.findMany({
         where: { userId: user.id },
         include: {
           category: true,

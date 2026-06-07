@@ -1,4 +1,5 @@
 import { config } from "./config";
+import { getAuthHeaders } from './auth/auth0';
 
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -43,9 +44,11 @@ export function getExpiryDate(createdAt: string): string {
  */
 export async function checkActiveAdsLimit(userId: string, excludeListingId?: number): Promise<{ hasReachedLimit: boolean; activeCount: number }> {
   try {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${config.api.baseUrl}/listings/user/${userId}`, {
       headers: {
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        ...authHeaders
       }
     });
     

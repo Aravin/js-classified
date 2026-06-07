@@ -140,10 +140,12 @@ export async function login() {
     if (userData) {
       try {
         const apiUrl = `${config.api.baseUrl}/users`;
+        const authHeaders = await getAuthHeaders();
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...authHeaders
           },
           body: JSON.stringify({
             userId: userData.sub,

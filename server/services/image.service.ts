@@ -3,13 +3,11 @@ import { config } from '../config/config';
 import { StorageProvider } from './storage.interface';
 import { createStorageProvider } from './storage.factory';
 
-const prisma = new PrismaClient();
-
 // Get the storage provider (Cloudinary, AWS S3, or Cloudflare R2)
 const storageProvider: StorageProvider = createStorageProvider();
 
 export class ImageService {
-  static async uploadImages(files: { buffer: Buffer; order: number }[], listingId: number): Promise<any[]> {
+  static async uploadImages(prisma: PrismaClient, files: { buffer: Buffer; order: number }[], listingId: number): Promise<any[]> {
     console.log(`Starting upload of ${files.length} images for listing ${listingId}`);
     
     try {
@@ -72,7 +70,7 @@ export class ImageService {
     }
   }
 
-  static async deleteImages(imageIds: number[]) {
+  static async deleteImages(prisma: PrismaClient, imageIds: number[]) {
     try {
       if (!imageIds.length) {
         throw new Error('No image IDs provided');

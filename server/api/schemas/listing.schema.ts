@@ -14,7 +14,7 @@ const baseSchema = z
     categoryId: z.number().int().positive(),
     locationId: z.number().int().positive(),
     userId: z.string().optional(),
-    authUserId: z.string(),
+    authUserId: z.string().optional(),
     status: z
       .string()
       .transform(val => val.toUpperCase())

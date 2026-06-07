@@ -1,21 +1,53 @@
-import { FastifyPluginAsync, FastifyInstance } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 import { MultipartFile } from '@fastify/multipart';
 import { PrismaClient } from '@prisma/client';
 import { ImageService } from '../../services/image.service';
 import { uploadSchema, UploadParams } from '../schemas/upload.schema';
 import { config } from '../../config/config';
+import { verifyAuth0Token } from '../../middleware/auth';
+import { validateFile } from '../../middleware/fileValidation';
 
 interface DeleteImagesBody {
   imageIds: number[];
 }
-
-type MultipartFileArray = MultipartFile[] | MultipartFile;
 
 // Extend FastifyInstance to include prisma
 declare module 'fastify' {
   interface FastifyInstance {
     prisma: PrismaClient;
   }
+}
+
+async function verifyListingOwnership(fastify: any, request: any, reply: any, listingId: number) {
+  const isAuthenticated = await verifyAuth0Token(request, reply);
+  if (!isAuthenticated || !request.user?.sub) {
+    return null;
+  }
+
+  const user = await fastify.prisma.user.findUnique({
+    where: { userId: request.user.sub },
+  });
+
+  if (!user) {
+    reply.code(404).send({ error: 'User not found' });
+    return null;
+  }
+
+  const listing = await fastify.prisma.listing.findUnique({
+    where: { id: listingId },
+  });
+
+  if (!listing) {
+    reply.code(404).send({ error: 'Listing not found' });
+    return null;
+  }
+
+  if (listing.userId !== user.id) {
+    reply.code(403).send({ error: 'Access denied. You do not own this listing.' });
+    return null;
+  }
+
+  return { user, listing };
 }
 
 export const imageRoutes: FastifyPluginAsync = async (fastify) => {
@@ -41,13 +73,9 @@ export const imageRoutes: FastifyPluginAsync = async (fastify) => {
         // Set response timeout
         reply.raw.setTimeout(120000); // 2 minute timeout for the entire request
 
-        // Verify listing exists and user has permission
-        const listing = await fastify.prisma.listing.findUnique({
-          where: { id: listingId }
-        });
-
-        if (!listing) {
-          return reply.code(404).send({ error: 'Listing not found' });
+        const owned = await verifyListingOwnership(fastify, request, reply, listingId);
+        if (!owned) {
+          return;
         }
 
         const data = await request.parts();
@@ -58,6 +86,11 @@ export const imageRoutes: FastifyPluginAsync = async (fastify) => {
         // Process parts and collect files
         for await (const part of data) {
           if (part.type === 'file' && part.fieldname === 'image') {
+            const validation = await validateFile(part);
+            if (!validation.valid) {
+              return reply.code(400).send({ error: validation.error });
+            }
+
             const order = orders.length;
             orders.push(order);
             imageUploads.push({ file: part, order });
@@ -87,12 +120,8 @@ export const imageRoutes: FastifyPluginAsync = async (fastify) => {
         }));
 
         console.log('Starting upload process...');
-        const uploadedImages = await ImageService.uploadImages(uploads, listingId);
+        const uploadedImages = await ImageService.uploadImages(fastify.prisma, uploads, listingId);
         console.log('Upload completed successfully');
-
-        // Set CORS headers explicitly
-        reply.header('Access-Control-Allow-Origin', request.headers.origin || 'http://localhost:5173');
-        reply.header('Access-Control-Allow-Credentials', 'true');
 
         return reply
           .code(200)
@@ -104,10 +133,6 @@ export const imageRoutes: FastifyPluginAsync = async (fastify) => {
 
       } catch (error) {
         console.error('Upload error:', error);
-        
-        // Set CORS headers even for error responses
-        reply.header('Access-Control-Allow-Origin', request.headers.origin || 'http://localhost:5173');
-        reply.header('Access-Control-Allow-Credentials', 'true');
         
         return reply
           .code(500)
@@ -142,6 +167,11 @@ export const imageRoutes: FastifyPluginAsync = async (fastify) => {
         const { listingId } = request.params;
         const { imageIds } = request.body;
 
+        const owned = await verifyListingOwnership(fastify, request, reply, listingId);
+        if (!owned) {
+          return;
+        }
+
         // Verify images belong to the listing
         const images = await fastify.prisma.image.findMany({
           where: {
@@ -157,7 +187,7 @@ export const imageRoutes: FastifyPluginAsync = async (fastify) => {
           });
         }
 
-        await ImageService.deleteImages(imageIds);
+        await ImageService.deleteImages(fastify.prisma, imageIds);
         
         return {
           success: true,

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { config } from '$lib/config';
-  import { authState } from '$lib/auth/auth0';
+  import { authState, getAuthHeaders } from '$lib/auth/auth0';
   import { goto } from '$app/navigation';
   import Icon from '@iconify/svelte';
   import { formatCurrency, formatDate, checkActiveAdsLimit } from '$lib/utils';
@@ -76,10 +76,12 @@
     const idToDelete = listingToDelete.id;
 
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetch(`${config.api.baseUrl}/listings/${idToDelete}`, {
         method: 'DELETE',
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...authHeaders
         }
       });
 
@@ -127,11 +129,13 @@
     }
 
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify({ status: newStatus })
       });
@@ -180,9 +184,11 @@
     if (!$authState.user?.sub) return;
 
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetch(`${config.api.baseUrl}/listings/user/${$authState.user.sub}`, {
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...authHeaders
         }
       });
       if (!response.ok) {
