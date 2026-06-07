@@ -1,0 +1,49 @@
+# locful.com (js-classified)
+
+> India-focused classified ads platform. Users post free listings with images across categories (vehicles, jobs, real estate, etc.) for 129k+ Indian cities/villages. Built as a separated SPA + REST API.
+
+## Project
+
+- [Architecture & full docs](docs/architecture.md): System design, DB schema diagrams, auth flows, deployment topology, all API routes, security design, key decisions.
+- [Root package.json](package.json): Yarn monorepo — workspaces: client, server, db.
+
+## Packages
+
+### client — SvelteKit frontend (locful.com)
+- [CLAUDE.md](client/CLAUDE.md): Dev setup, commands, architecture, conventions.
+- [package.json](client/package.json): SvelteKit ^2, Svelte ^5, TailwindCSS, DaisyUI, Auth0 SPA SDK.
+- [src/lib/auth/auth0.ts](client/src/lib/auth/auth0.ts): Auth0 login via popup, token in localStorage, 4 Svelte stores.
+- [src/lib/types.ts](client/src/lib/types.ts): Shared TypeScript types (Listing, User, Category, Location, Image).
+- [src/lib/config.ts](client/src/lib/config.ts): All PUBLIC_ env vars in one object.
+- [src/routes/](client/src/routes/): File-system routing — /, /search, /category/[slug], /list/[slug], /post-ad, /my-ads, /settings.
+- [src/lib/form-validation.ts](client/src/lib/form-validation.ts): Client-side validation + DOMPurify sanitization.
+- [src/lib/google-integration.ts](client/src/lib/google-integration.ts): Schema.org JSON-LD, Google Shopping feed generators.
+
+### server — Fastify REST API
+- [CLAUDE.md](server/CLAUDE.md): Dev setup, commands, API routes, middleware chain, env vars.
+- [package.json](server/package.json): Fastify ^5, Prisma ^6, Zod ^4, jwks-rsa, Cloudinary v2, Nodemailer, SendGrid.
+- [index.ts](server/index.ts): Entry point — plugin registration, route mounting (dual prefix), health check, cron endpoint.
+- [api/routes/listing.routes.ts](server/api/routes/listing.routes.ts): CRUD + publish + contact reveal for listings.
+- [api/routes/image.routes.ts](server/api/routes/image.routes.ts): Multipart upload, delete, reorder images.
+- [api/routes/user.routes.ts](server/api/routes/user.routes.ts): User upsert on login, profile CRUD.
+- [middleware/auth.ts](server/middleware/auth.ts): Auth0 JWT verification via JWKS-RSA.
+- [middleware/security.ts](server/middleware/security.ts): SQL/XSS injection detection, structured logging, error handler.
+- [services/storage.factory.ts](server/services/storage.factory.ts): Storage provider factory (cloudinary | s3-stub | r2-stub).
+- [services/image.service.ts](server/services/image.service.ts): Image upload/delete orchestration.
+- [config/config.ts](server/config/config.ts): All env vars parsed and validated at startup.
+- [Dockerfile](server/Dockerfile): Multi-stage Node 22 Alpine build for Cloud Run.
+- [cloudbuild.yaml](server/cloudbuild.yaml): Google Cloud Build CI/CD — build → push GCR → deploy Cloud Run asia-southeast1.
+
+### db — Prisma source of truth
+- [CLAUDE.md](db/CLAUDE.md): DB setup, seed commands, migration workflow.
+- [schema.prisma](db/schema.prisma): PostgreSQL schema — 5 models: location, category, user, listing, image.
+- [prisma/seed.ts](db/prisma/seed.ts): Seeds 129k+ locations from ndjson and categories from JSON.
+
+## Key Concepts
+
+- **Draft-first ads**: listings created as DRAFT, need ≥1 image, then explicitly published → ACTIVE.
+- **Contact privacy**: email/phone stored but never returned publicly; revealed only to authenticated users via GET /api/listings/:id/contact.
+- **Expiry by query**: listings expire after LISTING_EXPIRY_DAYS (default 30) — filtered at query time, no cron.
+- **Per-user ad cap**: PUBLIC_MAX_ACTIVE_ADS (default 1) limits concurrent active listings per user.
+- **Dual route prefix**: routes registered at /api/* and /* to support locful.com/api/* and api.locful.com/*.
+- **India-first**: INR currency, 10-digit Indian phone validation, 129k+ Indian locations, deployed in asia-southeast1.
