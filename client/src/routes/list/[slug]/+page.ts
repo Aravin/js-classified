@@ -18,6 +18,11 @@ export const load: PageLoad = (async ({ params, fetch }) => {
       }
     };
   } catch (err) {
+    // Re-throw SvelteKit HttpErrors (e.g. 404) as-is so the error page
+    // shows the correct status instead of always falling back to 500.
+    if (err && typeof err === 'object' && 'status' in err) {
+      throw err;
+    }
     console.error('Error loading listing:', err);
     throw error(500, 'Failed to load listing');
   }

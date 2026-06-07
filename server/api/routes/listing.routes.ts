@@ -354,20 +354,16 @@ export async function listingRoutes(fastify: FastifyInstance) {
           });
 
           if (user && listing.userId === user.id) {
-            // User owns the listing, return full data
-            return sendResponse(reply, 200, listing);
+            // User owns the listing, return full data including expiry flag
+            return sendResponse(reply, 200, { ...listing, isExpired });
           }
         }
         // If auth failed or user doesn't own listing, continue to return masked data
       }
 
-      // If listing is expired, hide from non-owners
-      if (isExpired) {
-        return sendResponse(reply, 404, { error: 'Listing not found' });
-      }
-
       // Return masked data for public access or if user doesn't own listing
-      return sendResponse(reply, 200, maskSensitiveData(listing));
+      // isExpired flag is included so the client can render the appropriate expired UI
+      return sendResponse(reply, 200, { ...maskSensitiveData(listing), isExpired });
     } catch (error) {
       console.error('Error fetching listing:', error);
       return sendResponse(reply, 500, { error: 'Internal server error' });

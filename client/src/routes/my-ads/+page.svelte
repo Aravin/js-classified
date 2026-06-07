@@ -71,6 +71,12 @@
     }
   }
 
+  function isListingExpired(listing: Listing): boolean {
+    const created = new Date(listing.createdAt);
+    const expiryDate = new Date(created.getTime() + config.listing.expiryDays * 24 * 60 * 60 * 1000);
+    return new Date() > expiryDate;
+  }
+
   async function handleDelete() {
     if (!listingToDelete) return;
     const idToDelete = listingToDelete.id;
@@ -462,9 +468,9 @@
                 <span 
                   in:scale={{duration: 300, easing: elasticOut}}
                   out:fade={{duration: 200}}
-                  class="badge {(listing.status === 'ACTIVE' || listing.status === 'active') ? 'badge-success' : 'badge-warning'} badge-sm animate-pulse"
+                  class="badge {isListingExpired(listing) ? 'badge-error' : (listing.status === 'ACTIVE' || listing.status === 'active') ? 'badge-success' : 'badge-warning'} badge-sm animate-pulse"
                 >
-                  {listing.status === 'ACTIVE' || listing.status === 'active' ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT')}
+                  {isListingExpired(listing) ? 'EXPIRED' : (listing.status === 'ACTIVE' || listing.status === 'active' ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT'))}
                 </span>
               {/key}
             </div>
@@ -555,9 +561,9 @@
               </div>
               <div class="absolute top-1 right-1">
                 <span 
-                  class="badge {(listing.status === 'ACTIVE' || listing.status === 'active') ? 'badge-success' : 'badge-warning'} badge-xs"
+                  class="badge {isListingExpired(listing) ? 'badge-error' : (listing.status === 'ACTIVE' || listing.status === 'active') ? 'badge-success' : 'badge-warning'} badge-xs"
                 >
-                  {listing.status === 'ACTIVE' || listing.status === 'active' ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT')}
+                  {isListingExpired(listing) ? 'EXPIRED' : (listing.status === 'ACTIVE' || listing.status === 'active' ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT'))}
                 </span>
               </div>
             </figure>

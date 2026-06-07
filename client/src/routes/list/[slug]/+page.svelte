@@ -219,6 +219,7 @@
   // Get current listing status
   $: listingStatus = listing?.status || 'ACTIVE';
   $: isActive = listingStatus === 'ACTIVE' || listingStatus === 'active';
+  $: isExpired = listing?.isExpired === true;
 
   async function getRecaptchaToken(action: string): Promise<string | null> {
     if (!browser) {
@@ -364,6 +365,25 @@
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
+  <!-- Expired Banner -->
+  {#if isExpired}
+    {#if isOwner}
+      <div class="alert alert-warning mb-4">
+        <Icon icon="material-symbols:timer-off-outline" class="w-5 h-5 shrink-0" />
+        <div>
+          <span class="font-semibold">This listing has expired.</span>
+          To make it visible again, activate it from your
+          <a href="/my-ads" class="link link-warning font-semibold">My Ads</a> page.
+        </div>
+      </div>
+    {:else}
+      <div class="alert alert-error mb-4">
+        <Icon icon="material-symbols:timer-off-outline" class="w-5 h-5 shrink-0" />
+        <span>This listing has expired and is no longer active.</span>
+      </div>
+    {/if}
+  {/if}
+
   <div class="bg-white rounded-lg shadow-lg overflow-hidden">
     <!-- Image Gallery -->
     {#if listing.images && listing.images.length > 0}
@@ -420,8 +440,12 @@
             </div>
             <div class="hidden sm:block text-gray-300">•</div>
             <div class="flex items-center gap-1">
-              <Icon icon="material-symbols:timer-outline" class="w-4 h-4" />
-              <span>{getDaysLeft(listing.createdAt)} days left</span>
+              <Icon icon="material-symbols:timer-outline" class="w-4 h-4 {isExpired ? 'text-error' : ''}" />
+              {#if isExpired}
+                <span class="text-error font-semibold">Expired</span>
+              {:else}
+                <span>{getDaysLeft(listing.createdAt)} days left</span>
+              {/if}
             </div>
           </div>
 
@@ -488,6 +512,11 @@
       <!-- Contact Information -->
       <div class="mt-6">
         <h2 class="text-xl font-semibold mb-4">Contact Information</h2>
+        {#if isExpired && !isOwner}
+          <div class="text-gray-400 italic text-sm">
+            Contact information is not available for expired listings.
+          </div>
+        {:else}
         <div class="space-y-4">
           {#if listing.hasPhone}
             <div class="flex items-center gap-1 w-[250px]">
@@ -571,6 +600,7 @@
             </div>
           {/if}
         </div>
+        {/if}
       </div>
     </div>
   </div>
