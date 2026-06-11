@@ -148,39 +148,37 @@
         </a>
       </div>
 
-      <!-- Stats/Features - Commented out for now, enable later -->
-      <!--
+      <!-- Stats/Features -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-8 border-t border-white/20">
         <div class="flex flex-col items-center">
-          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20">
-            <Icon icon="material-symbols:storefront" class="w-6 h-6 text-white" />
+          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20 shadow-inner group hover:bg-white/20 transition-all duration-300">
+            <Icon icon="material-symbols:storefront" class="w-6 h-6 text-white drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
           </div>
-          <div class="text-2xl font-bold text-white">1000+</div>
-          <div class="text-sm text-white/80">Active Listings</div>
+          <div class="text-3xl font-black text-white tracking-tight drop-shadow-md">1000+</div>
+          <div class="text-xs font-semibold text-white/80 uppercase tracking-wider mt-1">Active Listings</div>
         </div>
         <div class="flex flex-col items-center">
-          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20">
-            <Icon icon="material-symbols:people" class="w-6 h-6 text-white" />
+          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20 shadow-inner group hover:bg-white/20 transition-all duration-300">
+            <Icon icon="material-symbols:people" class="w-6 h-6 text-white drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
           </div>
-          <div class="text-2xl font-bold text-white">500+</div>
-          <div class="text-sm text-white/80">Active Users</div>
+          <div class="text-3xl font-black text-white tracking-tight drop-shadow-md">500+</div>
+          <div class="text-xs font-semibold text-white/80 uppercase tracking-wider mt-1">Active Users</div>
         </div>
         <div class="flex flex-col items-center">
-          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20">
-            <Icon icon="material-symbols:category" class="w-6 h-6 text-white" />
+          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20 shadow-inner group hover:bg-white/20 transition-all duration-300">
+            <Icon icon="material-symbols:category" class="w-6 h-6 text-white drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
           </div>
-          <div class="text-2xl font-bold text-white">50+</div>
-          <div class="text-sm text-white/80">Categories</div>
+          <div class="text-3xl font-black text-white tracking-tight drop-shadow-md">50+</div>
+          <div class="text-xs font-semibold text-white/80 uppercase tracking-wider mt-1">Categories</div>
         </div>
         <div class="flex flex-col items-center">
-          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20">
-            <Icon icon="material-symbols:verified" class="w-6 h-6 text-white" />
+          <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20 shadow-inner group hover:bg-white/20 transition-all duration-300">
+            <Icon icon="material-symbols:verified" class="w-6 h-6 text-white drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
           </div>
-          <div class="text-2xl font-bold text-white">100%</div>
-          <div class="text-sm text-white/80">Free to Post</div>
+          <div class="text-3xl font-black text-white tracking-tight drop-shadow-md">100%</div>
+          <div class="text-xs font-semibold text-white/80 uppercase tracking-wider mt-1">Free to Post</div>
         </div>
       </div>
-      -->
     </div>
   </div>
 
@@ -278,7 +276,18 @@
 </section>
 
 <!-- Recent Listings Section -->
-<div class="mt-12">
+<section class="mt-16 mb-8 bg-base-200/30 rounded-3xl p-6 md:p-10 border border-base-200 shadow-sm">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+    <div>
+      <h2 class="text-3xl md:text-4xl font-black text-base-content mb-2 tracking-tight">Fresh Recommendations</h2>
+      <p class="text-base md:text-lg text-base-content/70">Discover the latest and most popular listings in your area</p>
+    </div>
+    <a href="/search" class="group flex items-center gap-2 px-6 py-3 bg-base-100 hover:bg-primary hover:text-primary-content text-base-content font-semibold rounded-full shadow-sm border border-base-200 hover:border-primary transition-all duration-300">
+      View All 
+      <Icon icon="material-symbols:arrow-forward" class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+    </a>
+  </div>
+
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
     <div class="lg:col-span-2">
       <RecentListings />
@@ -288,4 +297,4 @@
       <RecentCategories />
     </div>
   </div>
-</div>
+</section>
