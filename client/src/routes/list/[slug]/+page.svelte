@@ -371,9 +371,8 @@
       <div class="alert alert-warning mb-4">
         <Icon icon="material-symbols:timer-off-outline" class="w-5 h-5 shrink-0" />
         <div>
-          <span class="font-semibold">This listing has expired.</span>
-          To make it visible again, activate it from your
-          <a href="/my-ads" class="link link-warning font-semibold">My Ads</a> page.
+          This listing has expired. To make it visible again, activate it from your
+          <a href="/my-ads" class="font-bold underline" style="color: inherit;">My Ads</a> page.
         </div>
       </div>
     {:else}
