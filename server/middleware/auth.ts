@@ -62,8 +62,8 @@ export async function verifyAuth0Token(
   }
 
   const auth0Domain = process.env.AUTH0_DOMAIN;
-  const auth0Audience = process.env.AUTH0_AUDIENCE; // API audience (for access tokens)
-  const auth0ClientId = process.env.AUTH0_CLIENT_ID; // Client ID (for ID tokens)
+  const auth0Audience = process.env.AUTH0_AUDIENCE?.trim(); // API audience (for access tokens)
+  const auth0ClientId = process.env.AUTH0_CLIENT_ID?.trim(); // Client ID (for ID tokens)
 
   if (!auth0Domain) {
     reply.code(500).send({ error: 'Auth0 configuration missing: AUTH0_DOMAIN' });

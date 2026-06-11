@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { config } from '$lib/config';
-  import { authState, getAuthHeaders } from '$lib/auth/auth0';
-  import { goto } from '$app/navigation';
+  import { authState, getAuthHeaders, login } from '$lib/auth/auth0';
   import Icon from '@iconify/svelte';
   import { formatCurrency, formatDate, checkActiveAdsLimit } from '$lib/utils';
   import { browser } from '$app/environment';
@@ -63,11 +62,11 @@
   let order: 'asc' | 'desc' = 'desc';
   let viewMode: 'grid' | 'list' = 'grid';
 
-  // Store current page as redirect destination before redirecting to login
-  function redirectToLogin() {
+  // Trigger Auth0 login popup; store redirect destination so user returns to /my-ads after login
+  async function redirectToLogin() {
     if (browser) {
-      sessionStorage.setItem('redirectTo', '/my-ads');
-      goto('/login');
+      sessionStorage.setItem('redirectAfterLogin', '/my-ads');
+      await login();
     }
   }
 

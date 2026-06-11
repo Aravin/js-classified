@@ -1,17 +1,13 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 
 /**
  * OWASP Top 10 Security Implementation
  * A01-A10: Comprehensive security hardening
+ * NOTE: CORS is registered at root scope in index.ts (not here) so that
+ * Access-Control-Allow-Origin is included on ALL responses, including 401 errors.
  */
-
-// A05 - Security Misconfiguration: CORS configuration
-const CORS_ORIGINS = process.env.CORS_ORIGINS 
-  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-  : ['http://localhost:5173', 'https://locful.com', 'https://www.locful.com'];
 
 export async function configureSecurityPlugins(fastify: FastifyInstance) {
   // A05 - Security Misconfiguration: Secure headers via Helmet
@@ -36,34 +32,6 @@ export async function configureSecurityPlugins(fastify: FastifyInstance) {
       includeSubDomains: true,
       preload: true,
     },
-  });
-
-  // A05 - Security Misconfiguration: Secure CORS
-  await fastify.register(cors, {
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, Postman, etc.)
-      if (!origin) {
-        return callback(null, true);
-      }
-      
-      // Check if origin is in allowed list
-      if (CORS_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        // In production, be strict; in development, log warning
-        if (process.env.NODE_ENV === 'production') {
-          callback(new Error('Not allowed by CORS'), false);
-        } else {
-          console.warn(`⚠️  CORS: Origin ${origin} not in allowed list, but allowing in dev mode`);
-          callback(null, true);
-        }
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
-    exposedHeaders: ['Content-Length', 'Content-Type'],
-    credentials: true,
-    maxAge: 86400, // 24 hours
   });
 
   // A04 - Insecure Design: Rate Limiting

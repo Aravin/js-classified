@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
+import cors from '@fastify/cors';
 import { configureSecurityPlugins } from './plugins/security';
 import { listingRoutes } from './api/routes/listing.routes';
 import { imageRoutes } from './api/routes/image.routes';
@@ -39,7 +40,27 @@ server.addHook('onClose', async (instance) => {
   await instance.prisma.$disconnect();
 });
 
-// Configure security plugins (OWASP A01-A10)
+// Register CORS at root scope FIRST — must cover all responses including 401/error replies
+// @fastify/cors inside a scoped plugin does NOT add headers to root-scope error responses
+const corsOrigins = config.cors.origin;
+server.register(cors, {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // curl, Postman, mobile apps
+    if (corsOrigins.includes(origin)) return callback(null, true);
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`⚠️  CORS: allowing unlisted origin in dev: ${origin}`);
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'), false);
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length', 'Content-Type'],
+  credentials: true,
+  maxAge: 86400,
+});
+
+// Configure remaining security plugins (Helmet, rate-limit, etc.) — CORS already registered above
 server.register(configureSecurityPlugins);
 
 // A03 - Injection: Add input validation middleware
