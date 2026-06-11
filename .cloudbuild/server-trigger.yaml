@@ -1,0 +1,28 @@
+# GCP Cloud Build trigger configuration for the server package.
+#
+# This file defines WHEN Cloud Build fires — only when files under
+# server/ or db/ change on the main branch.
+#
+# Apply once with:
+#   gcloud builds triggers import --source=.cloudbuild/server-trigger.yaml
+#
+# After import you can verify with:
+#   gcloud builds triggers list --filter="name=locful-api-deploy"
+
+name: locful-api-deploy
+description: "Build and deploy locful-api to Cloud Run — triggers only on server/ or db/ changes"
+
+github:
+  owner: Aravin                  # replace with your GitHub org/username
+  name: js-classified            # replace with your repo name
+  push:
+    branch: "^main$"             # only the main branch
+
+# Build config to execute when triggered
+filename: server/cloudbuild.yaml  # path relative to repo root
+
+# Only trigger when files in these paths change.
+# db/ is included because schema.prisma is copied into the Docker image.
+includedFiles:
+  - "server/**"
+  - "db/**"
