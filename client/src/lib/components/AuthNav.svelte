@@ -31,7 +31,7 @@
       Post Ad
     </button>
     <div class="dropdown dropdown-end">
-      <label tabindex="0" class="btn btn-ghost btn-circle avatar ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
         <div class="w-8 h-8 rounded-full overflow-hidden bg-base-200">
           {#if currentUser.picture}
             <img 
@@ -46,7 +46,7 @@
             </div>
           {/if}
         </div>
-      </label>
+      </div>
       <ul tabindex="0" class="dropdown-content menu mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-56 border border-base-200">
         <li class="menu-title px-2 py-2">
           <div class="flex flex-col gap-0.5">
