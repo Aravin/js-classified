@@ -125,8 +125,9 @@
             type="text"
             placeholder="Search for anything..."
             class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Search listings"
             bind:value={search}
-            on:keypress={handleKeyPress}
+            on:keydown={handleKeyPress}
           />
           <button 
             class="btn btn-square btn-primary absolute right-0 top-0 rounded-l-none"

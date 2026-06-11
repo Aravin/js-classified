@@ -151,6 +151,11 @@
   });
 </script>
 
+<svelte:head>
+  <title>Post a Free Ad | locful</title>
+  <meta name="description" content="Post a free classified ad on locful.com. Sell anything — electronics, vehicles, real estate, jobs and more in your local area." />
+</svelte:head>
+
 <div class="container mx-auto px-4 py-8 max-w-3xl">
   {#if isLoading}
     <div class="flex justify-center items-center min-h-[50vh]">

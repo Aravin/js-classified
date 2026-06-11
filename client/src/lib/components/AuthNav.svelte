@@ -3,7 +3,6 @@
   import Icon from '@iconify/svelte';
   import type { User } from '@auth0/auth0-spa-js';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
 
   $: currentUser = $user as User | null;
 

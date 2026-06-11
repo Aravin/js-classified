@@ -52,5 +52,17 @@
     </h2>
     <ListingGrid {listings} />
   </div>
+{:else}
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+      <Icon icon="material-symbols:schedule" class="text-primary" />
+      Recent Listings
+    </h2>
+    <div class="text-center py-12 text-base-content/60">
+      <Icon icon="material-symbols:storefront-outline" class="text-5xl mb-3 mx-auto" />
+      <p class="text-lg font-medium">No listings yet</p>
+      <p class="text-sm mt-1">Be the first to <a href="/post-ad" class="text-primary hover:underline">post an ad</a>!</p>
+    </div>
+  </div>
 {/if}
 

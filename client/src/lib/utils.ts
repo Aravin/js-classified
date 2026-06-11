@@ -37,6 +37,15 @@ export function getExpiryDate(createdAt: string): string {
 }
 
 /**
+ * Check if a listing has passed its expiry date based on creation date.
+ */
+export function isListingExpired(createdAt: string): boolean {
+  const created = new Date(createdAt);
+  const expiryDate = new Date(created.getTime() + config.listing.expiryDays * 24 * 60 * 60 * 1000);
+  return new Date() > expiryDate;
+}
+
+/**
  * Check if user has reached the maximum active ads limit
  * @param userId - Auth0 user ID (sub)
  * @param excludeListingId - Optional listing ID to exclude from count (for editing existing ads)

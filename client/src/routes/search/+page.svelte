@@ -61,7 +61,14 @@
       updateSearch({ page: newPage.toString() });
     }
   }
+
+  $: pageTitle = [data.q, data.location && locations.find(l => l.key.toString() === data.location)?.value].filter(Boolean).join(' in ') || 'All Listings';
 </script>
+
+<svelte:head>
+  <title>{pageTitle} | locful Search</title>
+  <meta name="description" content="Search classified ads{data.q ? ` for ${data.q}` : ''}${data.location ? ` in ${locations.find(l => l.key.toString() === data.location)?.value || ''}` : ''} on locful.com." />
+</svelte:head>
 
 <div class="container mx-auto px-4 py-8">
   <!-- Filters and Sort -->

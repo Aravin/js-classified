@@ -7,7 +7,12 @@
   import { browser } from '$app/environment';
   import { getAuthHeaders, authState, login, user } from '$lib/auth/auth0';
   import { generateListingStructuredData } from '$lib/google-integration';
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
+
+  /** Safely serialize JSON-LD: escapes closing script tags to prevent XSS */
+  function safeJsonLd(data: object): string {
+    return JSON.stringify(data).replace(new RegExp('</s' + 'cript>', 'gi'), '<\\/script>');
+  }
 
   export let data;
   const { listing } = data;
@@ -202,13 +207,13 @@
         throw new Error('Failed to update status');
       }
 
-      // Close modal and refresh the page
+      // Close modal and refresh the page using SvelteKit (preserves history)
       listingToUpdateStatus = null;
       const modal = document.getElementById('status-modal') as HTMLDialogElement;
       modal?.close();
       
-      // Reload the page to show updated status
-      window.location.reload();
+      // Re-run load functions without a full page reload
+      await invalidateAll();
     } catch (err) {
       statusError = err instanceof Error ? err.message : 'Failed to update status';
     } finally {
@@ -342,7 +347,7 @@
   {/if}
   
   <!-- Structured Data for Google -->
-  {@html `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`}
+  {@html `<script type="application/ld+json">${safeJsonLd(structuredData)}</script>`}
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="product" />

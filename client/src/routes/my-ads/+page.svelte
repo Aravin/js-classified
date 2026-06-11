@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  // onMount is not used here — data loading is driven by the reactive $authState block
   import { config } from '$lib/config';
   import { authState, getAuthHeaders, login } from '$lib/auth/auth0';
   import Icon from '@iconify/svelte';
-  import { formatCurrency, formatDate, checkActiveAdsLimit } from '$lib/utils';
+  import { formatCurrency, formatDate, checkActiveAdsLimit, isListingExpired } from '$lib/utils';
   import { browser } from '$app/environment';
   import { fade, scale } from 'svelte/transition';
   import { elasticOut } from 'svelte/easing';
@@ -48,13 +48,14 @@
   let listings: Listing[] = [];
   let allListings: Listing[] = []; // Store all listings for filtering
   let isLoading = true;
+  let hasLoaded = false; // Guard against duplicate loadListings() calls
   let error: string | null = null;
   let statusError: string | null = null;
   let listingToDelete: Listing | null = null;
   let listingToUpdateStatus: { listing: Listing; newStatus: 'ACTIVE' | 'DRAFT' } | null = null;
 
   // Filters and sorting
-  let statusFilter: 'ALL' | 'ACTIVE' | 'DRAFT' = 'ALL';
+  let statusFilter: 'ALL' | 'ACTIVE' | 'DRAFT' | 'EXPIRED' = 'ALL';
   let categoryFilter: string = 'ALL';
   let locationFilter: string = 'ALL';
   let hasImagesFilter: boolean = false;
@@ -62,18 +63,17 @@
   let order: 'asc' | 'desc' = 'desc';
   let viewMode: 'grid' | 'list' = 'grid';
 
+  // Helper: normalise status comparison
+  function isListingActive(status: string): boolean {
+    return status === 'ACTIVE' || status === 'active';
+  }
+
   // Trigger Auth0 login popup; store redirect destination so user returns to /my-ads after login
   async function redirectToLogin() {
     if (browser) {
       sessionStorage.setItem('redirectAfterLogin', '/my-ads');
       await login();
     }
-  }
-
-  function isListingExpired(listing: Listing): boolean {
-    const created = new Date(listing.createdAt);
-    const expiryDate = new Date(created.getTime() + config.listing.expiryDays * 24 * 60 * 60 * 1000);
-    return new Date() > expiryDate;
   }
 
   async function handleDelete() {
@@ -181,7 +181,7 @@
     redirectToLogin();
   }
 
-  $: if (!$authState.isInitializing && $authState.isAuthenticated && $authState.user) {
+  $: if (!$authState.isInitializing && $authState.isAuthenticated && $authState.user && !hasLoaded) {
     loadListings();
   }
 
@@ -201,7 +201,7 @@
       }
       const data = await response.json();
       allListings = data.listings;
-      console.log('Fetched listings:', allListings);
+      hasLoaded = true;
       applyFiltersAndSort();
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load listings';
@@ -212,7 +212,6 @@
   }
 
   function getListingImage(listing: Listing): string | null {
-    console.log('Getting image for listing:', listing.id, listing.images);
     if (listing.images && listing.images.length > 0) {
       return listing.images[0].thumbnailPath;
     }
@@ -233,10 +232,12 @@
 
     // Status filter
     if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(l => 
-        (statusFilter === 'ACTIVE' && (l.status === 'ACTIVE' || l.status === 'active')) ||
-        (statusFilter === 'DRAFT' && (l.status === 'DRAFT' || l.status === 'draft'))
-      );
+      filtered = filtered.filter(l => {
+        if (statusFilter === 'EXPIRED') return isListingExpired(l.createdAt);
+        if (statusFilter === 'ACTIVE') return isListingActive(l.status) && !isListingExpired(l.createdAt);
+        if (statusFilter === 'DRAFT') return l.status === 'DRAFT' || l.status === 'draft';
+        return true;
+      });
     }
 
     // Category filter
@@ -286,6 +287,11 @@
 
 </script>
 
+<svelte:head>
+  <title>My Ads | locful</title>
+  <meta name="description" content="Manage your classified ads — view, edit, activate or delete your listings." />
+</svelte:head>
+
 <div class="container mx-auto px-4 py-8">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">My Ads</h1>
@@ -313,6 +319,7 @@
             <option value="ALL">All</option>
             <option value="ACTIVE">Active</option>
             <option value="DRAFT">Draft</option>
+            <option value="EXPIRED">Expired</option>
           </select>
         </div>
 
@@ -442,11 +449,14 @@
   {:else if viewMode === 'grid'}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {#each listings as listing (listing.id)}
+        {@const imgSrc = getListingImage(listing)}
+        {@const expired = isListingExpired(listing.createdAt)}
+        {@const active = isListingActive(listing.status)}
         <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
           <figure class="relative pt-[50%] bg-base-200">
-            {#if getListingImage(listing)}
+            {#if imgSrc}
               <img
-                src={getListingImage(listing)}
+                src={imgSrc}
                 alt={listing.title}
                 class="absolute inset-0 w-full h-full object-cover"
                 on:error={(e) => {
@@ -459,7 +469,7 @@
                 }}
               />
             {/if}
-            <div class="absolute inset-0 flex items-center justify-center {getListingImage(listing) ? 'hidden' : 'flex'}">
+            <div class="absolute inset-0 flex items-center justify-center {imgSrc ? 'hidden' : 'flex'}">
               <Icon icon="material-symbols:image" class="text-4xl text-gray-400" />
             </div>
             <div class="absolute top-2 right-2">
@@ -467,9 +477,9 @@
                 <span 
                   in:scale={{duration: 300, easing: elasticOut}}
                   out:fade={{duration: 200}}
-                  class="badge {isListingExpired(listing) ? 'badge-error' : (listing.status === 'ACTIVE' || listing.status === 'active') ? 'badge-success' : 'badge-warning'} badge-sm animate-pulse"
+                  class="badge {expired ? 'badge-error' : active ? 'badge-success' : 'badge-warning'} badge-sm animate-pulse"
                 >
-                  {isListingExpired(listing) ? 'EXPIRED' : (listing.status === 'ACTIVE' || listing.status === 'active' ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT'))}
+                  {expired ? 'EXPIRED' : active ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT')}
                 </span>
               {/key}
             </div>
@@ -512,11 +522,11 @@
               </div>
               <div class="col-span-1">
                 <button 
-                  class="btn btn-sm btn-{(listing.status === 'ACTIVE' || listing.status === 'active') ? 'warning' : 'success'} btn-outline gap-1 w-full"
-                  on:click={() => showStatusConfirmation(listing, (listing.status === 'ACTIVE' || listing.status === 'active') ? 'DRAFT' : 'ACTIVE')}
+                  class="btn btn-sm btn-{active ? 'warning' : 'success'} btn-outline gap-1 w-full"
+                  on:click={() => showStatusConfirmation(listing, active ? 'DRAFT' : 'ACTIVE')}
                 >
-                  <Icon icon="material-symbols:{(listing.status === 'ACTIVE' || listing.status === 'active') ? 'pause' : 'play-arrow'}" class="w-4 h-4" />
-                  {(listing.status === 'ACTIVE' || listing.status === 'active') ? 'Pause' : 'Activate'}
+                  <Icon icon="material-symbols:{active ? 'pause' : 'play-arrow'}" class="w-4 h-4" />
+                  {active ? 'Pause' : 'Activate'}
                 </button>
               </div>
               <div class="col-span-1">
@@ -537,12 +547,15 @@
     <!-- List View -->
     <div class="space-y-4">
       {#each listings as listing (listing.id)}
+        {@const imgSrc = getListingImage(listing)}
+        {@const expired = isListingExpired(listing.createdAt)}
+        {@const active = isListingActive(listing.status)}
         <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
           <div class="card-body flex flex-row gap-4 p-4">
             <figure class="relative w-32 h-32 flex-shrink-0 bg-base-200 rounded-lg overflow-hidden">
-              {#if getListingImage(listing)}
+              {#if imgSrc}
                 <img
-                  src={getListingImage(listing)}
+                  src={imgSrc}
                   alt={listing.title}
                   class="absolute inset-0 w-full h-full object-cover"
                   on:error={(e) => {
@@ -555,14 +568,14 @@
                   }}
                 />
               {/if}
-              <div class="absolute inset-0 flex items-center justify-center {getListingImage(listing) ? 'hidden' : 'flex'}">
+              <div class="absolute inset-0 flex items-center justify-center {imgSrc ? 'hidden' : 'flex'}">
                 <Icon icon="material-symbols:image" class="text-2xl text-gray-400" />
               </div>
               <div class="absolute top-1 right-1">
                 <span 
-                  class="badge {isListingExpired(listing) ? 'badge-error' : (listing.status === 'ACTIVE' || listing.status === 'active') ? 'badge-success' : 'badge-warning'} badge-xs"
+                  class="badge {expired ? 'badge-error' : active ? 'badge-success' : 'badge-warning'} badge-xs"
                 >
-                  {isListingExpired(listing) ? 'EXPIRED' : (listing.status === 'ACTIVE' || listing.status === 'active' ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT'))}
+                  {expired ? 'EXPIRED' : active ? 'ACTIVE' : (listing.status === 'DRAFT' || listing.status === 'draft' ? 'DRAFT' : listing.status?.toUpperCase() || 'DRAFT')}
                 </span>
               </div>
             </figure>
@@ -601,11 +614,11 @@
                   Edit
                 </a>
                 <button 
-                  class="btn btn-sm btn-{(listing.status === 'ACTIVE' || listing.status === 'active') ? 'warning' : 'success'} btn-outline gap-1"
-                  on:click={() => showStatusConfirmation(listing, (listing.status === 'ACTIVE' || listing.status === 'active') ? 'DRAFT' : 'ACTIVE')}
+                  class="btn btn-sm btn-{active ? 'warning' : 'success'} btn-outline gap-1"
+                  on:click={() => showStatusConfirmation(listing, active ? 'DRAFT' : 'ACTIVE')}
                 >
-                  <Icon icon="material-symbols:{(listing.status === 'ACTIVE' || listing.status === 'active') ? 'pause' : 'play-arrow'}" class="w-4 h-4" />
-                  {(listing.status === 'ACTIVE' || listing.status === 'active') ? 'Pause' : 'Activate'}
+                  <Icon icon="material-symbols:{active ? 'pause' : 'play-arrow'}" class="w-4 h-4" />
+                  {active ? 'Pause' : 'Activate'}
                 </button>
                 <button 
                   class="btn btn-sm btn-error btn-outline gap-1"

@@ -65,6 +65,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>locful — Your Local Marketplace to Buy & Sell in India</title>
+  <meta name="description" content="Find and post free classified ads in India. Browse listings for electronics, vehicles, real estate, jobs, furniture and more on locful.com." />
+</svelte:head>
+
 <!-- Hero Section -->
 <section class="relative overflow-hidden bg-gradient-to-br from-primary via-primary-focus via-secondary to-primary mb-16 rounded-3xl shadow-2xl border border-primary/20">
   <!-- Animated Background Elements -->
