@@ -52,6 +52,16 @@ Navigate to `http://localhost:5173` (or the port shown in your terminal)
 - `yarn lint:fix` - Run linter with auto-fix
 - `yarn format` - Format code with Prettier
 - `yarn check` - Type check with Svelte Check
+- `yarn test` - Run unit tests with Vitest
+
+## Testing
+
+The project uses [Vitest](https://vitest.dev/) for unit testing. Test files are kept alongside the code they test (e.g. `*.test.ts`).
+
+To run the unit tests:
+```bash
+yarn test
+```
 
 ## Environment Variables
 

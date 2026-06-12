@@ -298,6 +298,33 @@ export async function listingRoutes(fastify: FastifyInstance) {
     }
   });
 
+  // Get active and non-expired listings for sitemap generation
+  fastify.get('/sitemap', async (request, reply) => {
+    try {
+      const minCreatedAt = new Date();
+      minCreatedAt.setDate(minCreatedAt.getDate() - config.listing.expiryDays);
+
+      const listings = await fastify.prisma.listing.findMany({
+        where: {
+          status: ListingStatus.ACTIVE,
+          createdAt: { gte: minCreatedAt },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      return sendResponse(reply, 200, listings);
+    } catch (error) {
+      fastify.log.error(error);
+      return sendResponse(reply, 500, { error: 'Internal Server Error' });
+    }
+  });
+
   // Get single listing
   fastify.get('/:id', async (request, reply) => {
     const { id } = request.params as { id: string };

@@ -354,9 +354,7 @@
   <meta property="og:title" content={listing.title} />
   <meta property="og:description" content={listing.description} />
   <meta property="og:url" content={`https://locful.com/list/${listing.slug}`} />
-  {#if listing.images?.[0]}
-    <meta property="og:image" content={`https://locful.com${listing.images[0].path}`} />
-  {/if}
+  <meta property="og:image" content={`https://locful.com/list/${listing.slug}/og.png`} />
   <meta property="product:price:amount" content={listing.price?.toString() || '0'} />
   <meta property="product:price:currency" content="INR" />
   
@@ -364,9 +362,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={listing.title} />
   <meta name="twitter:description" content={listing.description} />
-  {#if listing.images?.[0]}
-    <meta name="twitter:image" content={`https://locful.com${listing.images[0].path}`} />
-  {/if}
+  <meta name="twitter:image" content={`https://locful.com/list/${listing.slug}/og.png`} />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">

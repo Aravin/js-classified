@@ -8,6 +8,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test": "vitest run",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"lint:fix": "eslint . --fix"
@@ -34,12 +35,15 @@
 		"tailwindcss": "^3.4.18",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.46.2",
-		"vite": "^5.4.21"
+		"vite": "^5.4.21",
+		"vitest": "^4.1.8"
 	},
 	"dependencies": {
 		"@auth0/auth0-spa-js": "^2.7.0",
+		"@resvg/resvg-js": "^2.6.2",
 		"bad-words": "^4.0.0",
 		"dompurify": "^3.3.0",
+		"satori": "^0.26.0",
 		"svelte-dnd-action": "^0.9.65"
 	}
 }
