@@ -10,6 +10,7 @@ const userBaseSchema = {
   phone: z.string().regex(phoneRegex).optional(),
   fullName: z.string().min(1).max(255).optional(),
   avatar: z.string().url().optional(),
+  listingLimit: z.number().int().nonnegative().nullable().optional(),
 };
 
 // Schema for creating user
@@ -22,6 +23,7 @@ export const createUserSchema = {
     phone: { type: 'string', pattern: phoneRegex.source },
     fullName: { type: 'string', minLength: 1, maxLength: 255 },
     avatar: { type: 'string', format: 'uri' },
+    listingLimit: { type: ['integer', 'null'], minimum: 0 },
   },
   anyOf: [
     { required: ['email'] },
@@ -38,6 +40,7 @@ export const updateUserSchema = {
     phone: { type: 'string', pattern: phoneRegex.source },
     fullName: { type: 'string', minLength: 1, maxLength: 255 },
     avatar: { type: 'string', format: 'uri' },
+    listingLimit: { type: ['integer', 'null'], minimum: 0 },
   },
   additionalProperties: false,
 };

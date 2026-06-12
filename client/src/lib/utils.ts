@@ -67,6 +67,7 @@ export async function checkActiveAdsLimit(userId: string, excludeListingId?: num
     
     const data = await response.json();
     const listings = data.listings || [];
+    const userLimit = data.listingLimit;
     
     // Count active ads, excluding the specified listing ID if provided
     // Also ensure we don't count expired ads
@@ -76,7 +77,12 @@ export async function checkActiveAdsLimit(userId: string, excludeListingId?: num
       (excludeListingId ? listing.id !== excludeListingId : true)
     ).length;
     
-    const hasReachedLimit = activeCount >= config.user.maxActiveAds;
+    // User-level limit override has higher precedence than app-level config
+    const activeLimit = (userLimit !== undefined && userLimit !== null)
+      ? userLimit
+      : config.user.maxActiveAds;
+
+    const hasReachedLimit = activeCount >= activeLimit;
     
     return { hasReachedLimit, activeCount };
   } catch (error) {

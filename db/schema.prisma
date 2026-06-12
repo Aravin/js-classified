@@ -54,6 +54,7 @@ model user {
   updatedAt  DateTime  @updatedAt
   lastLogin  DateTime?
   listings   listing[]
+  listingLimit Int?
 
   @@index([userId])
   @@index([username])

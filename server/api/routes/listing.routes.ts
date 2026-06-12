@@ -537,7 +537,8 @@ export async function listingRoutes(fastify: FastifyInstance) {
 
       return sendResponse(reply, 200, {
         listings: listings.map(maskSensitiveData),
-        total: listings.length
+        total: listings.length,
+        listingLimit: user.listingLimit
       });
     } catch (error) {
       console.error('Error fetching user listings:', error);

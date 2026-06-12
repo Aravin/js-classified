@@ -28,6 +28,7 @@ const userSelect = {
   avatar: true,
   createdAt: true,
   lastLogin: true,
+  listingLimit: true,
 } as const;
 
 
