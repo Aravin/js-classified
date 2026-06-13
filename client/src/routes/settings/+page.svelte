@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-  <title>Settings - JS Classifieds</title>
+  <title>Settings - Locful</title>
 </svelte:head>
 
 {#if $authState.isInitializing || isLoading}

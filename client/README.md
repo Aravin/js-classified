@@ -1,6 +1,6 @@
-# JS Classified - Client
+# Locful - Client
 
-SvelteKit client application for the JS Classified marketplace.
+SvelteKit client application for the Locful marketplace.
 
 ## Prerequisites
 

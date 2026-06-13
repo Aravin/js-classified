@@ -151,7 +151,7 @@
     <div class="mb-10 text-center">
       <a href="/" class="inline-flex items-center space-x-2">
         <Icon icon="material-symbols:store" class="text-accent" font-size="32" />
-        <span class="text-xl font-bold tracking-tight text-white">JS Classifieds</span>
+        <span class="text-xl font-bold tracking-tight text-white">Locful</span>
       </a>
       <p class="mt-2 text-neutral-content/70">Your trusted marketplace for buying and selling in India</p>
     </div>
@@ -261,7 +261,7 @@
 
     <div class="mt-10 border-t border-neutral-content/10 pt-8 text-center">
       <p class="text-sm text-neutral-content/50">
-        &copy; {new Date().getFullYear()} JS Classifieds. All rights reserved.
+        &copy; {new Date().getFullYear()} Locful. All rights reserved.
       </p>
       <p class="mt-2 text-xs text-neutral-content/30">
         Made with ❤️ in India
