@@ -16,6 +16,8 @@
   let uploadedImages: ImageUploadResult[] = [];
   let imageUploadError: string | null = null;
   let publishError: string | null = null;
+  let isPublishing = false;
+  let isUploadingImages = false;
 
   onMount(async () => {
     const listingId = $page.url.searchParams.get('id');
@@ -68,19 +70,21 @@
 
   async function publishListing() {
     if (!listing) return;
+    if (isPublishing) return;
     
     publishError = null;
-    
-    // Check active ads limit before publishing
-    if ($user?.sub) {
-      const limitCheck = await checkActiveAdsLimit($user.sub, listing.id);
-      if (limitCheck.hasReachedLimit) {
-        publishError = `You are allowed to have only ${limitCheck.activeLimit} active ad${limitCheck.activeLimit > 1 ? 's' : ''}. To add more ads, please contact us.`;
-        return;
-      }
-    }
+    isPublishing = true;
     
     try {
+      // Check active ads limit before publishing
+      if ($user?.sub) {
+        const limitCheck = await checkActiveAdsLimit($user.sub, listing.id);
+        if (limitCheck.hasReachedLimit) {
+          publishError = `You are allowed to have only ${limitCheck.activeLimit} active ad${limitCheck.activeLimit > 1 ? 's' : ''}. To add more ads, please contact us.`;
+          return;
+        }
+      }
+      
       const payload = {
         status: 'ACTIVE',
         images: uploadedImages.map((img, index) => ({
@@ -112,6 +116,8 @@
     } catch (err) {
       console.error('Error publishing listing:', err);
       publishError = err instanceof Error ? err.message : 'Failed to publish listing';
+    } finally {
+      isPublishing = false;
     }
   }
 
@@ -141,13 +147,18 @@
           <h2 class="text-lg font-semibold">Preview Your Listing</h2>
         </div>
         <div class="flex gap-2">
-          <button class="btn btn-ghost" on:click={handleEdit}>
+          <button class="btn btn-ghost" on:click={handleEdit} disabled={isPublishing || isUploadingImages}>
             <Icon icon="material-symbols:edit" class="w-5 h-5 mr-2" />
             Edit
           </button>
-          <button class="btn btn-primary" on:click={publishListing}>
-            <Icon icon="material-symbols:publish" class="w-5 h-5 mr-2" />
-            Publish
+          <button class="btn btn-primary" on:click={publishListing} disabled={isPublishing || isUploadingImages}>
+            {#if isPublishing}
+              <Icon icon="material-symbols:sync" class="w-5 h-5 mr-2 animate-spin" />
+              Publishing...
+            {:else}
+              <Icon icon="material-symbols:publish" class="w-5 h-5 mr-2" />
+              Publish
+            {/if}
           </button>
         </div>
       </div>
@@ -165,6 +176,7 @@
       <ImageUpload
         listingId={listing.id}
         maxFiles={3}
+        bind:isUploading={isUploadingImages}
         on:upload={handleImageUpload}
         on:error={handleImageUploadError}
       />
@@ -185,13 +197,15 @@
                 alt="Uploaded"
                 class="w-full aspect-square object-cover rounded-lg"
               />
-              <button
-                type="button"
-                class="absolute top-2 right-2 bg-error hover:bg-error-focus text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                on:click={() => handleImageDelete(image.id + '')}
-              >
-                <Icon icon="material-symbols:delete" class="w-5 h-5" />
-              </button>
+              {#if !isPublishing && !isUploadingImages}
+                <button
+                  type="button"
+                  class="absolute top-2 right-2 bg-error hover:bg-error-focus text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  on:click={() => handleImageDelete(image.id + '')}
+                >
+                  <Icon icon="material-symbols:delete" class="w-5 h-5" />
+                </button>
+              {/if}
             </div>
           {/each}
         </div>

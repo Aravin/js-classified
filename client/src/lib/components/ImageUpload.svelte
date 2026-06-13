@@ -16,6 +16,9 @@
   export let listingId: number;
   export let maxFiles = 5;
   export let maxSize = 5 * 1024 * 1024; // 5MB
+  export let isUploading = false;
+  
+  $: isUploading = preview.some(item => item.uploading);
   
   let fileInput: HTMLInputElement;
   let uploadStates: Map<string, { progress: number, error: string | null }> = new Map();
@@ -164,9 +167,9 @@
       <div class="text-center">
         <button
           type="button"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-focus transition-colors"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-focus transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           on:click={() => fileInput.click()}
-          disabled={preview.length >= maxFiles}
+          disabled={preview.length >= maxFiles || isUploading}
         >
           <Icon icon="material-symbols:upload" class="w-5 h-5" />
           <span>Choose Images</span>
@@ -239,24 +242,26 @@
             </div>
           {/if}
           
-          <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            {#if item.error}
+          {#if !item.uploading}
+            <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {#if item.error}
+                <button
+                  type="button"
+                  class="p-1 rounded-full bg-primary text-white hover:bg-primary-focus"
+                  on:click={() => uploadFile(item)}
+                >
+                  <Icon icon="material-symbols:refresh" class="w-5 h-5" />
+                </button>
+              {/if}
               <button
                 type="button"
-                class="p-1 rounded-full bg-primary text-white hover:bg-primary-focus"
-                on:click={() => uploadFile(item)}
+                class="p-1 rounded-full bg-error text-white hover:bg-error-focus"
+                on:click={() => confirmDelete(item.id)}
               >
-                <Icon icon="material-symbols:refresh" class="w-5 h-5" />
+                <Icon icon="material-symbols:delete" class="w-5 h-5" />
               </button>
-            {/if}
-            <button
-              type="button"
-              class="p-1 rounded-full bg-error text-white hover:bg-error-focus"
-              on:click={() => confirmDelete(item.id)}
-            >
-              <Icon icon="material-symbols:delete" class="w-5 h-5" />
-            </button>
-          </div>
+            </div>
+          {/if}
           
           <div class="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-xs">
             Image {preview.indexOf(item) + 1} of {preview.length}
@@ -267,11 +272,17 @@
     
     <button
       type="button"
-      class="w-full mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-focus disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      class="w-full mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-focus disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
       on:click={handleUpload}
-      disabled={preview.every(item => item.uploading || item.error)}
+      disabled={isUploading || preview.every(item => item.error) || preview.length === 0}
     >
-      Upload {preview.length} {preview.length === 1 ? 'Image' : 'Images'}
+      {#if isUploading}
+        <Icon icon="material-symbols:sync" class="w-5 h-5 animate-spin" />
+        <span>Uploading...</span>
+      {:else}
+        <Icon icon="material-symbols:upload" class="w-5 h-5" />
+        <span>Upload {preview.length} {preview.length === 1 ? 'Image' : 'Images'}</span>
+      {/if}
     </button>
   {/if}
 </div>
