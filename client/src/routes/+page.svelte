@@ -76,6 +76,40 @@
   />
 </svelte:head>
 
+<!-- Recent Listings Section -->
+<section class="mb-16 rounded-3xl border border-base-200 bg-base-200/30 p-6 shadow-sm md:p-10">
+  <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+      <h2 class="mb-2 text-3xl font-black tracking-tight text-base-content md:text-4xl">
+        Fresh Recommendations
+      </h2>
+      <p class="text-base text-base-content/70 md:text-lg">
+        Discover the latest and most popular listings in your area
+      </p>
+    </div>
+    <a
+      href="/search"
+      class="group flex items-center gap-2 rounded-full border border-base-200 bg-base-100 px-6 py-3 font-semibold text-base-content shadow-sm transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-content"
+    >
+      View All
+      <Icon
+        icon="material-symbols:arrow-forward"
+        class="h-5 w-5 transition-transform group-hover:translate-x-1"
+      />
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <RecentListings />
+    </div>
+    <div class="space-y-8">
+      <RecentLocations />
+      <RecentCategories />
+    </div>
+  </div>
+</section>
+
 <!-- Hero Section -->
 <section
   class="via-primary-focus relative mb-16 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary via-secondary to-primary shadow-2xl"
@@ -379,39 +413,5 @@
         </div>
       </div>
     {/each}
-  </div>
-</section>
-
-<!-- Recent Listings Section -->
-<section class="mb-8 mt-16 rounded-3xl border border-base-200 bg-base-200/30 p-6 shadow-sm md:p-10">
-  <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-    <div>
-      <h2 class="mb-2 text-3xl font-black tracking-tight text-base-content md:text-4xl">
-        Fresh Recommendations
-      </h2>
-      <p class="text-base text-base-content/70 md:text-lg">
-        Discover the latest and most popular listings in your area
-      </p>
-    </div>
-    <a
-      href="/search"
-      class="group flex items-center gap-2 rounded-full border border-base-200 bg-base-100 px-6 py-3 font-semibold text-base-content shadow-sm transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-content"
-    >
-      View All
-      <Icon
-        icon="material-symbols:arrow-forward"
-        class="h-5 w-5 transition-transform group-hover:translate-x-1"
-      />
-    </a>
-  </div>
-
-  <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-    <div class="lg:col-span-2">
-      <RecentListings />
-    </div>
-    <div class="space-y-8">
-      <RecentLocations />
-      <RecentCategories />
-    </div>
   </div>
 </section>
