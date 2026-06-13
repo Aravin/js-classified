@@ -216,13 +216,12 @@
 
       const updatedListing = await response.json();
 
-      // Update the listing status, createdAt, republishedAt, and republishCount in the allListings array
+      // Update the listing status, republishedAt, and republishCount in the allListings array
       allListings = allListings.map((l) =>
         l.id === listing.id
           ? {
               ...l,
               status: 'ACTIVE',
-              createdAt: updatedListing.createdAt,
               republishedAt: updatedListing.republishedAt,
               republishCount: updatedListing.republishCount,
             }
@@ -313,9 +312,9 @@
     // Status filter
     if (statusFilter !== 'ALL') {
       filtered = filtered.filter((l) => {
-        if (statusFilter === 'EXPIRED') return isListingExpired(l.createdAt);
+        if (statusFilter === 'EXPIRED') return isListingExpired(l.createdAt, l.republishedAt);
         if (statusFilter === 'ACTIVE')
-          return isListingActive(l.status) && !isListingExpired(l.createdAt);
+          return isListingActive(l.status) && !isListingExpired(l.createdAt, l.republishedAt);
         if (statusFilter === 'DRAFT') return l.status === 'DRAFT' || l.status === 'draft';
         return true;
       });
@@ -535,7 +534,7 @@
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {#each listings as listing (listing.id)}
         {@const imgSrc = getListingImage(listing)}
-        {@const expired = isListingExpired(listing.createdAt)}
+        {@const expired = isListingExpired(listing.createdAt, listing.republishedAt)}
         {@const active = isListingActive(listing.status)}
         <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl">
           <figure class="relative bg-base-200 pt-[50%]">
@@ -560,7 +559,7 @@
               <Icon icon="material-symbols:image" class="text-4xl text-gray-400" />
             </div>
             <div class="absolute right-2 top-2">
-              {#key listing.status}
+              {#key `${listing.status}-${expired}`}
                 <span
                   in:scale={{ duration: 300, easing: elasticOut }}
                   out:fade={{ duration: 200 }}
@@ -665,7 +664,7 @@
     <div class="space-y-4">
       {#each listings as listing (listing.id)}
         {@const imgSrc = getListingImage(listing)}
-        {@const expired = isListingExpired(listing.createdAt)}
+        {@const expired = isListingExpired(listing.createdAt, listing.republishedAt)}
         {@const active = isListingActive(listing.status)}
         <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl">
           <div class="card-body flex flex-row gap-4 p-4">

@@ -14,10 +14,10 @@ export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat(config.currency.locale, config.currency.options).format(amount);
 }
 
-export function getExpiryDate(createdAt: string): string {
-  const createdDate = new Date(createdAt);
-  const expiryDate = new Date(createdDate);
-  expiryDate.setDate(createdDate.getDate() + config.listing.expiryDays);
+export function getExpiryDate(createdAt: string, republishedAt?: string | null): string {
+  const baseDate = new Date(republishedAt || createdAt);
+  const expiryDate = new Date(baseDate);
+  expiryDate.setDate(baseDate.getDate() + config.listing.expiryDays);
 
   const today = new Date();
   const daysLeft = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -34,11 +34,11 @@ export function getExpiryDate(createdAt: string): string {
 }
 
 /**
- * Check if a listing has passed its expiry date based on creation date.
+ * Check if a listing has passed its expiry date based on creation date or republished date.
  */
-export function isListingExpired(createdAt: string): boolean {
-  const created = new Date(createdAt);
-  const expiryDate = new Date(created.getTime() + config.listing.expiryDays * 24 * 60 * 60 * 1000);
+export function isListingExpired(createdAt: string, republishedAt?: string | null): boolean {
+  const baseDate = new Date(republishedAt || createdAt);
+  const expiryDate = new Date(baseDate.getTime() + config.listing.expiryDays * 24 * 60 * 60 * 1000);
   return new Date() > expiryDate;
 }
 
@@ -74,7 +74,7 @@ export async function checkActiveAdsLimit(
     const activeCount = listings.filter(
       (listing: any) =>
         (listing.status === 'ACTIVE' || listing.status === 'active') &&
-        !isListingExpired(listing.createdAt) &&
+        !isListingExpired(listing.createdAt, listing.republishedAt) &&
         (excludeListingId ? listing.id !== excludeListingId : true),
     ).length;
 

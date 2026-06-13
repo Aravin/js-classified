@@ -15,10 +15,10 @@
   }
 
   export let data;
-  const { listing } = data;
+  $: listing = data.listing;
 
   // Generate structured data for SEO
-  const structuredData = generateListingStructuredData(listing);
+  $: structuredData = generateListingStructuredData(listing);
 
   // Check if current user owns this listing
   let isOwner = false;
@@ -393,9 +393,9 @@
     return `+91 ${phone.slice(0, 5)}-${phone.slice(5)}`;
   }
 
-  function getDaysLeft(createdAt: string): number {
-    const created = new Date(createdAt);
-    const expiryDate = new Date(created.getTime() + LISTING_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+  function getDaysLeft(createdAt: string, republishedAt?: string | null): number {
+    const baseDate = new Date(republishedAt || createdAt);
+    const expiryDate = new Date(baseDate.getTime() + LISTING_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
     const now = new Date();
     const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(0, daysLeft);
@@ -514,7 +514,7 @@
               {#if isExpired}
                 <span class="font-semibold text-error">Expired</span>
               {:else}
-                <span>{getDaysLeft(listing.createdAt)} days left</span>
+                <span>{getDaysLeft(listing.createdAt, listing.republishedAt)} days left</span>
               {/if}
             </div>
             {#if listing.republishCount && listing.republishCount > 0}

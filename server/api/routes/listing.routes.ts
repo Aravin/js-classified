@@ -224,12 +224,11 @@ export async function listingRoutes(fastify: FastifyInstance) {
         return sendResponse(reply, 400, { error: 'At least one image is required to republish a listing' });
       }
 
-      // Update listing status to ACTIVE, createdAt/republishedAt to current time, and increment republishCount
+      // Update listing status to ACTIVE, republishedAt to current time, and increment republishCount
       const republishedListing = await fastify.prisma.listing.update({
         where: { id: listingId },
         data: { 
           status: ListingStatus.ACTIVE,
-          createdAt: new Date(),
           republishedAt: new Date(),
           republishCount: {
             increment: 1
@@ -264,12 +263,15 @@ export async function listingRoutes(fastify: FastifyInstance) {
         hasImages
       } = queryParams;
 
-      const minCreatedAt = new Date();
-      minCreatedAt.setDate(minCreatedAt.getDate() - config.listing.expiryDays);
+      const minDate = new Date();
+      minDate.setDate(minDate.getDate() - config.listing.expiryDays);
 
       const where: Prisma.listingWhereInput = {
         status: ListingStatus.ACTIVE,
-        createdAt: { gte: minCreatedAt },
+        OR: [
+          { republishedAt: { gte: minDate } },
+          { republishedAt: null, createdAt: { gte: minDate } }
+        ],
         ...(categoryId && { categoryId }),
         ...(locationId && { locationId }),
         ...(search && {
@@ -347,13 +349,16 @@ export async function listingRoutes(fastify: FastifyInstance) {
   // Get active and non-expired listings for sitemap generation
   fastify.get('/sitemap', async (request, reply) => {
     try {
-      const minCreatedAt = new Date();
-      minCreatedAt.setDate(minCreatedAt.getDate() - config.listing.expiryDays);
+      const minDate = new Date();
+      minDate.setDate(minDate.getDate() - config.listing.expiryDays);
 
       const listings = await fastify.prisma.listing.findMany({
         where: {
           status: ListingStatus.ACTIVE,
-          createdAt: { gte: minCreatedAt },
+          OR: [
+            { republishedAt: { gte: minDate } },
+            { republishedAt: null, createdAt: { gte: minDate } }
+          ],
         },
         select: {
           slug: true,
@@ -407,7 +412,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
       }
 
       // Check if listing is expired
-      const expiryDate = new Date(listing.createdAt);
+      const expiryDate = new Date(listing.republishedAt || listing.createdAt);
       expiryDate.setDate(expiryDate.getDate() + config.listing.expiryDays);
       const isExpired = new Date() > expiryDate;
 
