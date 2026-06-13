@@ -203,6 +203,52 @@ export async function listingRoutes(fastify: FastifyInstance) {
     }
   });
 
+  // Republish an expired listing (updates status to ACTIVE and createdAt to current time)
+  fastify.patch('/:id/republish', async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const listingId = parseInt(id);
+      if (Number.isNaN(listingId)) {
+        return sendResponse(reply, 400, { error: 'Invalid listing ID' });
+      }
+
+      const owned = await getOwnedListing(fastify, request, reply, listingId);
+      if (!owned) {
+        return;
+      }
+
+      const { listing } = owned;
+
+      // Validate that listing has at least one image
+      if (!listing.images || listing.images.length === 0) {
+        return sendResponse(reply, 400, { error: 'At least one image is required to republish a listing' });
+      }
+
+      // Update listing status to ACTIVE, createdAt/republishedAt to current time, and increment republishCount
+      const republishedListing = await fastify.prisma.listing.update({
+        where: { id: listingId },
+        data: { 
+          status: ListingStatus.ACTIVE,
+          createdAt: new Date(),
+          republishedAt: new Date(),
+          republishCount: {
+            increment: 1
+          }
+        },
+        include: {
+          category: true,
+          location: true,
+          images: true,
+        },
+      });
+
+      return sendResponse(reply, 200, republishedListing);
+    } catch (error) {
+      fastify.log.error(error);
+      return sendResponse(reply, 500, { error: 'Internal Server Error' });
+    }
+  });
+
   // Get all listings (exclude drafts by default)
   fastify.get('/', async (request, reply) => {
     try {
