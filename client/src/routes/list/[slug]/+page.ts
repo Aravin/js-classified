@@ -2,7 +2,7 @@ import type { PageLoad } from './$types';
 import { config } from '$lib/config';
 import { error } from '@sveltejs/kit';
 
-export const load: PageLoad = (async ({ params, fetch }) => {
+export const load: PageLoad = async ({ params, fetch }) => {
   try {
     const id = params.slug;
     const response = await fetch(`${config.api.baseUrl}/listings/${id}`);
@@ -14,8 +14,8 @@ export const load: PageLoad = (async ({ params, fetch }) => {
       listing: {
         ...listing,
         hasPhone: listing.hasPhone || false,
-        hasEmail: listing.hasEmail || false
-      }
+        hasEmail: listing.hasEmail || false,
+      },
     };
   } catch (err) {
     // Re-throw SvelteKit HttpErrors (e.g. 404) as-is so the error page
@@ -26,4 +26,4 @@ export const load: PageLoad = (async ({ params, fetch }) => {
     console.error('Error loading listing:', err);
     throw error(500, 'Failed to load listing');
   }
-});
+};

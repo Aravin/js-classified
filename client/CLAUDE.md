@@ -89,27 +89,30 @@ src/
 `src/lib/auth/auth0.ts` wraps the Auth0 SPA SDK and exports 4 Svelte stores:
 
 ```typescript
-isAuthenticated  // boolean
-user             // Auth0 user profile object
-auth0Client      // Auth0Client instance
-authState        // 'loading' | 'authenticated' | 'unauthenticated'
+isAuthenticated; // boolean
+user; // Auth0 user profile object
+auth0Client; // Auth0Client instance
+authState; // 'loading' | 'authenticated' | 'unauthenticated'
 ```
 
 **Login flow:**
+
 1. `loginWithPopup()` — Auth0 popup window
 2. ID token stored in `localStorage` (`cacheLocation: 'localstorage'`)
 3. On login, `POST /api/users` is called to upsert the user record in the DB
 
 **Making authenticated API calls:**
+
 ```typescript
 import { getAuthHeaders } from '$lib/auth/auth0';
 
 const res = await fetch(`${PUBLIC_API_URL}/api/listings`, {
-  headers: await getAuthHeaders(),  // { Authorization: 'Bearer <token>' }
+  headers: await getAuthHeaders(), // { Authorization: 'Bearer <token>' }
 });
 ```
 
 **Guarding a page:**
+
 ```svelte
 <script>
   import { isAuthenticated, authState } from '$lib/auth/auth0';
@@ -135,6 +138,7 @@ const res = await fetch(`${PUBLIC_API_URL}/api/listings`, {
 - Validation helpers for title (max 255), description (max 5000), price (≥0), phone (10-digit Indian)
 
 **Always sanitize before submitting to the API:**
+
 ```typescript
 import { sanitizeInput } from '$lib/form-validation';
 
@@ -146,10 +150,12 @@ const cleanTitle = sanitizeInput(formData.title);
 ## Active Ad Limit
 
 `PUBLIC_MAX_ACTIVE_ADS` (default `1`) caps active listings per user. Check before activating:
+
 ```typescript
 import { checkActiveAdsLimit } from '$lib/utils';
 // Returns true if user is at or above the active ads cap
 ```
+
 The server also enforces this on `PATCH /api/listings/:id/publish`.
 
 ---
@@ -176,6 +182,7 @@ The server also enforces this on `PATCH /api/listings/:id/publish`.
 ## SEO
 
 `google-integration.ts` handles:
+
 - **Schema.org JSON-LD** (Product + Offer) injected on listing detail pages
 - **Google Shopping XML/CSV feeds** (available as route endpoints)
 - Dynamic `sitemap.xml` and `robots.txt` via SvelteKit server routes

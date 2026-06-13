@@ -62,12 +62,20 @@
     }
   }
 
-  $: pageTitle = [data.q, data.location && locations.find(l => l.key.toString() === data.location)?.value].filter(Boolean).join(' in ') || 'All Listings';
+  $: pageTitle =
+    [data.q, data.location && locations.find((l) => l.key.toString() === data.location)?.value]
+      .filter(Boolean)
+      .join(' in ') || 'All Listings';
 </script>
 
 <svelte:head>
   <title>{pageTitle} | locful Search</title>
-  <meta name="description" content="Search classified ads{data.q ? ` for ${data.q}` : ''}${data.location ? ` in ${locations.find(l => l.key.toString() === data.location)?.value || ''}` : ''} on locful.com." />
+  <meta
+    name="description"
+    content="Search classified ads{data.q ? ` for ${data.q}` : ''}${data.location
+      ? ` in ${locations.find((l) => l.key.toString() === data.location)?.value || ''}`
+      : ''} on locful.com."
+  />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8">
@@ -110,18 +118,21 @@
 
   <!-- Fallback Note -->
   {#if data.fallbackType && data.fallbackType !== 'none' && data.listings.length > 0}
-    <div class="mb-4 p-4 bg-warning/10 border border-warning/30 rounded-lg">
+    <div class="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-4">
       <div class="flex items-start gap-2">
-        <Icon icon="material-symbols:info-outline" class="text-warning flex-shrink-0 mt-0.5" />
+        <Icon icon="material-symbols:info-outline" class="mt-0.5 flex-shrink-0 text-warning" />
         <div class="text-sm">
           <p class="font-medium text-warning-content">
             No matching results found for your exact search criteria.
           </p>
-          <p class="text-warning-content/80 mt-1">
+          <p class="mt-1 text-warning-content/80">
             {#if data.fallbackType === 'category'}
-              Showing listings from other categories in {locations.find(loc => loc.key.toString() === data.location)?.value || 'your location'}.
+              Showing listings from other categories in {locations.find(
+                (loc) => loc.key.toString() === data.location,
+              )?.value || 'your location'}.
             {:else if data.fallbackType === 'location'}
-              Showing listings from {categories.find(cat => cat.key.toString() === data.category)?.value || 'this category'} in other locations.
+              Showing listings from {categories.find((cat) => cat.key.toString() === data.category)
+                ?.value || 'this category'} in other locations.
             {:else if data.fallbackType === 'hasImages'}
               Showing all listings (including those without images) for your search criteria.
             {/if}

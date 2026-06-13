@@ -23,7 +23,7 @@
     validateCategory,
     validateContact,
     validateForm,
-    sanitizeInput
+    sanitizeInput,
   } from '$lib/form-validation';
 
   export let data;
@@ -52,21 +52,21 @@
   async function loadListingData() {
     try {
       const authHeaders = await getAuthHeaders();
-      
+
       if (!authHeaders.Authorization) {
         throw new Error('Authentication required. Please log in.');
       }
 
       const response = await fetch(`${config.api.baseUrl}/listings/${listingId}`, {
         headers: {
-          'Accept': 'application/json',
-          ...authHeaders
-        }
+          Accept: 'application/json',
+          ...authHeaders,
+        },
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-        
+
         if (response.status === 401) {
           throw new Error('Authentication failed. Please refresh the page.');
         }
@@ -74,8 +74,8 @@
       }
 
       const listing = await response.json();
-      const locationObj = locations.find(loc => loc.key === listing.locationId);
-      const categoryObj = categories.find(cat => cat.key === listing.categoryId);
+      const locationObj = locations.find((loc) => loc.key === listing.locationId);
+      const categoryObj = categories.find((cat) => cat.key === listing.categoryId);
 
       // Store listing status
       listingStatus = listing.status;
@@ -92,7 +92,7 @@
         location: locationObj?.value || '',
         category: categoryObj?.value || '',
         phone: listing.phone || '',
-        email: listing.email || ''
+        email: listing.email || '',
       };
 
       // Check active ads limit if listing is DRAFT
@@ -124,9 +124,9 @@
     submitError = null;
 
     try {
-      const selectedLocation = locations.find(loc => loc.value === formData.location);
-      const selectedCategory = categories.find(cat => cat.value === formData.category);
-      
+      const selectedLocation = locations.find((loc) => loc.value === formData.location);
+      const selectedCategory = categories.find((cat) => cat.value === formData.category);
+
       if (!selectedLocation || !selectedCategory) {
         throw new Error('Invalid location or category selected');
       }
@@ -142,8 +142,8 @@
         images: uploadedImages.map((img, index) => ({
           path: img.path,
           thumbnailPath: img.thumbnailPath,
-          order: index
-        }))
+          order: index,
+        })),
       };
 
       const authHeaders = await getAuthHeaders();
@@ -151,10 +151,10 @@
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...authHeaders
+          Accept: 'application/json',
+          ...authHeaders,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -180,23 +180,23 @@
   });
 </script>
 
-<div class="container mx-auto px-4 py-8 max-w-3xl">
-  <h1 class="text-3xl font-bold mb-8 text-center">Edit Your Ad</h1>
+<div class="container mx-auto max-w-3xl px-4 py-8">
+  <h1 class="mb-8 text-center text-3xl font-bold">Edit Your Ad</h1>
 
   {#if limitWarning}
     <div class="alert alert-warning mb-6">
-      <Icon icon="material-symbols:warning" class="w-5 h-5" />
+      <Icon icon="material-symbols:warning" class="h-5 w-5" />
       <span>{limitWarning}</span>
     </div>
   {/if}
 
   {#if loading}
-    <div class="flex justify-center items-center h-64">
-      <Icon icon="material-symbols:hourglass-bottom" class="w-8 h-8 animate-spin" />
+    <div class="flex h-64 items-center justify-center">
+      <Icon icon="material-symbols:hourglass-bottom" class="h-8 w-8 animate-spin" />
     </div>
   {:else if loadError}
     <div class="alert alert-error">
-      <Icon icon="material-symbols:error" class="w-6 h-6" />
+      <Icon icon="material-symbols:error" class="h-6 w-6" />
       <span>{loadError}</span>
     </div>
   {:else}
@@ -213,7 +213,7 @@
           bind:value={formData.title}
           class="input input-bordered w-full"
           class:input-error={errors.title}
-          on:blur={() => errors.title = validateTitle(formData.title)}
+          on:blur={() => (errors.title = validateTitle(formData.title))}
           maxlength="70"
         />
         {#if errors.title}
@@ -234,7 +234,7 @@
           bind:value={formData.description}
           class="textarea textarea-bordered h-32"
           class:textarea-error={errors.description}
-          on:blur={() => errors.description = validateDescription(formData.description)}
+          on:blur={() => (errors.description = validateDescription(formData.description))}
           maxlength="500"
         />
         {#if errors.description}
@@ -255,7 +255,7 @@
           bind:value={formData.price}
           class="input input-bordered"
           class:input-error={errors.price}
-          on:blur={() => errors.price = validatePrice(formData.price)}
+          on:blur={() => (errors.price = validatePrice(formData.price))}
           min="0"
           max="999999"
         />
@@ -276,7 +276,7 @@
           bind:searchTerm={formData.location}
           placeholder="Select location"
           icon="material-symbols:location-on"
-          on:blur={() => errors.location = validateLocation(formData.location)}
+          on:blur={() => (errors.location = validateLocation(formData.location))}
           error={!!errors.location}
         />
         {#if errors.location}
@@ -296,7 +296,7 @@
           bind:searchTerm={formData.category}
           placeholder="Select category"
           icon="material-symbols:category"
-          on:blur={() => errors.category = validateCategory(formData.category)}
+          on:blur={() => (errors.category = validateCategory(formData.category))}
           error={!!errors.category}
         />
         {#if errors.category}
@@ -307,7 +307,7 @@
       </div>
 
       <!-- Contact Info -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Phone -->
         <div class="form-control">
           <label class="label" for="phone">
@@ -361,9 +361,9 @@
 
       <!-- Image Upload Section -->
       <div class="form-control mt-6">
-        <h3 class="text-lg font-semibold mb-4">Images</h3>
+        <h3 class="mb-4 text-lg font-semibold">Images</h3>
         <ImageUpload
-          listingId={listingId}
+          {listingId}
           maxFiles={3}
           on:upload={(event) => {
             uploadedImages = [...uploadedImages, ...event.detail.images];
@@ -376,28 +376,28 @@
         {#if imageUploadError}
           <div class="error-container mt-4">
             <div class="flex items-center gap-2 text-error">
-              <Icon icon="material-symbols:error" class="w-5 h-5" />
+              <Icon icon="material-symbols:error" class="h-5 w-5" />
               <span class="text-sm font-medium">{imageUploadError}</span>
             </div>
           </div>
         {/if}
         {#if uploadedImages.length > 0}
-          <div class="grid grid-cols-3 gap-4 mt-4">
+          <div class="mt-4 grid grid-cols-3 gap-4">
             {#each uploadedImages as image (image.id)}
-              <div class="relative group">
+              <div class="group relative">
                 <img
                   src={image.thumbnailPath || image.path}
                   alt="Uploaded"
-                  class="w-full aspect-square object-cover rounded-lg"
+                  class="aspect-square w-full rounded-lg object-cover"
                 />
                 <button
                   type="button"
-                  class="absolute top-2 right-2 bg-error hover:bg-error-focus text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  class="hover:bg-error-focus absolute right-2 top-2 rounded-full bg-error p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
                   on:click={() => {
-                    uploadedImages = uploadedImages.filter(img => img.id !== image.id);
+                    uploadedImages = uploadedImages.filter((img) => img.id !== image.id);
                   }}
                 >
-                  <Icon icon="material-symbols:delete" class="w-5 h-5" />
+                  <Icon icon="material-symbols:delete" class="h-5 w-5" />
                 </button>
               </div>
             {/each}
@@ -407,28 +407,27 @@
 
       <!-- Submit Button -->
       <div class="form-control mt-6">
-        <button 
-          type="submit" 
-          class="btn btn-primary" 
-          disabled={submitting}
-        >
+        <button type="submit" class="btn btn-primary" disabled={submitting}>
           {#if submitting}
-            <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
+            <Icon icon="material-symbols:hourglass-bottom" class="mr-2 h-5 w-5 animate-spin" />
             Updating...
           {:else}
-            <Icon icon="material-symbols:edit-document" class="w-5 h-5 mr-2" />
+            <Icon icon="material-symbols:edit-document" class="mr-2 h-5 w-5" />
             Update Ad
           {/if}
         </button>
         {#if limitWarning && (listingStatus === 'DRAFT' || listingStatus === 'draft')}
           <div class="alert alert-info mt-4">
-            <Icon icon="material-symbols:info" class="w-5 h-5" />
-            <span>Your listing will remain as <strong>DRAFT</strong>. You can publish it later from your ads list if you have an available slot.</span>
+            <Icon icon="material-symbols:info" class="h-5 w-5" />
+            <span
+              >Your listing will remain as <strong>DRAFT</strong>. You can publish it later from
+              your ads list if you have an available slot.</span
+            >
           </div>
         {/if}
         {#if submitError}
           <div class="alert alert-error mt-4">
-            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <Icon icon="material-symbols:error" class="h-5 w-5" />
             <span>{submitError}</span>
           </div>
         {/if}

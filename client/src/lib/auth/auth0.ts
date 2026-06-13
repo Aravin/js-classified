@@ -31,17 +31,17 @@ export async function initAuth0() {
   }
 
   try {
-      const Auth0ClientModule = await import('@auth0/auth0-spa-js');
-      _auth0Client = await Auth0ClientModule.createAuth0Client({
-        domain: config.auth0.domain,
-        clientId: config.auth0.clientId,
-        authorizationParams: {
-          redirect_uri: config.auth0.callbackUrl
-        },
-        cacheLocation: 'localstorage',
-        useRefreshTokens: true, // Enable automatic token refresh
-        useRefreshTokensFallback: true // Fallback to refresh tokens
-      });
+    const Auth0ClientModule = await import('@auth0/auth0-spa-js');
+    _auth0Client = await Auth0ClientModule.createAuth0Client({
+      domain: config.auth0.domain,
+      clientId: config.auth0.clientId,
+      authorizationParams: {
+        redirect_uri: config.auth0.callbackUrl,
+      },
+      cacheLocation: 'localstorage',
+      useRefreshTokens: true, // Enable automatic token refresh
+      useRefreshTokensFallback: true, // Fallback to refresh tokens
+    });
 
     auth0Client.set(_auth0Client);
 
@@ -74,8 +74,8 @@ export const authState = derived(
     isAuthenticated: $isAuthenticated,
     user: $user,
     isInitializing: $isInitializing,
-    isLoading: $isLoading
-  })
+    isLoading: $isLoading,
+  }),
 );
 
 // Initialize the Auth0 client (only in browser)
@@ -117,7 +117,7 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
   const token = await getIdToken();
   if (token) {
     return {
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     };
   }
   return {};
@@ -129,9 +129,9 @@ export async function login() {
     popupOpen.set(true);
     const client = get(auth0Client);
     if (!client) throw new Error('Auth0 client not initialized');
-    
+
     await client.loginWithPopup();
-    
+
     const userData = await client.getUser();
     user.set(userData || null);
     isAuthenticated.set(true);
@@ -145,14 +145,14 @@ export async function login() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...authHeaders
+            ...authHeaders,
           },
           body: JSON.stringify({
             userId: userData.sub,
             email: userData.email,
             fullName: userData.name,
-            avatar: userData.picture
-          })
+            avatar: userData.picture,
+          }),
         });
 
         if (!response.ok) {
@@ -183,11 +183,11 @@ export async function logout() {
   try {
     const client = get(auth0Client);
     if (!client) throw new Error('Auth0 client not initialized');
-    
+
     await client.logout({
       logoutParams: {
-        returnTo: window.location.origin
-      }
+        returnTo: window.location.origin,
+      },
     });
     user.set(null);
     isAuthenticated.set(false);

@@ -23,26 +23,30 @@ function getAbsoluteImageUrl(imagePath: string, baseUrl: string): string | null 
   if (!imagePath || typeof imagePath !== 'string') {
     return null;
   }
-  
+
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath;
   }
-  
+
   if (imagePath.startsWith('/')) {
     return `${baseUrl}${imagePath}`;
   }
-  
+
   return `${baseUrl}/${imagePath}`;
 }
 
-export function generateListingStructuredData(listing: ListingWithStatus, baseUrl: string = 'https://locful.com'): any {
-  const imageUrls = listing.images
-    ?.map(img => getAbsoluteImageUrl(img.path, baseUrl))
-    .filter((url): url is string => url !== null) || [];
-  
+export function generateListingStructuredData(
+  listing: ListingWithStatus,
+  baseUrl: string = 'https://locful.com',
+): any {
+  const imageUrls =
+    listing.images
+      ?.map((img) => getAbsoluteImageUrl(img.path, baseUrl))
+      .filter((url): url is string => url !== null) || [];
+
   const listingUrl = `${baseUrl}/list/${listing.slug}`;
   const status = listing.status?.toUpperCase() === 'ACTIVE' || !listing.status ? 'ACTIVE' : 'DRAFT';
-  
+
   const structuredData: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -53,9 +57,8 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
       '@type': 'Offer',
       price: listing.price?.toString() || '0',
       priceCurrency: 'INR',
-      availability: status === 'ACTIVE'
-        ? 'https://schema.org/InStock' 
-        : 'https://schema.org/OutOfStock',
+      availability:
+        status === 'ACTIVE' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: listingUrl,
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       hasMerchantReturnPolicy: {
@@ -64,18 +67,18 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
         returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
         merchantReturnDays: 0,
         returnMethod: 'https://schema.org/ReturnByMail',
-        returnFees: 'https://schema.org/FreeReturn'
+        returnFees: 'https://schema.org/FreeReturn',
       },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
         shippingRate: {
           '@type': 'MonetaryAmount',
           value: '0',
-          currency: 'INR'
+          currency: 'INR',
         },
         shippingDestination: {
           '@type': 'DefinedRegion',
-          addressCountry: 'IN'
+          addressCountry: 'IN',
         },
         deliveryTime: {
           '@type': 'ShippingDeliveryTime',
@@ -83,26 +86,26 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
             '@type': 'QuantitativeValue',
             minValue: 1,
             maxValue: 7,
-            unitCode: 'DAY'
+            unitCode: 'DAY',
           },
           transitTime: {
             '@type': 'QuantitativeValue',
             minValue: 1,
             maxValue: 14,
-            unitCode: 'DAY'
-          }
-        }
-      }
+            unitCode: 'DAY',
+          },
+        },
+      },
     },
     category: listing.category?.name || listing.category?.value,
     brand: {
       '@type': 'Brand',
-      name: 'locful.com'
+      name: 'locful.com',
     },
     sku: listing.id.toString(),
     mpn: listing.id.toString(),
     url: listingUrl,
-    review: []
+    review: [],
   };
 
   const normalizeNumber = (value: unknown): number | null => {
@@ -148,7 +151,8 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
 
   // Ensure bestRating and worstRating are valid (bestRating > worstRating, both positive)
   const validBestRating = bestRating !== null && bestRating > 0 ? bestRating : 5;
-  const validWorstRating = worstRating !== null && worstRating > 0 && worstRating < validBestRating ? worstRating : 1;
+  const validWorstRating =
+    worstRating !== null && worstRating > 0 && worstRating < validBestRating ? worstRating : 1;
 
   // Validate ratingValue: must be positive, within range, and not null
   const hasValidRating =
@@ -173,14 +177,17 @@ export function generateListingStructuredData(listing: ListingWithStatus, baseUr
       ratingValue: ratingValue.toString(),
       reviewCount: Math.round(reviewCount).toString(),
       bestRating: validBestRating.toString(),
-      worstRating: validWorstRating.toString()
+      worstRating: validWorstRating.toString(),
     };
   }
 
   return structuredData;
 }
 
-export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUrl: string = 'https://locful.com'): string {
+export function generateGoogleShoppingFeed(
+  listings: ListingWithStatus[],
+  baseUrl: string = 'https://locful.com',
+): string {
   const header = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
@@ -189,18 +196,16 @@ export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUr
     <description>Classified ads from locful.com</description>`;
 
   const items = listings
-    .filter(listing => {
+    .filter((listing) => {
       const status = listing.status?.toUpperCase() || 'ACTIVE';
       return status === 'ACTIVE';
     })
-    .map(listing => {
-      const imageUrl = listing.images?.[0]?.path 
-        ? `${baseUrl}${listing.images[0].path}` 
-        : '';
+    .map((listing) => {
+      const imageUrl = listing.images?.[0]?.path ? `${baseUrl}${listing.images[0].path}` : '';
       const listingUrl = `${baseUrl}/list/${listing.slug}`;
       const price = listing.price || 0;
       const categoryName = (listing.category as any)?.name || listing.category?.value || 'Other';
-      
+
       return `    <item>
       <g:id>${listing.id}</g:id>
       <g:title><![CDATA[${listing.title}]]></g:title>
@@ -224,7 +229,10 @@ export function generateGoogleShoppingFeed(listings: ListingWithStatus[], baseUr
   return `${header}\n${items}\n${footer}`;
 }
 
-export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], baseUrl: string = 'https://locful.com'): string {
+export function generateGoogleShoppingFeedCSV(
+  listings: ListingWithStatus[],
+  baseUrl: string = 'https://locful.com',
+): string {
   const headers = [
     'id',
     'title',
@@ -237,22 +245,20 @@ export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], bas
     'brand',
     'mpn',
     'google_product_category',
-    'product_type'
+    'product_type',
   ].join(',');
 
   const rows = listings
-    .filter(listing => {
+    .filter((listing) => {
       const status = listing.status?.toUpperCase() || 'ACTIVE';
       return status === 'ACTIVE';
     })
-    .map(listing => {
-      const imageUrl = listing.images?.[0]?.path 
-        ? `${baseUrl}${listing.images[0].path}` 
-        : '';
+    .map((listing) => {
+      const imageUrl = listing.images?.[0]?.path ? `${baseUrl}${listing.images[0].path}` : '';
       const listingUrl = `${baseUrl}/list/${listing.slug}`;
       const price = listing.price || 0;
       const categoryName = listing.category?.name || listing.category?.value || 'Other';
-      
+
       const escapeCSV = (str: string) => {
         if (str.includes(',') || str.includes('"') || str.includes('\n')) {
           return `"${str.replace(/"/g, '""')}"`;
@@ -272,19 +278,22 @@ export function generateGoogleShoppingFeedCSV(listings: ListingWithStatus[], bas
         'locful.com',
         listing.id.toString(),
         categoryName,
-        `${categoryName} > Classified`
+        `${categoryName} > Classified`,
       ].join(',');
     });
 
   return [headers, ...rows].join('\n');
 }
 
-export function generateSitemapEntry(listing: ListingWithStatus, baseUrl: string = 'https://locful.com'): string {
+export function generateSitemapEntry(
+  listing: ListingWithStatus,
+  baseUrl: string = 'https://locful.com',
+): string {
   const listingUrl = `${baseUrl}/list/${listing.slug}`;
   const lastmod = listing.updatedAt || listing.createdAt;
   const status = listing.status?.toUpperCase() || 'ACTIVE';
   const priority = status === 'ACTIVE' ? '0.8' : '0.5';
-  
+
   return `  <url>
     <loc>${listingUrl}</loc>
     <lastmod>${new Date(lastmod).toISOString().split('T')[0]}</lastmod>
@@ -292,4 +301,3 @@ export function generateSitemapEntry(listing: ListingWithStatus, baseUrl: string
     <priority>${priority}</priority>
   </url>`;
 }
-

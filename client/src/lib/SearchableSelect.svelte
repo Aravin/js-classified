@@ -5,7 +5,7 @@
     blur: void;
   }>();
 
-  export let options: { key: number, value: string, display: string }[] = [];
+  export let options: { key: number; value: string; display: string }[] = [];
   export let searchTerm: string = '';
   export let placeholder: string = '';
   export let showDropdown: boolean = false;
@@ -26,14 +26,14 @@
     setTimeout(() => {
       showDropdown = false;
       isSearching = false;
-      const selectedOption = options.find(opt => opt.value === searchTerm);
+      const selectedOption = options.find((opt) => opt.value === searchTerm);
       displayTerm = selectedOption ? selectedOption.value : '';
       dispatch('blur');
       activeIndex = -1;
     }, 100);
   }
 
-  function selectOption(option: { key: number, value: string, display: string }) {
+  function selectOption(option: { key: number; value: string; display: string }) {
     searchTerm = option.value;
     displayTerm = option.value;
     showDropdown = false;
@@ -77,45 +77,106 @@
     activeIndex = -1;
   }
 
-  $: filteredOptions = options.filter(option => 
-    option.display.toLowerCase().includes(displayTerm.toLowerCase()) ||
-    option.value.toLowerCase().includes(displayTerm.toLowerCase())
+  $: filteredOptions = options.filter(
+    (option) =>
+      option.display.toLowerCase().includes(displayTerm.toLowerCase()) ||
+      option.value.toLowerCase().includes(displayTerm.toLowerCase()),
   );
 
   // Initialize display term with selected value
   $: if (!isSearching && searchTerm) {
-    const selectedOption = options.find(opt => opt.value === searchTerm);
+    const selectedOption = options.find((opt) => opt.value === searchTerm);
     if (selectedOption && !displayTerm) {
       displayTerm = selectedOption.value;
     }
   }
 </script>
 
+<div class="searchable-select-container relative">
+  <div class="input-group relative">
+    {#if icon}
+      <button
+        class="btn btn-square btn-primary absolute left-0 top-0 z-10 rounded-r-none"
+        type="button"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <Icon {icon} class="h-5 w-5" />
+      </button>
+    {/if}
+    <input
+      type="text"
+      class="input input-bordered w-full {icon ? 'pl-12' : ''} {searchTerm || displayTerm
+        ? 'has-right-button pr-12'
+        : ''} relative focus:outline-none focus:ring-2 focus:ring-primary {error
+        ? 'ring-2 ring-error'
+        : ''}"
+      {placeholder}
+      bind:value={displayTerm}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
+      on:keydown={handleKeydown}
+      role="combobox"
+      aria-expanded={showDropdown}
+      aria-controls={dropdownId}
+      aria-activedescendant={activeIndex >= 0 ? `option-${options[activeIndex].key}` : undefined}
+      autocomplete="off"
+    />
+    {#if searchTerm || displayTerm}
+      <button
+        class="reset-button btn btn-square btn-ghost absolute right-0 top-0 z-10 hover:bg-base-200"
+        type="button"
+        on:mousedown={handleReset}
+        aria-label="Clear selection"
+        tabindex="-1"
+      >
+        <Icon icon="material-symbols:close" class="h-5 w-5" />
+      </button>
+    {/if}
+  </div>
+
+  {#if showDropdown}
+    <ul id={dropdownId} class="dropdown-options" role="listbox">
+      {#each filteredOptions as option, i}
+        <li
+          id="option-{option.key}"
+          class="dropdown-option {i === activeIndex ? 'bg-primary/10' : ''}"
+          role="option"
+          aria-selected={searchTerm === option.value}
+          on:mousedown={() => selectOption(option)}
+        >
+          {option.display}
+        </li>
+      {/each}
+    </ul>
+  {/if}
+</div>
+
 <style>
   .searchable-select-container {
     position: relative;
     width: 100%;
   }
-  
+
   .input-group {
     position: relative;
   }
-  
+
   .input-group input {
     width: 100%;
     padding-left: 56px;
   }
-  
+
   .input-group input.has-right-button {
     padding-right: 56px;
   }
-  
+
   .input-group button {
     position: absolute;
     left: 0;
     top: 0;
   }
-  
+
   .input-group button.reset-button {
     left: auto;
     right: 0;
@@ -124,13 +185,13 @@
     transition: opacity 0.2s ease;
     pointer-events: none;
   }
-  
+
   .searchable-select-container:hover .input-group button.reset-button,
   .input-group:focus-within button.reset-button {
     opacity: 1;
     pointer-events: auto;
   }
-  
+
   .dropdown-options {
     position: absolute;
     top: 100%;
@@ -159,63 +220,3 @@
     background-color: #d0d0d0;
   }
 </style>
-
-<div class="searchable-select-container relative">
-  <div class="input-group relative">
-    {#if icon}
-      <button 
-        class="btn btn-square btn-primary absolute left-0 top-0 rounded-r-none z-10"
-        type="button"
-        aria-hidden="true"
-        tabindex="-1"
-      >
-        <Icon {icon} class="w-5 h-5" />
-      </button>
-    {/if}
-    <input
-      type="text"
-      class="input input-bordered w-full {icon ? 'pl-12' : ''} {searchTerm || displayTerm ? 'has-right-button pr-12' : ''} focus:outline-none focus:ring-2 focus:ring-primary relative {error ? 'ring-2 ring-error' : ''}"
-      {placeholder}
-      bind:value={displayTerm}
-      on:focus={handleFocus}
-      on:blur={handleBlur}
-      on:keydown={handleKeydown}
-      role="combobox"
-      aria-expanded={showDropdown}
-      aria-controls={dropdownId}
-      aria-activedescendant={activeIndex >= 0 ? `option-${options[activeIndex].key}` : undefined}
-      autocomplete="off"
-    />
-    {#if searchTerm || displayTerm}
-      <button 
-        class="btn btn-square btn-ghost reset-button absolute right-0 top-0 z-10 hover:bg-base-200"
-        type="button"
-        on:mousedown={handleReset}
-        aria-label="Clear selection"
-        tabindex="-1"
-      >
-        <Icon icon="material-symbols:close" class="w-5 h-5" />
-      </button>
-    {/if}
-  </div>
-
-  {#if showDropdown}
-    <ul
-      id={dropdownId}
-      class="dropdown-options"
-      role="listbox"
-    >
-      {#each filteredOptions as option, i}
-        <li
-          id="option-{option.key}"
-          class="dropdown-option {i === activeIndex ? 'bg-primary/10' : ''}"
-          role="option"
-          aria-selected={searchTerm === option.value}
-          on:mousedown={() => selectOption(option)}
-        >
-          {option.display}
-        </li>
-      {/each}
-    </ul>
-  {/if}
-</div>

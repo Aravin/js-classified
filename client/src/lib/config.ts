@@ -10,37 +10,37 @@ const maxActiveAds = Number(env.PUBLIC_MAX_ACTIVE_ADS) || 1;
 const googleAnalyticsId = env.PUBLIC_GOOGLE_ANALYTICS_ID || '';
 
 export const config = {
-    listing: {
-        expiryDays
+  listing: {
+    expiryDays,
+  },
+  user: {
+    maxActiveAds,
+  },
+  api: {
+    baseUrl: apiUrl,
+  },
+  currency: {
+    code: currencyCode,
+    locale,
+    options: {
+      style: 'currency',
+      currency: currencyCode,
+      maximumFractionDigits: 0,
     },
-    user: {
-        maxActiveAds
-    },
-    api: {
-        baseUrl: apiUrl
-    },
-    currency: {
-        code: currencyCode,
-        locale,
-        options: {
-            style: 'currency',
-            currency: currencyCode,
-            maximumFractionDigits: 0
-        }
-    },
-    pagination: {
-        defaultLimit: Number(env.PUBLIC_SEARCH_DEFAULT_LIMIT) || 5,
-    },
-    auth0: {
-        domain: env.PUBLIC_AUTH0_DOMAIN + '',
-        clientId: env.PUBLIC_AUTH0_CLIENT_ID + '',
-        callbackUrl: env.PUBLIC_AUTH0_CALLBACK_URL,
-        audience: env.PUBLIC_AUTH0_AUDIENCE || '' // API audience for JWT tokens
-    },
-    recaptcha: {
-        siteKey: recaptchaSiteKey
-    },
-    googleAnalytics: {
-        id: googleAnalyticsId
-    }
+  },
+  pagination: {
+    defaultLimit: Number(env.PUBLIC_SEARCH_DEFAULT_LIMIT) || 5,
+  },
+  auth0: {
+    domain: env.PUBLIC_AUTH0_DOMAIN + '',
+    clientId: env.PUBLIC_AUTH0_CLIENT_ID + '',
+    callbackUrl: env.PUBLIC_AUTH0_CALLBACK_URL,
+    audience: env.PUBLIC_AUTH0_AUDIENCE || '', // API audience for JWT tokens
+  },
+  recaptcha: {
+    siteKey: recaptchaSiteKey,
+  },
+  googleAnalytics: {
+    id: googleAnalyticsId,
+  },
 } as const;

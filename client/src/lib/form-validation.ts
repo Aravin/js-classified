@@ -28,7 +28,7 @@ export const initialFormData: FormData = {
   location: '',
   category: '',
   phone: '',
-  email: ''
+  email: '',
 };
 
 export const initialErrors: FormErrors = {
@@ -38,13 +38,13 @@ export const initialErrors: FormErrors = {
   location: '',
   category: '',
   phone: '',
-  email: ''
+  email: '',
 };
 
 export function sanitizeInput(input: string): string {
   return DOMPurify.sanitize(input.trim(), {
     ALLOWED_TAGS: [], // Strip all HTML tags
-    ALLOWED_ATTR: [] // Strip all attributes
+    ALLOWED_ATTR: [], // Strip all attributes
   });
 }
 
@@ -54,7 +54,7 @@ export function isValidAlphanumericTitle(title: string): boolean {
 
 export function validateTitle(title: string): string {
   const sanitizedTitle = sanitizeInput(title);
-  
+
   if (!sanitizedTitle) {
     return 'Title is required';
   }
@@ -77,7 +77,7 @@ export function validateTitle(title: string): string {
 
 export function validateDescription(description: string): string {
   const sanitizedDesc = sanitizeInput(description);
-  
+
   if (!sanitizedDesc) {
     return 'Description is required';
   }

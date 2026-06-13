@@ -20,72 +20,81 @@
 <div class="flex items-center space-x-3">
   {#if $isLoading}
     <div class="flex items-center space-x-3">
-      <div class="btn btn-ghost btn-sm normal-case gap-2 cursor-wait">
+      <div class="btn btn-ghost btn-sm cursor-wait gap-2 normal-case">
         <span class="loading loading-spinner loading-sm"></span>
         Loading...
       </div>
     </div>
   {:else if $isAuthenticated && currentUser}
-    <button on:click={handlePostAd} class="btn btn-primary btn-sm normal-case gap-2">
-      <Icon icon="material-symbols:add" class="w-5 h-5" />
+    <button on:click={handlePostAd} class="btn btn-primary btn-sm gap-2 normal-case">
+      <Icon icon="material-symbols:add" class="h-5 w-5" />
       Post Ad
     </button>
     <div class="dropdown dropdown-end">
-      <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
-        <div class="w-8 h-8 rounded-full overflow-hidden bg-base-200">
+      <div
+        tabindex="0"
+        role="button"
+        class="avatar btn btn-circle btn-ghost ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100"
+      >
+        <div class="h-8 w-8 overflow-hidden rounded-full bg-base-200">
           {#if currentUser.picture}
-            <img 
-              src={currentUser.picture} 
-              alt={currentUser.name} 
+            <img
+              src={currentUser.picture}
+              alt={currentUser.name}
               referrerpolicy="no-referrer"
-              class="w-full h-full object-cover"
+              class="h-full w-full object-cover"
             />
           {:else}
-            <div class="flex items-center justify-center w-full h-full bg-primary text-primary-content text-lg font-medium">
+            <div
+              class="flex h-full w-full items-center justify-center bg-primary text-lg font-medium text-primary-content"
+            >
               {currentUser.name?.[0]?.toUpperCase() || 'U'}
             </div>
           {/if}
         </div>
       </div>
-      <ul tabindex="0" class="dropdown-content menu mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-56 border border-base-200">
+      <ul
+        tabindex="0"
+        class="menu dropdown-content z-[1] mt-3 w-56 rounded-box border border-base-200 bg-base-100 p-2 shadow-lg"
+      >
         <li class="menu-title px-2 py-2">
           <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium truncate">{currentUser.name}</span>
-            <span class="text-xs text-base-content/60 truncate">{currentUser.email}</span>
+            <span class="truncate text-sm font-medium">{currentUser.name}</span>
+            <span class="truncate text-xs text-base-content/60">{currentUser.email}</span>
           </div>
         </li>
         <div class="divider my-1"></div>
         <li>
           <a href="/my-ads" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200">
-            <Icon icon="material-symbols:list-alt" class="w-5 h-5" />
+            <Icon icon="material-symbols:list-alt" class="h-5 w-5" />
             <span>My Ads</span>
           </a>
         </li>
         <li>
           <a href="/settings" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200">
-            <Icon icon="material-symbols:settings" class="w-5 h-5" />
+            <Icon icon="material-symbols:settings" class="h-5 w-5" />
             <span>Settings</span>
           </a>
         </li>
         <div class="divider my-1"></div>
         <li>
-          <button 
-            on:click={logout} 
-            class="flex items-center gap-2 px-3 py-2 text-sm text-error hover:bg-error/10 hover:text-error w-full"
+          <button
+            on:click={logout}
+            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-error hover:bg-error/10 hover:text-error"
           >
-            <Icon icon="material-symbols:logout" class="w-5 h-5" />
+            <Icon icon="material-symbols:logout" class="h-5 w-5" />
             <span>Logout</span>
           </button>
         </li>
       </ul>
     </div>
   {:else}
-    <button on:click={handlePostAd} class="btn btn-primary btn-sm normal-case gap-2">
-      <Icon icon="material-symbols:add" class="w-5 h-5" />
+    <button on:click={handlePostAd} class="btn btn-primary btn-sm gap-2 normal-case">
+      <Icon icon="material-symbols:add" class="h-5 w-5" />
       Post Ad
     </button>
-    <button on:click={login} class="btn btn-ghost btn-sm normal-case gap-2 hover:bg-base-200">
-      <Icon icon="material-symbols:login" class="w-5 h-5" />
+    <button on:click={login} class="btn btn-ghost btn-sm gap-2 normal-case hover:bg-base-200">
+      <Icon icon="material-symbols:login" class="h-5 w-5" />
       Login
     </button>
   {/if}

@@ -14,11 +14,19 @@
 
   // Popular categories mapping - find best matching category
   const popularCategories = [
-    { name: 'Mobiles', category: categories.find(c => c.value === 'Mobile Phones') },
-    { name: 'Vehicles', category: categories.find(c => c.value === 'Car') },
-    { name: 'Property for Sale', category: categories.find(c => c.value === 'Apartments') },
-    { name: 'Fashion & Beauty', category: categories.find(c => c.display.includes('Fashion') && c.value === 'Men') },
-    { name: 'Home & Garden', category: categories.find(c => c.display.includes('Home & Furniture') && c.value === 'Sofas') }
+    { name: 'Mobiles', category: categories.find((c) => c.value === 'Mobile Phones') },
+    { name: 'Vehicles', category: categories.find((c) => c.value === 'Car') },
+    { name: 'Property for Sale', category: categories.find((c) => c.value === 'Apartments') },
+    {
+      name: 'Fashion & Beauty',
+      category: categories.find((c) => c.display.includes('Fashion') && c.value === 'Men'),
+    },
+    {
+      name: 'Home & Garden',
+      category: categories.find(
+        (c) => c.display.includes('Home & Furniture') && c.value === 'Sofas',
+      ),
+    },
   ];
 
   let locationSearch = $selectedLocation;
@@ -28,7 +36,7 @@
   onMount(async () => {
     if (browser) {
       await initAuth0();
-      
+
       // Initialize Google Analytics if configured
       if (config.googleAnalytics.id) {
         // Initialize dataLayer before loading gtag.js
@@ -39,7 +47,7 @@
         window.gtag = gtag;
         gtag('js', new Date());
         gtag('config', config.googleAnalytics.id);
-        
+
         // Load gtag.js script asynchronously
         const script = document.createElement('script');
         script.async = true;
@@ -55,20 +63,20 @@
 
   async function handleSearch(event: Event) {
     event.preventDefault();
-    
+
     const params = new URLSearchParams();
-    
+
     if ($searchTerm) {
       params.set('q', $searchTerm);
     }
     if ($selectedLocation) {
-      const location = locations.find(loc => loc.value === $selectedLocation);
+      const location = locations.find((loc) => loc.value === $selectedLocation);
       if (location) {
         params.set('location', location.key.toString());
       }
     }
     if ($selectedCategory) {
-      const category = categories.find(cat => cat.value === $selectedCategory);
+      const category = categories.find((cat) => cat.value === $selectedCategory);
       if (category) {
         params.set('category', category.key.toString());
       }
@@ -95,7 +103,7 @@
           <span>locful.com</span>
         </h1>
       </a>
-      
+
       <AuthNav />
     </div>
 
@@ -121,7 +129,7 @@
 
       <div class="form-control flex-1">
         <div class="input-group relative">
-          <input 
+          <input
             type="text"
             placeholder="Search for anything..."
             class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
@@ -129,7 +137,7 @@
             bind:value={search}
             on:keydown={handleKeyPress}
           />
-          <button 
+          <button
             class="btn btn-square btn-primary absolute right-0 top-0 rounded-l-none"
             on:click={handleSearch}
           >
@@ -153,7 +161,9 @@
         <Icon icon="material-symbols:store" class="text-accent" font-size="32" />
         <span class="text-xl font-bold tracking-tight text-white">Locful</span>
       </a>
-      <p class="mt-2 text-neutral-content/70">Your trusted marketplace for buying and selling in India</p>
+      <p class="mt-2 text-neutral-content/70">
+        Your trusted marketplace for buying and selling in India
+      </p>
     </div>
 
     <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
@@ -163,11 +173,29 @@
           <span class="text-white">Trending Searches</span>
         </h3>
         <div class="flex flex-wrap gap-2">
-          <a href="/search?q=Electronics" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Electronics</a>
-          <a href="/search?q=Cars" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Cars</a>
-          <a href="/search?q=Real Estate" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Real Estate</a>
-          <a href="/search?q=Jobs" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Jobs</a>
-          <a href="/search?q=Services" class="badge badge-accent badge-outline hover:scale-105 transition-transform">Services</a>
+          <a
+            href="/search?q=Electronics"
+            class="badge badge-accent badge-outline transition-transform hover:scale-105"
+            >Electronics</a
+          >
+          <a
+            href="/search?q=Cars"
+            class="badge badge-accent badge-outline transition-transform hover:scale-105">Cars</a
+          >
+          <a
+            href="/search?q=Real Estate"
+            class="badge badge-accent badge-outline transition-transform hover:scale-105"
+            >Real Estate</a
+          >
+          <a
+            href="/search?q=Jobs"
+            class="badge badge-accent badge-outline transition-transform hover:scale-105">Jobs</a
+          >
+          <a
+            href="/search?q=Services"
+            class="badge badge-accent badge-outline transition-transform hover:scale-105"
+            >Services</a
+          >
         </div>
       </div>
 
@@ -180,9 +208,9 @@
           {#each popularCategories as item}
             {#if item.category}
               <li>
-                <a 
-                  href="/category/{item.category.slug}?category={item.category.key}" 
-                  class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
+                <a
+                  href="/category/{item.category.slug}?category={item.category.key}"
+                  class="inline-flex items-center space-x-2 text-neutral-content/70 transition-all duration-200 hover:translate-x-1 hover:text-white"
                 >
                   <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
                   <span>{item.name}</span>
@@ -190,9 +218,9 @@
               </li>
             {:else}
               <li>
-                <a 
-                  href="/search?q={item.name}" 
-                  class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
+                <a
+                  href="/search?q={item.name}"
+                  class="inline-flex items-center space-x-2 text-neutral-content/70 transition-all duration-200 hover:translate-x-1 hover:text-white"
                 >
                   <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
                   <span>{item.name}</span>
@@ -209,20 +237,13 @@
           <span class="text-white">Company</span>
         </h3>
         <ul class="space-y-2">
-          {#each [
-            { name: 'About Us', url: 'https://www.exaful.com/about' },
-            { name: 'Career', url: 'https://www.exaful.com/career' },
-            { name: 'Contact Us', url: 'https://www.exaful.com/contact' },
-            { name: 'Terms of Use', url: 'https://www.exaful.com/policies/terms' },
-            { name: 'Privacy Policy', url: 'https://www.exaful.com/policies/privacy' },
-            { name: 'Refund Policy', url: 'https://www.exaful.com/policies/refund' }
-          ] as item}
+          {#each [{ name: 'About Us', url: 'https://www.exaful.com/about' }, { name: 'Career', url: 'https://www.exaful.com/career' }, { name: 'Contact Us', url: 'https://www.exaful.com/contact' }, { name: 'Terms of Use', url: 'https://www.exaful.com/policies/terms' }, { name: 'Privacy Policy', url: 'https://www.exaful.com/policies/privacy' }, { name: 'Refund Policy', url: 'https://www.exaful.com/policies/refund' }] as item}
             <li>
-              <a 
+              <a
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex items-center space-x-2 text-neutral-content/70 hover:text-white transition-all duration-200 hover:translate-x-1"
+                class="inline-flex items-center space-x-2 text-neutral-content/70 transition-all duration-200 hover:translate-x-1 hover:text-white"
               >
                 <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
                 <span>{item.name}</span>
@@ -238,18 +259,12 @@
           <span class="text-white">Follow Us</span>
         </h3>
         <div class="flex space-x-6">
-          {#each [
-            { icon: 'line-md:facebook', label: 'Facebook', url: 'https://www.fb.me/itarav' },
-            { icon: 'line-md:twitter-x', label: 'Twitter', url: 'https://twitter.com/itaravin' },
-            { icon: 'mdi:github', label: 'GitHub', url: 'https://github.com/Aravin/' },
-            { icon: 'mdi:linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/itaravin/' },
-            { icon: 'mdi:stack-overflow', label: 'Stack Overflow', url: 'https://stackoverflow.com/users/3058254/aravin' }
-          ] as { icon, label, url }}
-            <a 
+          {#each [{ icon: 'line-md:facebook', label: 'Facebook', url: 'https://www.fb.me/itarav' }, { icon: 'line-md:twitter-x', label: 'Twitter', url: 'https://twitter.com/itaravin' }, { icon: 'mdi:github', label: 'GitHub', url: 'https://github.com/Aravin/' }, { icon: 'mdi:linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/itaravin/' }, { icon: 'mdi:stack-overflow', label: 'Stack Overflow', url: 'https://stackoverflow.com/users/3058254/aravin' }] as { icon, label, url }}
+            <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-neutral-content/70 hover:text-white transition-all duration-200 hover:scale-110" 
+              class="text-neutral-content/70 transition-all duration-200 hover:scale-110 hover:text-white"
               aria-label={label}
             >
               <Icon {icon} font-size="24" />
@@ -263,9 +278,7 @@
       <p class="text-sm text-neutral-content/50">
         &copy; {new Date().getFullYear()} Locful. All rights reserved.
       </p>
-      <p class="mt-2 text-xs text-neutral-content/30">
-        Made with ❤️ in India
-      </p>
+      <p class="mt-2 text-xs text-neutral-content/30">Made with ❤️ in India</p>
     </div>
   </div>
 </footer>

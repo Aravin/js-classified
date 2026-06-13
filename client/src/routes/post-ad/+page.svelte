@@ -22,7 +22,7 @@
     validateContact,
     validateForm,
     sanitizeInput,
-    hasFormChanges
+    hasFormChanges,
   } from '$lib/form-validation';
   import { browser } from '$app/environment';
   import { checkActiveAdsLimit } from '$lib/utils';
@@ -34,9 +34,9 @@
   let formData: FormData = {
     ...initialFormData,
     location: $selectedLocation,
-    category: $selectedCategory
+    category: $selectedCategory,
   };
-  
+
   let errors: FormErrors = { ...initialErrors };
   let isFormDirty = false;
 
@@ -66,9 +66,9 @@
     submitError = null;
 
     try {
-      const selectedLocation = locations.find(loc => loc.value === formData.location);
-      const selectedCategory = categories.find(cat => cat.value === formData.category);
-      
+      const selectedLocation = locations.find((loc) => loc.value === formData.location);
+      const selectedCategory = categories.find((cat) => cat.value === formData.category);
+
       if (!selectedLocation || !selectedCategory) {
         throw new Error('Invalid location or category selected');
       }
@@ -82,7 +82,7 @@
         email: formData.email ? sanitizeInput(formData.email) : undefined,
         phone: formData.phone ? sanitizeInput(formData.phone) : undefined,
         status: 'draft',
-        ...$user ? { authUserId: $user.sub } : {}
+        ...($user ? { authUserId: $user.sub } : {}),
       };
 
       const authHeaders = await getAuthHeaders();
@@ -90,14 +90,14 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...authHeaders
+          Accept: 'application/json',
+          ...authHeaders,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const responseData = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(responseData.message || 'Failed to submit listing');
       }
@@ -115,8 +115,11 @@
 
   // Handle navigation attempts
   beforeNavigate(({ cancel }) => {
-    if (isFormDirty && hasFormChanges(formData, initialFormData) && 
-        !window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
+    if (
+      isFormDirty &&
+      hasFormChanges(formData, initialFormData) &&
+      !window.confirm('You have unsaved changes. Are you sure you want to leave?')
+    ) {
       cancel();
     }
   });
@@ -132,7 +135,7 @@
     if (browser) {
       window.addEventListener('beforeunload', handleBeforeUnload);
     }
-    
+
     // Check active ads limit on mount
     if ($user?.sub && $isAuthenticated) {
       const limitCheck = await checkActiveAdsLimit($user.sub);
@@ -140,7 +143,7 @@
         limitWarning = `You currently have ${limitCheck.activeCount} active ad${limitCheck.activeCount > 1 ? 's' : ''}. You are allowed to have only ${limitCheck.activeLimit} active ad${limitCheck.activeLimit > 1 ? 's' : ''}. Your listing will be saved as draft. To publish more ads, please contact us.`;
       }
     }
-    
+
     isLoading = false;
   });
 
@@ -153,26 +156,29 @@
 
 <svelte:head>
   <title>Post a Free Ad | locful</title>
-  <meta name="description" content="Post a free classified ad on locful.com. Sell anything — electronics, vehicles, real estate, jobs and more in your local area." />
+  <meta
+    name="description"
+    content="Post a free classified ad on locful.com. Sell anything — electronics, vehicles, real estate, jobs and more in your local area."
+  />
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8 max-w-3xl">
+<div class="container mx-auto max-w-3xl px-4 py-8">
   {#if isLoading}
-    <div class="flex justify-center items-center min-h-[50vh]">
+    <div class="flex min-h-[50vh] items-center justify-center">
       <span class="loading loading-spinner loading-lg text-primary"></span>
     </div>
   {:else if !$isAuthenticated}
-    <div class="text-center py-12">
-      <h2 class="text-2xl font-bold mb-4">Authentication Required</h2>
-      <p class="text-gray-600 mb-6">Please sign in to post an advertisement</p>
+    <div class="py-12 text-center">
+      <h2 class="mb-4 text-2xl font-bold">Authentication Required</h2>
+      <p class="mb-6 text-gray-600">Please sign in to post an advertisement</p>
       <a href="/" class="btn btn-primary">Go to Home</a>
     </div>
   {:else}
-    <h1 class="text-3xl font-bold mb-8 text-center">Post Your Ad</h1>
+    <h1 class="mb-8 text-center text-3xl font-bold">Post Your Ad</h1>
 
     {#if limitWarning}
       <div class="alert alert-warning mb-6">
-        <Icon icon="material-symbols:warning" class="w-5 h-5" />
+        <Icon icon="material-symbols:warning" class="h-5 w-5" />
         <span>{limitWarning}</span>
       </div>
     {/if}
@@ -190,7 +196,7 @@
           bind:value={formData.title}
           class="input input-bordered w-full"
           class:input-error={errors.title}
-          on:blur={() => errors.title = validateTitle(formData.title)}
+          on:blur={() => (errors.title = validateTitle(formData.title))}
           maxlength="70"
         />
         {#if errors.title}
@@ -211,7 +217,7 @@
           bind:value={formData.description}
           class="textarea textarea-bordered h-32"
           class:textarea-error={errors.description}
-          on:blur={() => errors.description = validateDescription(formData.description)}
+          on:blur={() => (errors.description = validateDescription(formData.description))}
           maxlength="500"
         />
         {#if errors.description}
@@ -232,7 +238,7 @@
           bind:value={formData.price}
           class="input input-bordered"
           class:input-error={errors.price}
-          on:blur={() => errors.price = validatePrice(formData.price)}
+          on:blur={() => (errors.price = validatePrice(formData.price))}
           min="0"
           max="999999"
         />
@@ -253,7 +259,7 @@
           bind:searchTerm={formData.location}
           placeholder="Select location"
           icon="material-symbols:location-on"
-          on:blur={() => errors.location = validateLocation(formData.location)}
+          on:blur={() => (errors.location = validateLocation(formData.location))}
           error={!!errors.location}
         />
         {#if errors.location}
@@ -273,7 +279,7 @@
           bind:searchTerm={formData.category}
           placeholder="Select category"
           icon="material-symbols:category"
-          on:blur={() => errors.category = validateCategory(formData.category)}
+          on:blur={() => (errors.category = validateCategory(formData.category))}
           error={!!errors.category}
         />
         {#if errors.category}
@@ -284,7 +290,7 @@
       </div>
 
       <!-- Contact Info -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Phone -->
         <div class="form-control">
           <label class="label" for="phone">
@@ -338,28 +344,27 @@
 
       <!-- Submit Button -->
       <div class="form-control mt-6">
-        <button 
-          type="submit" 
-          class="btn btn-primary" 
-          disabled={submitting}
-        >
+        <button type="submit" class="btn btn-primary" disabled={submitting}>
           {#if submitting}
-            <Icon icon="material-symbols:hourglass-bottom" class="w-5 h-5 mr-2 animate-spin" />
+            <Icon icon="material-symbols:hourglass-bottom" class="mr-2 h-5 w-5 animate-spin" />
             Submitting...
           {:else}
-            <Icon icon="material-symbols:post-add" class="w-5 h-5 mr-2" />
+            <Icon icon="material-symbols:post-add" class="mr-2 h-5 w-5" />
             Post Ad
           {/if}
         </button>
         {#if limitWarning}
           <div class="alert alert-info mt-4">
-            <Icon icon="material-symbols:info" class="w-5 h-5" />
-            <span>Your listing will be saved as <strong>DRAFT</strong>. You can publish it later from the preview page or your ads list.</span>
+            <Icon icon="material-symbols:info" class="h-5 w-5" />
+            <span
+              >Your listing will be saved as <strong>DRAFT</strong>. You can publish it later from
+              the preview page or your ads list.</span
+            >
           </div>
         {/if}
         {#if submitError}
           <div class="alert alert-error mt-4">
-            <Icon icon="material-symbols:error" class="w-5 h-5" />
+            <Icon icon="material-symbols:error" class="h-5 w-5" />
             <span>{submitError}</span>
           </div>
         {/if}

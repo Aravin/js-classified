@@ -100,21 +100,25 @@
 
   <!-- Fallback Note -->
   {#if data.fallbackType && data.fallbackType !== 'none' && data.listings.length > 0}
-    <div class="mb-4 p-4 bg-warning/10 border border-warning/30 rounded-lg">
+    <div class="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-4">
       <div class="flex items-start gap-2">
-        <Icon icon="material-symbols:info-outline" class="text-warning flex-shrink-0 mt-0.5" />
+        <Icon icon="material-symbols:info-outline" class="mt-0.5 flex-shrink-0 text-warning" />
         <div class="text-sm">
           <p class="font-medium text-warning-content">
             No matching results found for your exact search criteria.
           </p>
-          <p class="text-warning-content/80 mt-1">
+          <p class="mt-1 text-warning-content/80">
             {#if data.fallbackType === 'category'}
-              Showing listings from other categories in {locations.find(loc => loc.key.toString() === data.location)?.value || 'your location'}.
+              Showing listings from other categories in {locations.find(
+                (loc) => loc.key.toString() === data.location,
+              )?.value || 'your location'}.
             {:else if data.fallbackType === 'location'}
               Showing listings from {data.category.value} in other locations.
             {:else if data.fallbackType === 'hasImages'}
               {#if data.location}
-                Showing all listings (including those without images) in {locations.find(loc => loc.key.toString() === data.location)?.value || 'your location'}.
+                Showing all listings (including those without images) in {locations.find(
+                  (loc) => loc.key.toString() === data.location,
+                )?.value || 'your location'}.
               {:else}
                 Showing all listings (including those without images).
               {/if}
@@ -132,5 +136,4 @@
   {#if data.listings.length > 0}
     <Pagination {currentPage} {totalPages} onPageChange={handlePageChange} />
   {/if}
-
 </div>

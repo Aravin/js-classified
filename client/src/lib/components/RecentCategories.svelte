@@ -21,9 +21,7 @@
       searchParams.set('sortBy', 'createdAt');
       searchParams.set('order', 'desc');
 
-      const response = await fetch(
-        `${config.api.baseUrl}/listings?${searchParams.toString()}`
-      );
+      const response = await fetch(`${config.api.baseUrl}/listings?${searchParams.toString()}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch recent listings');
@@ -34,15 +32,15 @@
 
       // Group by category and count
       const categoryMap = new Map<number, CategoryCount>();
-      
+
       listings.forEach((listing: any) => {
         // Check if listing has categoryId directly or category object
         const categoryId = (listing as any).categoryId || listing.category?.key;
-        
+
         if (categoryId) {
           // Find the matching category from our categories array
-          const categoryObj = categoriesData.find(cat => cat.key === categoryId);
-          
+          const categoryObj = categoriesData.find((cat) => cat.key === categoryId);
+
           if (categoryObj) {
             if (categoryMap.has(categoryId)) {
               categoryMap.get(categoryId)!.count++;
@@ -52,9 +50,9 @@
                 category: {
                   key: categoryObj.key,
                   value: categoryObj.value,
-                  slug: categoryObj.slug
+                  slug: categoryObj.slug,
                 },
-                count: 1
+                count: 1,
               });
             }
           }
@@ -75,27 +73,27 @@
 </script>
 
 {#if isLoading}
-  <div class="flex justify-center items-center py-12">
+  <div class="flex items-center justify-center py-12">
     <Icon icon="material-symbols:sync-outline" class="animate-spin text-4xl text-primary" />
   </div>
 {:else if error}
-  <div class="text-center py-8 text-error">
-    <Icon icon="material-symbols:error-outline" class="text-4xl mb-2" />
+  <div class="py-8 text-center text-error">
+    <Icon icon="material-symbols:error-outline" class="mb-2 text-4xl" />
     <p>{error}</p>
   </div>
 {:else if categories.length > 0}
   <div class="mb-8">
-    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <h2 class="mb-4 flex items-center gap-2 text-2xl font-bold">
       <Icon icon="material-symbols:category" class="text-primary" />
       Recent Categories
     </h2>
-    <div class="bg-base-100 border border-base-200 rounded-lg p-4">
+    <div class="rounded-lg border border-base-200 bg-base-100 p-4">
       <ul class="space-y-1">
         {#each categories as { category }}
           <li>
-            <a 
-              href="/category/{category.slug}?category={category.key}" 
-              class="block py-2 px-2 text-base-content hover:text-primary hover:bg-base-200 rounded transition-colors duration-200"
+            <a
+              href="/category/{category.slug}?category={category.key}"
+              class="block rounded px-2 py-2 text-base-content transition-colors duration-200 hover:bg-base-200 hover:text-primary"
             >
               {category.value}
             </a>
@@ -105,4 +103,3 @@
     </div>
   </div>
 {/if}
-

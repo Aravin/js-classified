@@ -7,6 +7,7 @@ This guide explains how to sync your classified ads data to Google services.
 ### 1. Structured Data (Schema.org) - ✅ Implemented
 
 Structured data markup is automatically added to listing pages. This helps Google understand your content and may enable:
+
 - Rich snippets in search results
 - Product information cards
 - Better search visibility
@@ -31,14 +32,14 @@ Generate product feeds that can be uploaded to Google Merchant Center.
    ```typescript
    // Example backend endpoint (Node.js/Express)
    import { generateGoogleShoppingFeed } from './lib/google-integration';
-   
+
    app.get('/api/feeds/google-shopping.xml', async (req, res) => {
      // Fetch all active listings
      const listings = await fetchActiveListings();
-     
+
      // Generate XML feed
      const feedXml = generateGoogleShoppingFeed(listings, 'https://locful.com');
-     
+
      res.setHeader('Content-Type', 'application/xml');
      res.send(feedXml);
    });
@@ -65,8 +66,8 @@ Generate XML sitemaps for better search engine indexing.
 import { generateSitemapEntry } from './lib/google-integration';
 
 // Generate sitemap entries for all listings
-const sitemapEntries = listings.map(listing => 
-  generateSitemapEntry(listing, 'https://locful.com')
+const sitemapEntries = listings.map((listing) =>
+  generateSitemapEntry(listing, 'https://locful.com'),
 );
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -92,18 +93,21 @@ For advertising your listings:
 You'll need to create these endpoints on your backend:
 
 ### 1. Google Shopping Feed (XML)
+
 ```
 GET /api/feeds/google-shopping.xml
 Content-Type: application/xml
 ```
 
 ### 2. Google Shopping Feed (CSV)
+
 ```
 GET /api/feeds/google-shopping.csv
 Content-Type: text/csv
 ```
 
 ### 3. Sitemap
+
 ```
 GET /sitemap.xml
 Content-Type: application/xml
@@ -122,15 +126,15 @@ export const GET: RequestHandler = async ({ fetch }) => {
     // Fetch all active listings from your API
     const response = await fetch('/api/listings?status=ACTIVE');
     const data = await response.json();
-    
+
     // Generate feed
     const feedXml = generateGoogleShoppingFeed(data.listings, 'https://locful.com');
-    
+
     return new Response(feedXml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
-      }
+        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+      },
     });
   } catch (error) {
     return new Response('Error generating feed', { status: 500 });
@@ -159,4 +163,3 @@ export const GET: RequestHandler = async ({ fetch }) => {
 - Images must be publicly accessible URLs
 - All prices should be in INR for Indian market
 - Ensure your listings comply with [Google Shopping policies](https://support.google.com/merchants/answer/6149221)
-
