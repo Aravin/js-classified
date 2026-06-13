@@ -75,7 +75,7 @@
     if ($user?.sub) {
       const limitCheck = await checkActiveAdsLimit($user.sub, listing.id);
       if (limitCheck.hasReachedLimit) {
-        publishError = `You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}. To add more ads, please contact us.`;
+        publishError = `You are allowed to have only ${limitCheck.activeLimit} active ad${limitCheck.activeLimit > 1 ? 's' : ''}. To add more ads, please contact us.`;
         return;
       }
     }

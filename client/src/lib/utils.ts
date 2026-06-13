@@ -51,7 +51,7 @@ export function isListingExpired(createdAt: string): boolean {
  * @param excludeListingId - Optional listing ID to exclude from count (for editing existing ads)
  * @returns Object with hasReachedLimit boolean and activeCount number
  */
-export async function checkActiveAdsLimit(userId: string, excludeListingId?: number): Promise<{ hasReachedLimit: boolean; activeCount: number }> {
+export async function checkActiveAdsLimit(userId: string, excludeListingId?: number): Promise<{ hasReachedLimit: boolean; activeCount: number; activeLimit: number }> {
   try {
     const authHeaders = await getAuthHeaders();
     const response = await fetch(`${config.api.baseUrl}/listings/user/${userId}`, {
@@ -84,10 +84,10 @@ export async function checkActiveAdsLimit(userId: string, excludeListingId?: num
 
     const hasReachedLimit = activeCount >= activeLimit;
     
-    return { hasReachedLimit, activeCount };
+    return { hasReachedLimit, activeCount, activeLimit };
   } catch (error) {
     console.error('Error checking active ads limit:', error);
     // On error, allow the operation (fail open)
-    return { hasReachedLimit: false, activeCount: 0 };
+    return { hasReachedLimit: false, activeCount: 0, activeLimit: config.user.maxActiveAds };
   }
 }

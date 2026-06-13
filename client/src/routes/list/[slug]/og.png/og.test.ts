@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET } from './+server';
 
 // Mock satori
@@ -25,6 +25,7 @@ vi.mock('@resvg/resvg-js', () => {
 describe('OG Image Endpoint', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.spyOn(console, 'error').mockImplementation(() => {});
 		// Mock global fetch for font fetching
 		globalThis.fetch = vi.fn().mockImplementation((url) => {
 			if (url.includes('.ttf')) {
@@ -37,6 +38,10 @@ describe('OG Image Endpoint', () => {
 				ok: false
 			} as any);
 		});
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	it('should return a generated PNG image for a valid listing', async () => {

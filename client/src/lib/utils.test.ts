@@ -31,6 +31,7 @@ describe('checkActiveAdsLimit', () => {
     const result = await checkActiveAdsLimit('user-1');
     expect(result.hasReachedLimit).toBe(false);
     expect(result.activeCount).toBe(2);
+    expect(result.activeLimit).toBe(3);
   });
 
   it('should trigger limit when active ads equal or exceed the user-level limit override', async () => {
@@ -51,6 +52,7 @@ describe('checkActiveAdsLimit', () => {
     // activeCount (2) >= userLimit override (2), so hasReachedLimit should be true
     const result = await checkActiveAdsLimit('user-1');
     expect(result.hasReachedLimit).toBe(true);
+    expect(result.activeLimit).toBe(2);
   });
 
   it('should fall back to app-level config (config.user.maxActiveAds) when user limit is null', async () => {
@@ -69,6 +71,7 @@ describe('checkActiveAdsLimit', () => {
     const result = await checkActiveAdsLimit('user-1');
     expect(result.activeCount).toBe(1);
     expect(result.hasReachedLimit).toBe(1 >= expectedLimit);
+    expect(result.activeLimit).toBe(expectedLimit);
   });
 
   it('should correctly ignore expired ads when counting active ads', async () => {
@@ -94,6 +97,7 @@ describe('checkActiveAdsLimit', () => {
     // Only listing 1 is active & not expired, so count should be 1
     expect(result.activeCount).toBe(1);
     expect(result.hasReachedLimit).toBe(false);
+    expect(result.activeLimit).toBe(2);
   });
 
   it('should exclude the current listing being edited if excludeListingId is provided', async () => {
@@ -115,6 +119,7 @@ describe('checkActiveAdsLimit', () => {
     const result = await checkActiveAdsLimit('user-1', 2);
     expect(result.activeCount).toBe(1);
     expect(result.hasReachedLimit).toBe(false);
+    expect(result.activeLimit).toBe(2);
   });
 });
 

@@ -137,7 +137,7 @@
     if ($user?.sub && $isAuthenticated) {
       const limitCheck = await checkActiveAdsLimit($user.sub);
       if (limitCheck.hasReachedLimit) {
-        limitWarning = `You currently have ${limitCheck.activeCount} active ad${limitCheck.activeCount > 1 ? 's' : ''}. You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}. Your listing will be saved as draft. To publish more ads, please contact us.`;
+        limitWarning = `You currently have ${limitCheck.activeCount} active ad${limitCheck.activeCount > 1 ? 's' : ''}. You are allowed to have only ${limitCheck.activeLimit} active ad${limitCheck.activeLimit > 1 ? 's' : ''}. Your listing will be saved as draft. To publish more ads, please contact us.`;
       }
     }
     

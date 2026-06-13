@@ -1,7 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET } from './+server';
 
 describe('Sitemap Endpoint', () => {
+	beforeEach(() => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
 	it('should generate a valid sitemap XML containing static routes and categories', async () => {
 		// Mock fetch returning empty listings
 		const mockFetch = vi.fn().mockResolvedValue({

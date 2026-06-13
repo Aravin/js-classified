@@ -186,7 +186,7 @@
     if (newStatus === 'ACTIVE' && $user?.sub) {
       const limitCheck = await checkActiveAdsLimit($user.sub, listing.id);
       if (limitCheck.hasReachedLimit) {
-        statusError = `You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}. To add more ads, please contact us.`;
+        statusError = `You are allowed to have only ${limitCheck.activeLimit} active ad${limitCheck.activeLimit > 1 ? 's' : ''}. To add more ads, please contact us.`;
         listingToUpdateStatus = null;
         const modal = document.getElementById('status-modal') as HTMLDialogElement;
         modal?.close();
@@ -241,7 +241,7 @@
     if ($user?.sub) {
       const limitCheck = await checkActiveAdsLimit($user.sub, listing.id);
       if (limitCheck.hasReachedLimit) {
-        statusError = `You are allowed to have only ${config.user.maxActiveAds} active ad${config.user.maxActiveAds > 1 ? 's' : ''}. To add more ads, please contact us.`;
+        statusError = `You are allowed to have only ${limitCheck.activeLimit} active ad${limitCheck.activeLimit > 1 ? 's' : ''}. To add more ads, please contact us.`;
         listingToRepublish = null;
         const modal = document.getElementById('republish-modal') as HTMLDialogElement;
         modal?.close();
