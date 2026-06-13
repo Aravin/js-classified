@@ -3,6 +3,7 @@
   import Icon from '@iconify/svelte';
   import type { User } from '@auth0/auth0-spa-js';
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
 
   $: currentUser = $user as User | null;
 
@@ -34,7 +35,7 @@
       <div
         tabindex="0"
         role="button"
-        class="avatar btn btn-circle btn-ghost ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100"
+        class="avatar btn btn-sm btn-circle btn-ghost ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100"
       >
         <div class="h-8 w-8 overflow-hidden rounded-full bg-base-200">
           {#if currentUser.picture}
@@ -55,7 +56,7 @@
       </div>
       <ul
         tabindex="0"
-        class="menu dropdown-content z-[1] mt-3 w-56 rounded-box border border-base-200 bg-base-100 p-2 shadow-lg"
+        class="menu dropdown-content z-50 mt-3 w-56 rounded-box border border-base-200 bg-base-100 p-2 shadow-lg"
       >
         <li class="menu-title px-2 py-2">
           <div class="flex flex-col gap-0.5">
@@ -65,25 +66,31 @@
         </li>
         <div class="divider my-1"></div>
         <li>
-          <a href="/my-ads" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200">
+          <a
+            href="/my-ads"
+            class:active={$page.url.pathname.startsWith('/my-ads')}
+          >
             <Icon icon="material-symbols:list-alt" class="h-5 w-5" />
-            <span>My Ads</span>
+            My Ads
           </a>
         </li>
         <li>
-          <a href="/settings" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200">
+          <a
+            href="/settings"
+            class:active={$page.url.pathname.startsWith('/settings')}
+          >
             <Icon icon="material-symbols:settings" class="h-5 w-5" />
-            <span>Settings</span>
+            Settings
           </a>
         </li>
         <div class="divider my-1"></div>
         <li>
           <button
             on:click={logout}
-            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-error hover:bg-error/10 hover:text-error"
+            class="text-error"
           >
             <Icon icon="material-symbols:logout" class="h-5 w-5" />
-            <span>Logout</span>
+            Logout
           </button>
         </li>
       </ul>

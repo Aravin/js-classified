@@ -122,7 +122,11 @@
   }
 
   function handleEdit() {
-    goto('/post-ad');
+    if (listing?.id) {
+      goto(`/my-ads/edit/${listing.id}`);
+    } else {
+      goto('/post-ad');
+    }
   }
 </script>
 
@@ -141,14 +145,14 @@
   {:else if listing}
     <!-- Preview Header -->
     <div class="mb-6 rounded-lg bg-primary/10 p-4">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-2">
           <Icon icon="material-symbols:preview" class="h-6 w-6 text-primary" />
           <h2 class="text-lg font-semibold">Preview Your Listing</h2>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button
-            class="btn btn-ghost"
+            class="btn btn-ghost flex-1 sm:flex-none"
             on:click={handleEdit}
             disabled={isPublishing || isUploadingImages}
           >
@@ -156,7 +160,7 @@
             Edit
           </button>
           <button
-            class="btn btn-primary"
+            class="btn btn-primary flex-1 sm:flex-none"
             on:click={publishListing}
             disabled={isPublishing || isUploadingImages}
           >
