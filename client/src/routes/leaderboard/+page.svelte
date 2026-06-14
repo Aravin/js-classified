@@ -71,17 +71,17 @@
                       <div class="avatar placeholder">
                         <div class="h-10 w-10 rounded-full bg-primary/10 text-primary">
                           {#if entry.avatar}
-                            <img src={entry.avatar} alt={entry.fullName || entry.username || 'User'} />
+                            <img src={entry.avatar} alt={entry.fullName?.trim() || entry.username?.trim() || 'User'} />
                           {:else}
                             <span class="text-sm font-bold">
-                              {(entry.fullName || entry.username || 'U')[0]?.toUpperCase()}
+                              {(entry.fullName?.trim() || entry.username?.trim() || 'U')[0]?.toUpperCase()}
                             </span>
                           {/if}
                         </div>
                       </div>
                       <div>
-                        <p class="font-semibold">{entry.fullName || entry.username || 'Locful user'}</p>
-                        <p class="text-xs text-base-content/60">{entry.username || 'Marketplace member'}</p>
+                        <p class="font-semibold">{entry.fullName?.trim() || entry.username?.trim() || 'Locful User'}</p>
+                        <p class="text-xs text-base-content/60">{entry.username?.trim() || 'Marketplace member'}</p>
                       </div>
                     </div>
                   </td>

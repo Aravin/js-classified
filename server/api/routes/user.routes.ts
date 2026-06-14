@@ -60,12 +60,30 @@ export async function userRoutes(fastify: FastifyInstance) {
         });
 
         if (existingUser) {
-          // Update lastLogin for existing user
+          // Update lastLogin and sync profile data from Auth0 for existing user
+          const updateData: Prisma.userUpdateInput = {
+            lastLogin: new Date(),
+          };
+
+          // Update email if provided
+          if (data.email && !existingUser.email) {
+            updateData.email = data.email;
+          }
+          
+          // Sync fullName from Auth0 if it's provided and the local one is missing or we want to keep it updated
+          // Usually, if Auth0 has a name and we don't, we should update it.
+          if (data.fullName && !existingUser.fullName) {
+            updateData.fullName = data.fullName;
+          }
+
+          // Sync avatar
+          if (data.avatar && !existingUser.avatar) {
+            updateData.avatar = data.avatar;
+          }
+
           const user = await fastify.prisma.user.update({
             where: { userId: authUserId },
-            data: {
-              lastLogin: new Date(),
-            },
+            data: updateData,
             select: userSelect,
           });
 
