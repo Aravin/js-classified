@@ -3,9 +3,20 @@
   import { goto } from '$app/navigation';
   import Icon from '@iconify/svelte';
   import { browser } from '$app/environment';
+  import { getAuthHeaders } from '$lib/auth/auth0';
+  import { shouldLoadRewardSummary } from '$lib/reward-summary-load-state';
+  import {
+    getCachedRewardSummary,
+    refreshRewardSummary,
+    type RewardSummary,
+  } from '$lib/rewards';
 
   let isLoading = true;
   let error: string | null = null;
+  let rewardSummary: RewardSummary | null = null;
+  let hasAttemptedRewardLoad = false;
+  let isLoadingRewards = false;
+  let lastLoadedUserId: string | null = null;
 
   function redirectToLogin() {
     if (browser) {
@@ -15,11 +26,58 @@
   }
 
   $: if (!$authState.isInitializing && !$authState.isAuthenticated) {
+    if (lastLoadedUserId !== null) {
+      lastLoadedUserId = null;
+      hasAttemptedRewardLoad = false;
+      rewardSummary = null;
+      error = null;
+    }
     redirectToLogin();
   }
 
   $: if (!$authState.isInitializing && $authState.isAuthenticated) {
+    const currentUserId = $authState.user?.sub ?? null;
+    if (currentUserId !== lastLoadedUserId) {
+      lastLoadedUserId = currentUserId;
+      hasAttemptedRewardLoad = false;
+      rewardSummary = null;
+      error = null;
+    }
     isLoading = false;
+    if (
+      shouldLoadRewardSummary({
+        isInitializing: $authState.isInitializing,
+        isAuthenticated: $authState.isAuthenticated,
+        hasRewardSummary: rewardSummary !== null,
+        hasAttemptedRewardLoad,
+        isLoadingRewards,
+      })
+    ) {
+      void loadRewardSummary();
+    }
+  }
+
+  async function loadRewardSummary() {
+    hasAttemptedRewardLoad = true;
+    isLoadingRewards = true;
+
+    try {
+      const cached = getCachedRewardSummary();
+      if (cached) {
+        rewardSummary = cached;
+        error = null;
+        return;
+      }
+
+      const authHeaders = await getAuthHeaders();
+      rewardSummary = await refreshRewardSummary(fetch, authHeaders);
+      error = null;
+    } catch {
+      rewardSummary = null;
+      error = 'Failed to load rewards summary.';
+    } finally {
+      isLoadingRewards = false;
+    }
   }
 </script>
 
@@ -154,7 +212,120 @@
               <Icon icon="material-symbols:add" />
               Post New Ad
             </a>
+            <a href="/leaderboard" class="btn btn-outline w-full justify-start gap-2">
+              <Icon icon="material-symbols:leaderboard" />
+              View Leaderboard
+            </a>
+            <a href="/rewards" class="btn btn-outline w-full justify-start gap-2">
+              <Icon icon="material-symbols:menu-book" />
+              Rewards Guide
+            </a>
           </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-xl md:col-span-2">
+        <div class="card-body">
+          <h2 class="card-title flex items-center gap-2">
+            <Icon icon="material-symbols:workspace-premium" />
+            Rewards Summary
+          </h2>
+
+          {#if rewardSummary}
+            <div class="mt-4 grid gap-4 md:grid-cols-3">
+              <div class="rounded-2xl bg-primary/10 p-5">
+                <p class="text-xs font-semibold uppercase tracking-wide text-primary">Points</p>
+                <p class="mt-2 text-3xl font-black text-primary">{rewardSummary.points}</p>
+              </div>
+              <div class="rounded-2xl bg-secondary/10 p-5">
+                <p class="text-xs font-semibold uppercase tracking-wide text-secondary">All-time rank</p>
+                <p class="mt-2 text-3xl font-black text-secondary">
+                  {rewardSummary.ranks.allTime ? `#${rewardSummary.ranks.allTime}` : 'Unranked'}
+                </p>
+              </div>
+              <div class="rounded-2xl bg-accent/10 p-5">
+                <p class="text-xs font-semibold uppercase tracking-wide text-accent">Monthly rank</p>
+                <p class="mt-2 text-3xl font-black text-accent">
+                  {rewardSummary.ranks.monthly ? `#${rewardSummary.ranks.monthly}` : 'Unranked'}
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+              <div>
+                <div class="mb-3 flex items-center gap-2">
+                  <Icon icon="material-symbols:receipt-long" class="text-base-content/60" />
+                  <h3 class="text-lg font-semibold text-base-content">Points breakdown</h3>
+                </div>
+
+                {#if rewardSummary.breakdown.length > 0}
+                  <div class="overflow-hidden rounded-2xl border border-base-200 bg-base-200/30">
+                    <div class="grid grid-cols-[minmax(0,1fr)_96px_96px] gap-3 border-b border-base-200 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                      <span>Reward type</span>
+                      <span class="text-right">Count</span>
+                      <span class="text-right">Points</span>
+                    </div>
+
+                    {#each rewardSummary.breakdown as item}
+                      <div class="grid grid-cols-[minmax(0,1fr)_96px_96px] gap-3 border-b border-base-200/70 px-4 py-3 last:border-b-0">
+                        <div>
+                          <p class="font-semibold text-base-content">{item.title}</p>
+                          <p class="text-sm text-base-content/60">
+                            {item.count} {item.count === 1 ? 'reward event' : 'reward events'}
+                          </p>
+                        </div>
+                        <p class="text-right font-semibold text-base-content/70">{item.count}</p>
+                        <p class="text-right font-black text-primary">+{item.points}</p>
+                      </div>
+                    {/each}
+                  </div>
+                {:else}
+                  <div class="rounded-2xl bg-base-200/70 p-4 text-sm text-base-content/70">
+                    No reward events yet.
+                  </div>
+                {/if}
+              </div>
+
+              <div>
+                <div class="mb-3 flex items-center gap-2">
+                  <Icon icon="material-symbols:history" class="text-base-content/60" />
+                  <h3 class="text-lg font-semibold text-base-content">Recent rewards</h3>
+                </div>
+
+                {#if rewardSummary.recentRewards.length > 0}
+                  <div class="space-y-3">
+                    {#each rewardSummary.recentRewards as reward}
+                      <div class="rounded-2xl border border-base-200 bg-base-100 p-4 shadow-sm">
+                        <div class="flex items-start justify-between gap-3">
+                          <div>
+                            <p class="font-semibold text-base-content">
+                              {rewardSummary.breakdown.find((item) => item.action === reward.action)?.title || reward.action}
+                            </p>
+                            <p class="mt-1 text-sm text-base-content/60">
+                              {new Date(reward.createdAt).toLocaleDateString('en-IN', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </p>
+                          </div>
+                          <p class="text-lg font-black text-primary">+{reward.points}</p>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                {:else}
+                  <div class="rounded-2xl bg-base-200/70 p-4 text-sm text-base-content/70">
+                    Rewards will show here after your first eligible activity.
+                  </div>
+                {/if}
+              </div>
+            </div>
+          {:else}
+            <div class="mt-4 rounded-2xl bg-base-200/70 p-4 text-sm text-base-content/70">
+              Rewards will appear here after your first eligible activity.
+            </div>
+          {/if}
         </div>
       </div>
     </div>

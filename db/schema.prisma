@@ -42,22 +42,40 @@ enum ListingStatus {
   DELETED   @map("DELETED")
 }
 
+enum RewardAction {
+  DAILY_LOGIN        @map("DAILY_LOGIN")
+  LISTING_PUBLISHED  @map("LISTING_PUBLISHED")
+  LISTING_REPUBLISHED @map("LISTING_REPUBLISHED")
+  PROFILE_COMPLETED  @map("PROFILE_COMPLETED")
+  LISTING_UNIQUE_VIEW @map("LISTING_UNIQUE_VIEW")
+  BUYER_FEEDBACK_SUBMITTED @map("BUYER_FEEDBACK_SUBMITTED")
+  BUYER_FEEDBACK_RECEIVED @map("BUYER_FEEDBACK_RECEIVED")
+}
+
 model user {
-  id         Int       @id @default(autoincrement())
-  userId     String    @unique // auth0 user id
-  username   String?   @unique
-  email      String?   @unique
-  phone      String?   @unique
-  fullName   String?
-  avatar     String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  lastLogin  DateTime?
-  listings   listing[]
+  id           Int           @id @default(autoincrement())
+  userId       String        @unique // auth0 user id
+  username     String?       @unique
+  email        String?       @unique
+  phone        String?       @unique
+  fullName     String?
+  avatar       String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  lastLogin    DateTime?
+  rewardPoints Int           @default(0)
+  listings     listing[]
+  rewards      rewardEvent[]
+  listingViews listingView[] @relation("ListingViewViewer")
+  contactRevealsAsBuyer contactReveal[] @relation("ContactRevealBuyer")
+  contactRevealsAsSeller contactReveal[] @relation("ContactRevealSeller")
+  feedbackSubmitted listingFeedback[] @relation("ListingFeedbackBuyer")
+  feedbackReceived listingFeedback[] @relation("ListingFeedbackSeller")
   listingLimit Int?
 
   @@index([userId])
   @@index([username])
+  @@index([rewardPoints])
 }
 
 model listing {
@@ -80,6 +98,9 @@ model listing {
   republishedAt DateTime?
   republishCount Int         @default(0)
   images      image[]
+  views       listingView[]
+  contactReveals contactReveal[]
+  feedbacks   listingFeedback[]
 
   @@index([categoryId])
   @@index([locationId])
@@ -99,4 +120,67 @@ model image {
 
   @@index([listingId])
   @@index([order])
+}
+
+model rewardEvent {
+  id         Int          @id @default(autoincrement())
+  user       user         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  action     RewardAction
+  points     Int
+  sourceType String?
+  sourceId   Int?
+  dedupeKey  String       @unique
+  metadata   Json?
+  createdAt  DateTime     @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([sourceType, sourceId])
+}
+
+model listingView {
+  id           Int      @id @default(autoincrement())
+  listing      listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId    Int
+  viewer       user?    @relation("ListingViewViewer", fields: [viewerUserId], references: [id], onDelete: SetNull)
+  viewerUserId Int?
+  viewerKey    String
+  viewedDay    DateTime @db.Date
+  createdAt    DateTime @default(now())
+
+  @@unique([listingId, viewerKey, viewedDay])
+  @@index([listingId, createdAt])
+  @@index([viewerUserId, createdAt])
+}
+
+model contactReveal {
+  id        Int      @id @default(autoincrement())
+  listing    listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId  Int
+  buyer      user    @relation("ContactRevealBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  buyerId    Int
+  seller     user    @relation("ContactRevealSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId   Int
+  createdAt  DateTime @default(now())
+
+  @@unique([listingId, buyerId])
+  @@index([sellerId, createdAt])
+}
+
+model listingFeedback {
+  id        Int      @id @default(autoincrement())
+  listing    listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId  Int
+  buyer      user    @relation("ListingFeedbackBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  buyerId    Int
+  seller     user    @relation("ListingFeedbackSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId   Int
+  rating     Int
+  comment    String? @db.Text
+  createdAt  DateTime @default(now())
+
+  @@unique([listingId, buyerId])
+  @@index([sellerId, createdAt])
+  @@index([listingId, createdAt])
 }

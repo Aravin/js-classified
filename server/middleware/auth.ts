@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
+import { buildErrorResponseBody } from '../api/http-errors';
 
 /**
  * A01 - Broken Access Control: Authentication middleware
@@ -28,116 +29,174 @@ declare module 'fastify' {
   }
 }
 
+interface AuthSuccess {
+  ok: true;
+  token: jwt.JwtPayload;
+}
+
+interface AuthFailure {
+  ok: false;
+  statusCode: number;
+  body: ReturnType<typeof buildErrorResponseBody>;
+}
+
+export type AuthResult = AuthSuccess | AuthFailure;
+
+function getTokenAudiences(tokenAudience: jwt.JwtPayload['aud']): string[] {
+  if (typeof tokenAudience === 'string') {
+    return [tokenAudience];
+  }
+
+  if (Array.isArray(tokenAudience)) {
+    return tokenAudience.filter((audience): audience is string => typeof audience === 'string');
+  }
+
+  return [];
+}
+
+type TokenType = 'access_token' | 'id_token';
+
 /**
- * Verify Auth0 JWT token from Authorization header
- * Returns true if valid, false otherwise (sends 401 response)
+ * Classify a token as an access token or ID token.
+ *
+ * Resolution order (stops at first match):
+ *  1. Explicit: aud contains AUTH0_AUDIENCE  → access token
+ *  2. Explicit: aud contains AUTH0_CLIENT_ID → ID token
+ *  3. Heuristic fallback: URL-shaped audience → access token, otherwise ID token
+ *
+ * The heuristic-only approach misclassifies non-URL API audiences such as
+ * `api://...` as ID tokens; explicit matching is always preferred.
  */
-export async function verifyAuth0Token(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<boolean> {
+function classifyToken(
+  tokenAudience: jwt.JwtPayload['aud'],
+  auth0Audience?: string,
+  auth0ClientId?: string,
+): TokenType {
+  const audiences = getTokenAudiences(tokenAudience);
+
+  if (auth0Audience && audiences.includes(auth0Audience)) {
+    return 'access_token';
+  }
+  if (auth0ClientId && audiences.includes(auth0ClientId)) {
+    return 'id_token';
+  }
+
+  // Heuristic fallback for unconfigured or unmatched audiences
+  const hasUrlAudience = audiences.some((aud) => aud.startsWith('http'));
+  return hasUrlAudience ? 'access_token' : 'id_token';
+}
+
+export async function authenticateAuth0Token(request: FastifyRequest): Promise<AuthResult> {
   const authHeader = request.headers.authorization;
-  
+
   if (!authHeader?.startsWith('Bearer ')) {
-    reply.code(401).send({ error: 'Missing Authorization header' });
-    return false;
+    return {
+      ok: false,
+      statusCode: 401,
+      body: buildErrorResponseBody('Missing Authorization header'),
+    };
   }
 
   const token = authHeader.substring(7);
   const tokenParts = token.split('.');
 
-  // Check if opaque token (5 parts) - need user to grant API access
   if (tokenParts.length === 5) {
-    reply.code(401).send({ 
-      error: 'Opaque token received', 
-      details: 'User needs to grant API access. Please login again and authorize the API.' 
-    });
-    return false;
+    return {
+      ok: false,
+      statusCode: 401,
+      body: buildErrorResponseBody(
+        'Opaque token received',
+        'User needs to grant API access. Please login again and authorize the API.',
+      ),
+    };
   }
 
-  // Must be JWT (3 parts)
   if (tokenParts.length !== 3) {
-    reply.code(401).send({ error: 'Invalid token format' });
-    return false;
+    return {
+      ok: false,
+      statusCode: 401,
+      body: buildErrorResponseBody('Invalid token format'),
+    };
   }
 
   const auth0Domain = process.env.AUTH0_DOMAIN;
-  const auth0Audience = process.env.AUTH0_AUDIENCE?.trim(); // API audience (for access tokens)
-  const auth0ClientId = process.env.AUTH0_CLIENT_ID?.trim(); // Client ID (for ID tokens)
+  const auth0Audience = process.env.AUTH0_AUDIENCE?.trim();
+  const auth0ClientId = process.env.AUTH0_CLIENT_ID?.trim();
 
   if (!auth0Domain) {
-    reply.code(500).send({ error: 'Auth0 configuration missing: AUTH0_DOMAIN' });
-    return false;
+    return {
+      ok: false,
+      statusCode: 500,
+      body: buildErrorResponseBody('Auth0 configuration missing: AUTH0_DOMAIN'),
+    };
   }
 
-  // Variables for error reporting
-  let unverified: (jwt.JwtPayload & { header?: jwt.JwtHeader }) | null = null;
-  let isIdToken = false;
-  let expectedAudience: string | undefined;
-
   try {
-    // First, decode without verification to check token type
-    const decoded = jwt.decode(token, { complete: true }) as { header?: jwt.JwtHeader; payload?: jwt.JwtPayload } | null;
-    
+    const decoded = jwt.decode(token, {
+      complete: true,
+    }) as { header?: jwt.JwtHeader; payload?: jwt.JwtPayload } | null;
+
     if (!decoded || !decoded.payload) {
-      reply.code(401).send({ error: 'Invalid token format' });
-      return false;
+      return {
+        ok: false,
+        statusCode: 401,
+        body: buildErrorResponseBody('Invalid token format'),
+      };
     }
 
-    // Store for error reporting
-    unverified = decoded.payload as jwt.JwtPayload & { header?: jwt.JwtHeader };
-    
-    // Determine if this is an ID token or access token
-    // ID tokens have 'aud' (audience) = client ID
-    // Access tokens have 'aud' (audience) = API identifier
-    const tokenAudience = decoded.payload.aud;
-    
-    // Auto-detect token type: ID tokens have client ID as audience, access tokens have API URL
-    // If audience is not a URL, it's likely a client ID (ID token)
-    // If audience is a URL, it's likely an API identifier (access token)
-    const isLikelyIdToken = typeof tokenAudience === 'string' && !tokenAudience.startsWith('http');
-    
-    if (isLikelyIdToken) {
-      // ID token - audience must match configured client ID
-      isIdToken = true;
+  const tokenAudience = decoded.payload.aud;
+  const audiences = getTokenAudiences(tokenAudience);
+  const tokenType = classifyToken(tokenAudience, auth0Audience, auth0ClientId);
+
+    let expectedAudience: string | undefined;
+
+    if (tokenType === 'id_token') {
       if (!auth0ClientId) {
-        reply.code(500).send({ 
-          error: 'Auth0 configuration missing',
-          details: 'AUTH0_CLIENT_ID is required for ID token validation'
-        });
-        return false;
+        return {
+          ok: false,
+          statusCode: 500,
+          body: buildErrorResponseBody(
+            'Auth0 configuration missing',
+            'AUTH0_CLIENT_ID is required for ID token validation',
+          ),
+        };
       }
-      
-      // Validate token audience matches configured client ID
-      if (tokenAudience !== auth0ClientId && (!Array.isArray(tokenAudience) || !tokenAudience.includes(auth0ClientId))) {
-        reply.code(401).send({ 
-          error: 'Invalid token audience',
-          details: 'Token audience does not match configured client ID'
-        });
-        return false;
+
+      if (!audiences.includes(auth0ClientId)) {
+        return {
+          ok: false,
+          statusCode: 401,
+          body: buildErrorResponseBody(
+            'Invalid token audience',
+            'Token audience does not match configured client ID',
+          ),
+        };
       }
-      
+
       expectedAudience = auth0ClientId;
     } else {
-      // Access token - audience must match API identifier
-      isIdToken = false;
       if (!auth0Audience) {
-        reply.code(500).send({ 
-          error: 'Auth0 configuration missing',
-          details: 'AUTH0_AUDIENCE is required for access token validation'
-        });
-        return false;
+        return {
+          ok: false,
+          statusCode: 500,
+          body: buildErrorResponseBody(
+            'Auth0 configuration missing',
+            'AUTH0_AUDIENCE is required for access token validation',
+          ),
+        };
       }
-      
-      // Validate token audience matches configured API audience
-      if (tokenAudience !== auth0Audience && (!Array.isArray(tokenAudience) || !tokenAudience.includes(auth0Audience))) {
-        reply.code(401).send({ 
-          error: 'Invalid token audience',
-          details: 'Token audience does not match configured API audience'
-        });
-        return false;
+
+      if (!audiences.includes(auth0Audience)) {
+        return {
+          ok: false,
+          statusCode: 401,
+          body: buildErrorResponseBody(
+            'Invalid token audience',
+            'Token audience does not match configured API audience',
+          ),
+        };
       }
-      
+
       expectedAudience = auth0Audience;
     }
 
@@ -150,27 +209,51 @@ export async function verifyAuth0Token(
           issuer: `https://${auth0Domain}/`,
           algorithms: ['RS256'],
         },
-        (err, decoded) => {
+        (err, verified) => {
           if (err) reject(err);
-          else resolve(decoded as jwt.JwtPayload);
-        }
+          else resolve(verified as jwt.JwtPayload);
+        },
       );
     });
 
-    // A07 - Authentication Failures: Verify token hasn't expired
     if (verifiedToken.exp && verifiedToken.exp < Date.now() / 1000) {
-      reply.code(401).send({ error: 'Token expired' });
-      return false;
+      return {
+        ok: false,
+        statusCode: 401,
+        body: buildErrorResponseBody('Token expired'),
+      };
     }
 
-    // Attach user to request
-    request.user = verifiedToken;
-    return true;
+    return {
+      ok: true,
+      token: verifiedToken,
+    };
   } catch (error: any) {
-    const errorMessage = error?.message || 'Invalid or expired token';
-    reply.code(401).send({ error: errorMessage });
-    return false;
+    request.log.warn({ err: error }, 'JWT verification failed');
+    return {
+      ok: false,
+      statusCode: 401,
+      body: buildErrorResponseBody('Invalid or expired token'),
+    };
   }
+}
+
+/**
+ * Fastify pre-handler wrapper for Auth0 JWT validation.
+ * Sends an error response on failure and attaches request.user on success.
+ */
+export async function verifyAuth0Token(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
+  const result = await authenticateAuth0Token(request);
+
+  if (!result.ok) {
+    reply.code(result.statusCode).send(result.body);
+    return;
+  }
+
+  request.user = result.token;
 }
 
 /**
@@ -183,11 +266,14 @@ export async function optionalAuth(
 ): Promise<void> {
   const authHeader = request.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
-    // Try to verify, but don't fail if invalid
-    try {
-      await verifyAuth0Token(request, reply);
-    } catch {
-      // Ignore errors for optional auth
+    const result = await authenticateAuth0Token(request);
+    if (result.ok) {
+      request.user = result.token;
+    } else {
+      // A present but invalid token is an explicit auth failure — return 401
+      // so callers can detect expired/malformed credentials rather than
+      // silently receiving a public (masked) response.
+      reply.code(result.statusCode).send(result.body);
     }
   }
 }
@@ -201,7 +287,7 @@ export async function requireOwnership(
   resourceOwnerId: string | number
 ): Promise<boolean> {
   if (!request.user) {
-    reply.code(401).send({ error: 'Authentication required' });
+    reply.code(401).send(buildErrorResponseBody('Authentication required'));
     return false;
   }
 
@@ -212,7 +298,7 @@ export async function requireOwnership(
   const userIdStr = String(userId);
 
   if (ownerIdStr !== userIdStr) {
-    reply.code(403).send({ error: 'Access denied. You do not own this resource.' });
+    reply.code(403).send(buildErrorResponseBody('Access denied. You do not own this resource.'));
     return false;
   }
 

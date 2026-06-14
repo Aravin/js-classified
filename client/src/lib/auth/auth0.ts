@@ -3,6 +3,7 @@ import { writable, derived, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { config } from '$lib/config';
 import { goto } from '$app/navigation';
+import { refreshRewardSummary } from '$lib/rewards';
 
 // Create stores
 export const isAuthenticated = writable(false);
@@ -14,6 +15,35 @@ export const isInitializing = writable(true);
 export const isLoading = writable(true);
 
 let _auth0Client: Auth0Client;
+
+async function syncUserToApi(userData: User) {
+  try {
+    const apiUrl = `${config.api.baseUrl}/users`;
+    const authHeaders = await getAuthHeaders();
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+      },
+      body: JSON.stringify({
+        userId: userData.sub,
+        email: userData.email,
+        fullName: userData.name,
+        avatar: userData.picture,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Failed to sync user data:', await response.text());
+      return;
+    }
+
+    await refreshRewardSummary(fetch, authHeaders);
+  } catch (e) {
+    console.error('Error syncing user data:', e);
+  }
+}
 
 export async function initAuth0() {
   // Only run in browser - don't initialize during SSR
@@ -53,6 +83,10 @@ export async function initAuth0() {
       if (isAuth) {
         const userProfile = await _auth0Client.getUser();
         user.set(userProfile || null);
+
+        if (userProfile) {
+          await syncUserToApi(userProfile);
+        }
       }
     } catch (err) {
       console.error('Error checking authentication', err);
@@ -138,29 +172,7 @@ export async function login() {
 
     // Store user data in our database
     if (userData) {
-      try {
-        const apiUrl = `${config.api.baseUrl}/users`;
-        const authHeaders = await getAuthHeaders();
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...authHeaders,
-          },
-          body: JSON.stringify({
-            userId: userData.sub,
-            email: userData.email,
-            fullName: userData.name,
-            avatar: userData.picture,
-          }),
-        });
-
-        if (!response.ok) {
-          console.error('Failed to store user data:', await response.text());
-        }
-      } catch (e) {
-        console.error('Error storing user data:', e);
-      }
+      await syncUserToApi(userData);
     }
 
     // Handle redirect after successful login

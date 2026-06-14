@@ -10,6 +10,7 @@
   import { categories } from '$lib/categories/categories';
   import { locations } from '$lib/locations';
   import SortButtons from '$lib/components/SortButtons.svelte';
+  import { refreshRewardSummary } from '$lib/rewards';
 
   interface Listing {
     id: number;
@@ -215,6 +216,7 @@
       }
 
       const updatedListing = await response.json();
+      await refreshRewardSummary(fetch, authHeaders);
 
       // Update the listing status, republishedAt, and republishCount in the allListings array
       allListings = allListings.map((l) =>

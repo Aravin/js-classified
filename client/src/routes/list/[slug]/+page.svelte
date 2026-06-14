@@ -8,10 +8,57 @@
   import { getAuthHeaders, authState, login, user } from '$lib/auth/auth0';
   import { generateListingStructuredData } from '$lib/google-integration';
   import { goto, invalidateAll } from '$app/navigation';
+  import {
+    createListingInteractionState,
+    shouldResetListingInteractionState,
+  } from '$lib/listing-interaction-state';
+  import { refreshRewardSummary } from '$lib/rewards';
 
   /** Safely serialize JSON-LD: escapes closing script tags to prevent XSS */
   function safeJsonLd(data: object): string {
     return JSON.stringify(data).replace(new RegExp('</s' + 'cript>', 'gi'), '<\\/script>');
+  }
+
+  function getErrorMessage(errorPayload: unknown, fallback: string): string {
+    if (typeof errorPayload === 'string' && errorPayload.trim()) {
+      return errorPayload;
+    }
+
+    if (Array.isArray(errorPayload)) {
+      const messages = errorPayload
+        .map((item) => {
+          if (typeof item === 'string') {
+            return item;
+          }
+
+          if (item && typeof item === 'object' && 'message' in item) {
+            const message = (item as { message?: unknown }).message;
+            return typeof message === 'string' ? message : null;
+          }
+
+          return null;
+        })
+        .filter((message): message is string => Boolean(message && message.trim()));
+
+      if (messages.length > 0) {
+        return messages.join(', ');
+      }
+    }
+
+    if (errorPayload && typeof errorPayload === 'object') {
+      if ('message' in errorPayload) {
+        const message = (errorPayload as { message?: unknown }).message;
+        if (typeof message === 'string' && message.trim()) {
+          return message;
+        }
+      }
+
+      if ('error' in errorPayload) {
+        return getErrorMessage((errorPayload as { error?: unknown }).error, fallback);
+      }
+    }
+
+    return fallback;
   }
 
   export let data;
@@ -35,19 +82,24 @@
   let isUpdatingStatus = false;
   let isRepublishing = false;
 
-  let contactInfo = {
-    phone: null,
-    email: null,
-  };
-  let isLoading = false;
-  let error: string | null = null;
-  let cachedContactInfo = {
-    phone: null,
-    email: null,
-  };
-  let selectedImage: number | null = null;
+  let {
+    contactInfo,
+    isLoading,
+    error,
+    cachedContactInfo,
+    selectedImage,
+    showLoginPrompt,
+    feedbackRating,
+    feedbackComment,
+    feedbackError,
+    feedbackSuccess,
+    isSubmittingFeedback,
+    hasRevealedContact,
+    trackedView,
+  } = createListingInteractionState();
   let recaptchaReady = false;
-  let showLoginPrompt = false;
+  let previousListingId: number | null = null;
+  let viewTrackingInFlight = false;
 
   const LISTING_EXPIRY_DAYS = config.listing.expiryDays;
 
@@ -95,10 +147,39 @@
 
   // Reactive statement to check ownership when auth state changes
   let prevUserId: string | null = null;
+
+  function resetListingInteractionState() {
+    ({
+      contactInfo,
+      isLoading,
+      error,
+      cachedContactInfo,
+      selectedImage,
+      showLoginPrompt,
+      feedbackRating,
+      feedbackComment,
+      feedbackError,
+      feedbackSuccess,
+      isSubmittingFeedback,
+      hasRevealedContact,
+      trackedView,
+    } = createListingInteractionState());
+  }
+
+  $: {
+    const nextListingId = listing?.id ?? null;
+    if (browser && shouldResetListingInteractionState(previousListingId, nextListingId)) {
+      previousListingId = nextListingId;
+      resetListingInteractionState();
+      void trackListingView();
+    }
+  }
+
   $: {
     if (browser && $authState.isAuthenticated && $user?.sub && (listing?.id || listing?.slug)) {
-      if ($user.sub !== prevUserId) {
-        prevUserId = $user.sub;
+      const ownershipKey = `${$user.sub}:${listing?.id ?? listing?.slug}`;
+      if (ownershipKey !== prevUserId) {
+        prevUserId = ownershipKey;
         checkOwnership();
       }
     } else if (!$authState.isAuthenticated) {
@@ -118,11 +199,36 @@
 
       // Check ownership if user is already authenticated
       if ($authState.isAuthenticated && $user?.sub && (listing?.id || listing?.slug)) {
-        prevUserId = $user.sub;
+        prevUserId = `${$user.sub}:${listing?.id ?? listing?.slug}`;
         checkOwnership();
       }
     }
   });
+
+  async function trackListingView() {
+    if (!listing?.id || trackedView || viewTrackingInFlight) {
+      return;
+    }
+
+    viewTrackingInFlight = true;
+    try {
+      const authHeaders = await getAuthHeaders();
+      const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}/view`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          ...authHeaders,
+        },
+      });
+      if (response.ok) {
+        trackedView = true;
+      }
+    } catch {
+      // Ignore view tracking failures for the page UX.
+    } finally {
+      viewTrackingInFlight = false;
+    }
+  }
 
   function handleEdit() {
     if (!listing?.id) {
@@ -263,7 +369,7 @@
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to republish listing');
+        throw new Error(getErrorMessage(errData, 'Failed to republish listing'));
       }
 
       // Close modal and refresh the page using SvelteKit (preserves history)
@@ -362,11 +468,15 @@
             return;
           }
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-          throw new Error(errorData.error || 'Failed to fetch contact information');
+          throw new Error(
+            getErrorMessage(errorData, 'Failed to fetch contact information'),
+          );
         }
         const data = await response.json();
         cachedContactInfo = data.contactInfo;
       }
+
+      hasRevealedContact = Boolean(cachedContactInfo.phone || cachedContactInfo.email);
 
       // Show only requested contact info
       if (type === 'phone') {
@@ -380,6 +490,52 @@
       error = 'Failed to load contact information. Please try again.';
     } finally {
       isLoading = false;
+    }
+  }
+
+  async function submitFeedback() {
+    if (!listing?.id || !$authState.isAuthenticated) {
+      showLoginPrompt = true;
+      return;
+    }
+
+    feedbackError = null;
+    feedbackSuccess = null;
+
+    if (feedbackRating < 1 || feedbackRating > 5) {
+      feedbackError = 'Choose a rating between 1 and 5.';
+      return;
+    }
+
+    isSubmittingFeedback = true;
+    try {
+      const authHeaders = await getAuthHeaders();
+      const response = await fetch(`${config.api.baseUrl}/listings/${listing.id}/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({
+          rating: feedbackRating,
+          comment: feedbackComment.trim() || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({ error: 'Failed to submit feedback' }));
+        throw new Error(getErrorMessage(errData, 'Failed to submit feedback'));
+      }
+
+      await refreshRewardSummary(fetch, authHeaders);
+      feedbackSuccess = 'Feedback submitted successfully.';
+      feedbackComment = '';
+      feedbackRating = 0;
+    } catch (err) {
+      feedbackError = err instanceof Error ? err.message : 'Failed to submit feedback';
+    } finally {
+      isSubmittingFeedback = false;
     }
   }
 
@@ -710,6 +866,63 @@
           </div>
         {/if}
       </div>
+
+      {#if !isOwner && hasRevealedContact}
+        <div class="mt-6 rounded-2xl border border-base-200 bg-base-100 p-5 shadow-sm">
+          <div class="mb-4 flex items-center gap-2">
+            <Icon icon="material-symbols:reviews" class="h-6 w-6 text-primary" />
+            <h2 class="text-xl font-semibold">Leave buyer feedback</h2>
+          </div>
+
+          <p class="mb-4 text-sm text-base-content/70">
+            After you reveal the seller’s contact information, you can leave a quick rating and optional note.
+          </p>
+
+          <div class="mb-4 flex flex-wrap gap-2">
+            {#each [1, 2, 3, 4, 5] as rating}
+              <button
+                type="button"
+                class="btn btn-sm {feedbackRating === rating ? 'btn-primary' : 'btn-outline'}"
+                on:click={() => (feedbackRating = rating)}
+              >
+                {rating} star{rating > 1 ? 's' : ''}
+              </button>
+            {/each}
+          </div>
+
+          <textarea
+            class="textarea textarea-bordered min-h-[120px] w-full"
+            placeholder="Share a short note about your experience with this seller (optional)"
+            bind:value={feedbackComment}
+          ></textarea>
+
+          {#if feedbackError}
+            <div class="mt-3 flex items-center gap-2 text-sm text-error">
+              <Icon icon="material-symbols:error" class="h-5 w-5" />
+              <span>{feedbackError}</span>
+            </div>
+          {/if}
+
+          {#if feedbackSuccess}
+            <div class="mt-3 flex items-center gap-2 text-sm text-success">
+              <Icon icon="material-symbols:check-circle" class="h-5 w-5" />
+              <span>{feedbackSuccess}</span>
+            </div>
+          {/if}
+
+          <div class="mt-4">
+            <button class="btn btn-primary" on:click={submitFeedback} disabled={isSubmittingFeedback}>
+              {#if isSubmittingFeedback}
+                <Icon icon="material-symbols:sync-outline" class="mr-2 h-5 w-5 animate-spin" />
+                Submitting...
+              {:else}
+                <Icon icon="material-symbols:send" class="mr-2 h-5 w-5" />
+                Submit Feedback
+              {/if}
+            </button>
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
 

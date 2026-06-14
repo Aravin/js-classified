@@ -11,6 +11,8 @@ import {
   UserListingsQueryParams,
 } from '../schemas/user.schema';
 import { verifyAuth0Token } from '../../middleware/auth';
+import { RewardService } from '../../services/reward.service';
+import { sendErrorResponse } from '../http-errors';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -28,11 +30,14 @@ const userSelect = {
   avatar: true,
   createdAt: true,
   lastLogin: true,
+  rewardPoints: true,
   listingLimit: true,
 } as const;
 
 
 export async function userRoutes(fastify: FastifyInstance) {
+  const rewardService = new RewardService(fastify.prisma);
+
   // Create user
   fastify.post('/', {
     schema: {
@@ -42,8 +47,8 @@ export async function userRoutes(fastify: FastifyInstance) {
       const data = request.body as CreateUserParams;
 
       try {
-        const isAuthenticated = await verifyAuth0Token(request, reply);
-        if (!isAuthenticated || !request.user?.sub) {
+        await verifyAuth0Token(request, reply);
+        if (reply.sent || !request.user?.sub) {
           return;
         }
 
@@ -63,6 +68,12 @@ export async function userRoutes(fastify: FastifyInstance) {
             },
             select: userSelect,
           });
+
+          await rewardService.maybeGrantDailyLoginReward({
+            id: user.id,
+            userId: user.userId,
+          });
+
           return reply.status(200).send(user);
         }
 
@@ -77,13 +88,18 @@ export async function userRoutes(fastify: FastifyInstance) {
           select: userSelect,
         });
 
+        await rewardService.maybeGrantDailyLoginReward({
+          id: user.id,
+          userId: user.userId,
+        });
+
+        await rewardService.maybeGrantProfileCompletionReward(user);
+
         return reply.status(201).send(user);
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
-            return reply.status(400).send({ 
-              message: 'Username, email or phone already registered' 
-            });
+            return sendErrorResponse(reply, 400, 'Username, email or phone already registered');
           }
         }
         throw error;
@@ -138,7 +154,7 @@ export async function userRoutes(fastify: FastifyInstance) {
       const userId = parseInt(id, 10);
 
       if (isNaN(userId)) {
-        return reply.status(400).send({ message: 'Invalid user ID' });
+        return sendErrorResponse(reply, 400, 'Invalid user ID');
       }
 
       const user = await fastify.prisma.user.findFirst({
@@ -147,7 +163,7 @@ export async function userRoutes(fastify: FastifyInstance) {
       });
 
       if (!user) {
-        return reply.status(404).send({ message: 'User not found' });
+        return sendErrorResponse(reply, 404, 'User not found');
       }
 
       return reply.send(user);
@@ -164,13 +180,13 @@ export async function userRoutes(fastify: FastifyInstance) {
       const updates = request.body as UpdateUserParams;
 
       try {
-        const isAuthenticated = await verifyAuth0Token(request, reply);
-        if (!isAuthenticated || !request.user?.sub) {
+        await verifyAuth0Token(request, reply);
+        if (reply.sent || !request.user?.sub) {
           return;
         }
 
         if (request.user.sub !== id) {
-          return reply.status(403).send({ message: 'Access denied. You can only update your own profile.' });
+          return sendErrorResponse(reply, 403, 'Access denied. You can only update your own profile.');
         }
 
         const user = await fastify.prisma.user.update({
@@ -179,16 +195,16 @@ export async function userRoutes(fastify: FastifyInstance) {
           select: userSelect,
         });
 
+        await rewardService.maybeGrantProfileCompletionReward(user);
+
         return reply.send(user);
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
-            return reply.status(400).send({ 
-              message: 'Username, email or phone already registered' 
-            });
+            return sendErrorResponse(reply, 400, 'Username, email or phone already registered');
           }
           if (error.code === 'P2025') {
-            return reply.status(404).send({ message: 'User not found' });
+            return sendErrorResponse(reply, 404, 'User not found');
           }
         }
         throw error;
@@ -202,13 +218,13 @@ export async function userRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
 
       try {
-        const isAuthenticated = await verifyAuth0Token(request, reply);
-        if (!isAuthenticated || !request.user?.sub) {
+        await verifyAuth0Token(request, reply);
+        if (reply.sent || !request.user?.sub) {
           return;
         }
 
         if (request.user.sub !== id) {
-          return reply.status(403).send({ message: 'Access denied. You can only delete your own profile.' });
+          return sendErrorResponse(reply, 403, 'Access denied. You can only delete your own profile.');
         }
 
         await fastify.prisma.user.delete({
@@ -219,7 +235,7 @@ export async function userRoutes(fastify: FastifyInstance) {
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === 'P2025') {
-            return reply.status(404).send({ message: 'User not found' });
+            return sendErrorResponse(reply, 404, 'User not found');
           }
         }
         throw error;
@@ -236,13 +252,13 @@ export async function userRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
       const { page = 1, limit = 10, status } = request.query as UserListingsQueryParams;
 
-      const isAuthenticated = await verifyAuth0Token(request, reply);
-      if (!isAuthenticated || !request.user?.sub) {
+      await verifyAuth0Token(request, reply);
+      if (reply.sent || !request.user?.sub) {
         return;
       }
 
       if (request.user.sub !== id) {
-        return reply.status(403).send({ message: 'Access denied. You can only view your own listings.' });
+        return sendErrorResponse(reply, 403, 'Access denied. You can only view your own listings.');
       }
 
       const user = await fastify.prisma.user.findUnique({
@@ -251,7 +267,7 @@ export async function userRoutes(fastify: FastifyInstance) {
       });
 
       if (!user) {
-        return reply.status(404).send({ message: 'User not found' });
+        return sendErrorResponse(reply, 404, 'User not found');
       }
 
       const where: Prisma.listingWhereInput = {

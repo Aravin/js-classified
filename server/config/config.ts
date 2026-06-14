@@ -1,5 +1,6 @@
 interface RequiredEnvVars {
   DATABASE_URL?: string;
+  VIEWER_KEY_SECRET?: string;
   STORAGE_PROVIDER?: string; // Optional: 'cloudinary' (default), 'aws-s3', 'cloudflare-r2'
   CLOUDINARY_CLOUD_NAME?: string;
   CLOUDINARY_API_KEY?: string;
@@ -8,6 +9,7 @@ interface RequiredEnvVars {
 
 const requiredEnvVars: (keyof RequiredEnvVars)[] = [
   'DATABASE_URL',
+  'VIEWER_KEY_SECRET',
   'CLOUDINARY_CLOUD_NAME',
   'CLOUDINARY_API_KEY',
   'CLOUDINARY_API_SECRET',
@@ -45,6 +47,13 @@ export function validateEnvConfig(): void {
     process.exit(1);
   }
 
+  const viewerKeySecret = process.env.VIEWER_KEY_SECRET?.trim() ?? '';
+  if (viewerKeySecret.length < 32) {
+    console.error('❌ VIEWER_KEY_SECRET must be at least 32 characters long.');
+    console.error('   Generate one with: openssl rand -hex 32');
+    process.exit(1);
+  }
+
   console.log('✅ All required environment variables are set');
 }
 
@@ -53,6 +62,8 @@ export const config = {
     port: Number(process.env.PORT) || 8080,
     // Cloud Run requires binding to 0.0.0.0 (or :: for IPv6)
     host: process.env.HOST || '0.0.0.0',
+    trustProxy: process.env.TRUST_PROXY === 'true',
+    viewerKeySecret: process.env.VIEWER_KEY_SECRET?.trim() ?? '',
   },
   cors: {
     origin: process.env.CORS_ORIGIN 

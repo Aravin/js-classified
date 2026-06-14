@@ -8,6 +8,7 @@
   import ImageUpload from '$lib/components/ImageUpload.svelte';
   import type { ImageUploadResult } from '$lib/types';
   import { user, getAuthHeaders } from '$lib/auth/auth0';
+  import { refreshRewardSummary } from '$lib/rewards';
 
   export let data;
   let listing: any = null;
@@ -110,6 +111,8 @@
       if (!response.ok) {
         throw new Error(responseData.message || 'Failed to publish listing');
       }
+
+      await refreshRewardSummary(fetch, authHeaders);
 
       // Navigate to the published listing
       await goto(`/list/${responseData.slug}`);

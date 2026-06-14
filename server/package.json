@@ -8,7 +8,9 @@
     "start": "node dist/index.js",
     "prepare": "npx prisma generate",
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,json,md,prisma}\""
@@ -42,6 +44,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.8",
     "@types/node": "^24.9.1",
     "@types/nodemailer": "^7.0.3",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
@@ -54,6 +57,7 @@
     "prettier": "^3.2.5",
     "prisma": "^6.18.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.8"
   }
 }

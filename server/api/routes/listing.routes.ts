@@ -6,8 +6,26 @@ import {
   listingQuerySchema,
 } from '../schemas/listing.schema';
 import { z } from 'zod';
-import { verifyAuth0Token } from '../../middleware/auth';
+import { authenticateAuth0Token, optionalAuth, verifyAuth0Token } from '../../middleware/auth';
 import { config } from '../../config/config';
+import { RewardService } from '../../services/reward.service';
+import { startOfUtcDay } from '../../utils/date-buckets';
+import { anonymizeViewerKey } from '../../utils/viewer-key';
+
+const feedbackSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().max(1000).optional(),
+});
+
+function getViewerKey(request: FastifyRequest): string {
+  if (request.user?.sub) {
+    return anonymizeViewerKey('user', request.user.sub, config.server.viewerKeySecret);
+  }
+
+  const ip = request.ip || 'anonymous';
+
+  return anonymizeViewerKey('ip', ip, config.server.viewerKeySecret);
+}
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -41,8 +59,15 @@ function sendResponse(reply: any, statusCode: number, data: any) {
 }
 
 async function getAuthenticatedUser(fastify: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
-  const isAuthenticated = await verifyAuth0Token(request, reply);
-  if (!isAuthenticated || !request.user?.sub) {
+  const authResult = await authenticateAuth0Token(request);
+  if (!authResult.ok) {
+    reply.code(authResult.statusCode).send(authResult.body);
+    return null;
+  }
+
+  request.user = authResult.token;
+
+  if (!request.user.sub) {
     return null;
   }
 
@@ -83,11 +108,13 @@ async function getOwnedListing(fastify: FastifyInstance, request: FastifyRequest
 }
 
 export async function listingRoutes(fastify: FastifyInstance) {
+  const rewardService = new RewardService(fastify.prisma);
+
   // Create a new listing (in draft status)
   fastify.post('/', async (request, reply) => {
     try {
-      const isAuthenticated = await verifyAuth0Token(request, reply);
-      if (!isAuthenticated || !request.user?.sub) {
+      await verifyAuth0Token(request, reply);
+      if (reply.sent || !request.user?.sub) {
         return;
       }
 
@@ -176,7 +203,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
         return;
       }
 
-      const { listing } = owned;
+      const { user, listing } = owned;
       if (listing.status !== ListingStatus.DRAFT) {
         return sendResponse(reply, 404, { error: 'Draft listing not found' });
       }
@@ -196,6 +223,8 @@ export async function listingRoutes(fastify: FastifyInstance) {
           images: true,
         },
       });
+
+      await rewardService.maybeGrantPublishReward(user.id, publishedListing.id);
 
       return sendResponse(reply, 200, publishedListing);
     } catch (error) {
@@ -217,7 +246,7 @@ export async function listingRoutes(fastify: FastifyInstance) {
         return;
       }
 
-      const { listing } = owned;
+      const { user, listing } = owned;
 
       // Validate that listing has at least one image
       if (!listing.images || listing.images.length === 0) {
@@ -240,6 +269,12 @@ export async function listingRoutes(fastify: FastifyInstance) {
           images: true,
         },
       });
+
+      await rewardService.maybeGrantRepublishReward(
+        user.id,
+        republishedListing.id,
+        republishedListing.republishCount,
+      );
 
       return sendResponse(reply, 200, republishedListing);
     } catch (error) {
@@ -377,7 +412,9 @@ export async function listingRoutes(fastify: FastifyInstance) {
   });
 
   // Get single listing
-  fastify.get('/:id', async (request, reply) => {
+  fastify.get('/:id', {
+    preHandler: optionalAuth,
+  }, async (request, reply) => {
     const { id } = request.params as { id: string };
     
     try {
@@ -418,25 +455,16 @@ export async function listingRoutes(fastify: FastifyInstance) {
 
       // If user is authenticated, check if they own the listing
       // If they own it, return full data even if expired
-      const authHeader = request.headers.authorization;
-      if (authHeader?.startsWith('Bearer ')) {
-        const authResult = await verifyAuth0Token(request, reply);
-        if (!authResult) {
-          return;
-        }
+      if (request.user?.sub) {
+        // User is authenticated, check ownership
+        const user = await fastify.prisma.user.findUnique({
+          where: { userId: request.user.sub },
+        });
 
-        if (authResult && request.user) {
-          // User is authenticated, check ownership
-          const user = await fastify.prisma.user.findUnique({
-            where: { userId: request.user.sub },
-          });
-
-          if (user && listing.userId === user.id) {
-            // User owns the listing, return full data including expiry flag
-            return sendResponse(reply, 200, { ...listing, isExpired });
-          }
+        if (user && listing.userId === user.id) {
+          // User owns the listing, return full data including expiry flag
+          return sendResponse(reply, 200, { ...listing, isExpired });
         }
-        // If auth failed or user doesn't own listing, continue to return masked data
       }
 
       // Return masked data for public access or if user doesn't own listing
@@ -448,6 +476,86 @@ export async function listingRoutes(fastify: FastifyInstance) {
     }
   });
 
+  fastify.post('/:id/view', {
+    preHandler: optionalAuth,
+  }, async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const listingId = parseInt(id, 10);
+      if (Number.isNaN(listingId)) {
+        return sendResponse(reply, 400, { error: 'Invalid listing ID' });
+      }
+
+      let viewerUserId: number | null = null;
+      if (request.user?.sub) {
+        const viewer = await fastify.prisma.user.findUnique({
+          where: { userId: request.user.sub },
+          select: { id: true },
+        });
+        viewerUserId = viewer?.id ?? null;
+      }
+
+      const listing = await fastify.prisma.listing.findUnique({
+        where: { id: listingId },
+        select: { id: true, userId: true },
+      });
+
+      if (!listing) {
+        return sendResponse(reply, 404, { error: 'Listing not found' });
+      }
+
+      if (viewerUserId && viewerUserId === listing.userId) {
+        return sendResponse(reply, 200, { tracked: false, reason: 'owner-view' });
+      }
+
+      const viewerKey = getViewerKey(request);
+      const viewedDay = startOfUtcDay(new Date());
+
+      let listingViewId: number | null = null;
+      let isNewView = false;
+      try {
+        const created = await fastify.prisma.listingView.create({
+          data: {
+            listingId,
+            viewerUserId: viewerUserId ?? undefined,
+            viewerKey,
+            viewedDay,
+          },
+          select: { id: true },
+        });
+        listingViewId = created.id;
+        isNewView = true;
+      } catch (error) {
+        if (
+          !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+          error.code !== 'P2002'
+        ) {
+          throw error;
+        }
+        // Duplicate (listingId, viewerKey, viewedDay) — already tracked today
+      }
+
+      let rewardGranted = false;
+      if (isNewView) {
+        const rewardResult = await rewardService.maybeGrantUniqueListingViewReward({
+          sellerUserId: listing.userId,
+          listingId,
+          viewerKey,
+        });
+        rewardGranted = rewardResult.created;
+      }
+
+      return sendResponse(reply, 200, {
+        tracked: isNewView,
+        uniqueViewId: listingViewId,
+        rewardGranted,
+      });
+    } catch (error) {
+      fastify.log.error(error);
+      return sendResponse(reply, 500, { error: 'Internal Server Error' });
+    }
+  });
+
   // Get listing contact information (requires authentication)
   fastify.get('/:id/contact', {
     preHandler: verifyAuth0Token
@@ -455,17 +563,44 @@ export async function listingRoutes(fastify: FastifyInstance) {
     const { id } = request.params as { id: string };
     try {
       const numericId = parseInt(id);
+      const currentUser = await fastify.prisma.user.findUnique({
+        where: { userId: request.user!.sub },
+        select: { id: true },
+      });
+
+      if (!currentUser) {
+        return sendResponse(reply, 404, { error: 'User not found' });
+      }
+
       const listing = await fastify.prisma.listing.findUnique({
         where: { id: numericId },
         select: {
           id: true,
           email: true,
           phone: true,
+          userId: true,
         },
       });
 
       if (!listing) {
         return sendResponse(reply, 404, { error: 'Listing not found' });
+      }
+
+      if (listing.userId !== currentUser.id) {
+        await fastify.prisma.contactReveal.upsert({
+          where: {
+            listingId_buyerId: {
+              listingId: listing.id,
+              buyerId: currentUser.id,
+            },
+          },
+          update: {},
+          create: {
+            listingId: listing.id,
+            buyerId: currentUser.id,
+            sellerId: listing.userId,
+          },
+        });
       }
 
       return sendResponse(reply, 200, {
@@ -477,6 +612,83 @@ export async function listingRoutes(fastify: FastifyInstance) {
       });
     } catch (error) {
       throw error;
+    }
+  });
+
+  fastify.post('/:id/feedback', {
+    preHandler: verifyAuth0Token,
+  }, async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const listingId = parseInt(id, 10);
+      if (Number.isNaN(listingId)) {
+        return sendResponse(reply, 400, { error: 'Invalid listing ID' });
+      }
+
+      const currentUser = await fastify.prisma.user.findUnique({
+        where: { userId: request.user!.sub },
+      });
+
+      if (!currentUser) {
+        return sendResponse(reply, 404, { error: 'User not found' });
+      }
+
+      const body = feedbackSchema.parse(request.body);
+      const listing = await fastify.prisma.listing.findUnique({
+        where: { id: listingId },
+        select: { id: true, userId: true },
+      });
+
+      if (!listing) {
+        return sendResponse(reply, 404, { error: 'Listing not found' });
+      }
+
+      if (listing.userId === currentUser.id) {
+        return sendResponse(reply, 400, { error: 'You cannot leave feedback on your own listing' });
+      }
+
+      const contactReveal = await fastify.prisma.contactReveal.findUnique({
+        where: {
+          listingId_buyerId: {
+            listingId,
+            buyerId: currentUser.id,
+          },
+        },
+      });
+
+      if (!contactReveal) {
+        return sendResponse(reply, 403, { error: 'Reveal contact information before leaving feedback' });
+      }
+
+      const feedback = await fastify.prisma.listingFeedback.create({
+        data: {
+          listingId,
+          buyerId: currentUser.id,
+          sellerId: listing.userId,
+          rating: body.rating,
+          comment: body.comment,
+        },
+      });
+
+      await rewardService.maybeGrantBuyerFeedbackRewards({
+        listingId,
+        buyerId: currentUser.id,
+        sellerId: listing.userId,
+        rating: body.rating,
+      });
+
+      return sendResponse(reply, 201, { feedback });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return sendResponse(reply, 400, { error: error.issues });
+      }
+
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        return sendResponse(reply, 409, { error: 'Feedback has already been submitted for this listing' });
+      }
+
+      fastify.log.error(error);
+      return sendResponse(reply, 500, { error: 'Internal Server Error' });
     }
   });
 
@@ -557,8 +769,8 @@ export async function listingRoutes(fastify: FastifyInstance) {
     try {
       const { userId } = request.params as { userId: string };
 
-      const isAuthenticated = await verifyAuth0Token(request, reply);
-      if (!isAuthenticated || !request.user?.sub) {
+      await verifyAuth0Token(request, reply);
+      if (reply.sent || !request.user?.sub) {
         return;
       }
 

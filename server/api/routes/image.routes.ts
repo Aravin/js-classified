@@ -19,8 +19,8 @@ declare module 'fastify' {
 }
 
 async function verifyListingOwnership(fastify: any, request: any, reply: any, listingId: number) {
-  const isAuthenticated = await verifyAuth0Token(request, reply);
-  if (!isAuthenticated || !request.user?.sub) {
+  await verifyAuth0Token(request, reply);
+  if (reply.sent || !request.user?.sub) {
     return null;
   }
 

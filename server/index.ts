@@ -6,6 +6,7 @@ import { configureSecurityPlugins } from './plugins/security';
 import { listingRoutes } from './api/routes/listing.routes';
 import { imageRoutes } from './api/routes/image.routes';
 import { userRoutes } from './api/routes/user.routes';
+import { rewardRoutes } from './api/routes/reward.routes';
 import { validateInputMiddleware, securityErrorHandler } from './middleware/security';
 import { config, validateEnvConfig } from './config/config';
 import { validateSecurityConfig } from './config/security';
@@ -27,6 +28,7 @@ cloudinary.config({
 
 const server = fastify({
   logger: true,
+  trustProxy: config.server.trustProxy,
 });
 
 // Initialize Prisma
@@ -75,11 +77,13 @@ server.setErrorHandler((error, request, reply) => {
 server.register(listingRoutes, { prefix: '/api/listings' });
 server.register(imageRoutes, { prefix: '/api/images' });
 server.register(userRoutes, { prefix: '/api/users' });
+server.register(rewardRoutes, { prefix: '/api/rewards' });
 
 // Register routes without /api prefix (for api.locful.com domain)
 server.register(listingRoutes, { prefix: '/listings' });
 server.register(imageRoutes, { prefix: '/images' });
 server.register(userRoutes, { prefix: '/users' });
+server.register(rewardRoutes, { prefix: '/rewards' });
 
 // Initialize services for cron jobs
 const statisticsService = new StatisticsService(prisma);
