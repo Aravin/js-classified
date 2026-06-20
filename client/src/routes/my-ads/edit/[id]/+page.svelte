@@ -39,6 +39,7 @@
   let errors: FormErrors = { ...initialErrors };
   let uploadedImages: ImageUploadResult[] = [];
   let imageUploadError: string | null = null;
+  let isUploadingImages = false;
 
   // Update formData when stores change
   $: formData.location = $selectedLocation;
@@ -365,6 +366,7 @@
         <ImageUpload
           {listingId}
           maxFiles={3}
+          bind:isUploading={isUploadingImages}
           on:upload={(event) => {
             uploadedImages = [...uploadedImages, ...event.detail.images];
             imageUploadError = null;
@@ -390,15 +392,17 @@
                   alt="Uploaded"
                   class="aspect-square w-full rounded-lg object-cover"
                 />
-                <button
-                  type="button"
-                  class="hover:bg-error-focus absolute right-2 top-2 rounded-full bg-error p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                  on:click={() => {
-                    uploadedImages = uploadedImages.filter((img) => img.id !== image.id);
-                  }}
-                >
-                  <Icon icon="material-symbols:delete" class="h-5 w-5" />
-                </button>
+                {#if !submitting && !isUploadingImages}
+                  <button
+                    type="button"
+                    class="hover:bg-error-focus absolute right-2 top-2 rounded-full bg-error p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    on:click={() => {
+                      uploadedImages = uploadedImages.filter((img) => img.id !== image.id);
+                    }}
+                  >
+                    <Icon icon="material-symbols:delete" class="h-5 w-5" />
+                  </button>
+                {/if}
               </div>
             {/each}
           </div>
@@ -407,7 +411,7 @@
 
       <!-- Submit Button -->
       <div class="form-control mt-6">
-        <button type="submit" class="btn btn-primary" disabled={submitting}>
+        <button type="submit" class="btn btn-primary" disabled={submitting || isUploadingImages}>
           {#if submitting}
             <Icon icon="material-symbols:hourglass-bottom" class="mr-2 h-5 w-5 animate-spin" />
             Updating...
