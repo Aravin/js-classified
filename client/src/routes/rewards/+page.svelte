@@ -12,15 +12,20 @@
   />
 </svelte:head>
 
-<section class="mb-10 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary to-secondary p-8 text-primary-content shadow-xl md:p-10">
+<section
+  class="mb-10 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary to-secondary p-8 text-primary-content shadow-xl md:p-10"
+>
   <div class="max-w-3xl">
-    <div class="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur">
+    <div
+      class="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur"
+    >
       <Icon icon="material-symbols:workspace-premium" class="h-5 w-5" />
       Rewards guide
     </div>
     <h1 class="text-4xl font-black tracking-tight md:text-5xl">How rewards work</h1>
     <p class="mt-4 text-base text-primary-content/85 md:text-lg">
-      Earn points for consistent, real marketplace activity. Your total points determine your place on the leaderboard.
+      Earn points for consistent, real marketplace activity. Your total points determine your place
+      on the leaderboard.
     </p>
   </div>
 </section>
@@ -39,7 +44,7 @@
             </tr>
           </thead>
           <tbody>
-            {#each data.rewards as reward}
+            {#each data.rewards as reward (reward.title)}
               <tr>
                 <td class="font-semibold">{reward.title}</td>
                 <td>
@@ -68,7 +73,8 @@
         </li>
         <li class="flex gap-3">
           <Icon icon="material-symbols:check-circle" class="mt-0.5 h-5 w-5 text-success" />
-          Profile completion is a one-time reward when your email, phone, full name, and avatar are all filled in.
+          Profile completion is a one-time reward when your email, phone, full name, and avatar are all
+          filled in.
         </li>
         <li class="flex gap-3">
           <Icon icon="material-symbols:check-circle" class="mt-0.5 h-5 w-5 text-success" />
@@ -91,14 +97,17 @@
     <h2 class="text-2xl font-bold">Worked examples</h2>
   </div>
   <div class="grid gap-6 lg:grid-cols-3">
-    {#each data.examples as example}
+    {#each data.examples as example (example.title)}
       <article class="card border border-base-200 bg-base-100 shadow-lg">
         <div class="card-body">
           <h3 class="card-title">{example.title}</h3>
           <ul class="mt-3 space-y-3 text-sm text-base-content/75">
-            {#each example.steps as step}
+            {#each example.steps as step (step)}
               <li class="flex gap-3">
-                <Icon icon="material-symbols:subdirectory-arrow-right" class="mt-0.5 h-4 w-4 text-primary" />
+                <Icon
+                  icon="material-symbols:subdirectory-arrow-right"
+                  class="mt-0.5 h-4 w-4 text-primary"
+                />
                 {step}
               </li>
             {/each}
@@ -119,7 +128,9 @@
     <div class="mt-4 space-y-5 text-sm leading-6 text-base-content/80">
       <div>
         <p class="font-semibold text-base-content">Why didn’t my draft earn points?</p>
-        <p class="mt-1">Drafts are not rewarded. Points are only granted when the listing is published.</p>
+        <p class="mt-1">
+          Drafts are not rewarded. Points are only granted when the listing is published.
+        </p>
       </div>
       <div>
         <p class="font-semibold text-base-content">Do I get login points every time I refresh?</p>
@@ -127,7 +138,10 @@
       </div>
       <div>
         <p class="font-semibold text-base-content">How do I increase my rank fastest?</p>
-        <p class="mt-1">Stay active consistently: complete your profile, publish useful listings, and republish expired ones when they are relevant again.</p>
+        <p class="mt-1">
+          Stay active consistently: complete your profile, publish useful listings, and republish
+          expired ones when they are relevant again.
+        </p>
       </div>
     </div>
   </div>

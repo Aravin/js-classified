@@ -137,7 +137,7 @@
 
   {#if showDropdown}
     <ul id={dropdownId} class="dropdown-options" role="listbox">
-      {#each filteredOptions as option, i}
+      {#each filteredOptions as option, i (option.key)}
         <li
           id="option-{option.key}"
           class="dropdown-option {i === activeIndex ? 'bg-primary/10' : ''}"

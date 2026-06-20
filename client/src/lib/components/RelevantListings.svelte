@@ -4,6 +4,7 @@
   import type { ListingType } from '$lib/types';
   import ListingGrid from './ListingGrid.svelte';
   import Icon from '@iconify/svelte';
+  import { SvelteURLSearchParams } from 'svelte/reactivity';
 
   export let listing: ListingType;
   export let limit: number = 8;
@@ -13,11 +14,13 @@
 
   onMount(async () => {
     try {
-      const searchParams = new URLSearchParams();
+      const searchParams = new SvelteURLSearchParams();
 
       // Get categoryId - check both category.key or direct categoryId property
-      const categoryId = (listing as any).categoryId || listing.category?.key;
-      const locationId = (listing as any).locationId || listing.location?.key;
+      const categoryId =
+        (listing as ListingType & { categoryId?: number }).categoryId || listing.category?.key;
+      const locationId =
+        (listing as ListingType & { locationId?: number }).locationId || listing.location?.key;
 
       if (!categoryId || !locationId) {
         console.warn('Missing categoryId or locationId for relevant listings');

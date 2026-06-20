@@ -50,7 +50,6 @@
 
   let submitting = false;
   let submitError: string | null = null;
-  let draftListing: any = null;
   let isLoading = true;
   let limitWarning: string | null = null;
 
@@ -102,7 +101,6 @@
         throw new Error(responseData.message || 'Failed to submit listing');
       }
 
-      draftListing = responseData;
       isFormDirty = false;
       await goto('/post-ad/preview?id=' + responseData.id);
     } catch (err) {

@@ -1,0 +1,8 @@
+{
+  "src/**/*.{js,ts,svelte,json}": [
+    "yarn format",
+    "yarn lint:fix",
+    "yarn run check",
+    "yarn run test"
+  ]
+}

@@ -317,7 +317,7 @@
   </div>
 
   <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    {#each Object.entries(groupedCategories) as [parentCategory, items]}
+    {#each Object.entries(groupedCategories) as [parentCategory, items] (parentCategory)}
       {@const expandedKey = `expanded-${parentCategory}`}
       {@const isExpanded = expandedCategories[expandedKey]}
       <div class="group relative">
@@ -354,7 +354,7 @@
 
             <!-- Subcategories List -->
             <div class="space-y-2">
-              {#each items.slice(0, 4) as item}
+              {#each items.slice(0, 4) as item (item.key)}
                 <a
                   href="/category/{item.slug}?category={item.key}"
                   class="group/item block rounded-lg px-3 py-2 text-sm font-medium text-base-content/80 transition-all duration-200 hover:bg-primary/5 hover:text-primary"
@@ -372,7 +372,7 @@
                 <!-- Expanded items (shown when expanded) -->
                 {#if isExpanded}
                   <div class="space-y-2">
-                    {#each items.slice(4) as item, index}
+                    {#each items.slice(4) as item (item.key)}
                       <a
                         href="/category/{item.slug}?category={item.key}"
                         class="group/item block rounded-lg px-3 py-2 text-sm font-medium text-base-content/80 transition-all duration-200 hover:bg-primary/5 hover:text-primary"

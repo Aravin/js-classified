@@ -10,8 +10,22 @@
   import { user, getAuthHeaders } from '$lib/auth/auth0';
   import { refreshRewardSummary } from '$lib/rewards';
 
+  interface ListingPreview {
+    id: number;
+    title: string;
+    description: string;
+    price: number | string;
+    slug: string;
+    status: string;
+    images: ImageUploadResult[];
+    location: { name: string };
+    category: { name: string };
+    phone?: string;
+    email?: string;
+    createdAt: string;
+  }
   export let data;
-  let listing: any = null;
+  let listing: ListingPreview | null = null;
   let isLoading = true;
   let error: string | null = null;
   let uploadedImages: ImageUploadResult[] = [];
@@ -38,9 +52,10 @@
       });
       if (!response.ok) throw new Error('Failed to fetch listing');
 
-      listing = await response.json();
-      if (listing.images) {
-        uploadedImages = listing.images;
+      const responseData = (await response.json()) as ListingPreview;
+      listing = responseData;
+      if (responseData && responseData.images) {
+        uploadedImages = responseData.images;
       }
     } catch (err) {
       error = 'Failed to load listing preview';
@@ -262,7 +277,7 @@
             </div>
           </div>
           <div class="whitespace-nowrap text-2xl font-bold text-primary">
-            {formatCurrency(listing.price)}
+            {formatCurrency(Number(listing.price))}
           </div>
         </div>
 

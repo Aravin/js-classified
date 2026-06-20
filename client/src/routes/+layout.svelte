@@ -8,9 +8,10 @@
   import { goto } from '$app/navigation';
   import AuthNav from '$lib/components/AuthNav.svelte';
   import { onMount } from 'svelte';
-  import { initAuth0, authState } from '$lib/auth/auth0';
+  import { initAuth0 } from '$lib/auth/auth0';
   import { browser } from '$app/environment';
   import { config } from '$lib/config';
+  import { SvelteURLSearchParams } from 'svelte/reactivity';
 
   // Popular categories mapping - find best matching category
   const popularCategories = [
@@ -41,8 +42,8 @@
       if (config.googleAnalytics.id) {
         // Initialize dataLayer before loading gtag.js
         window.dataLayer = window.dataLayer || [];
-        function gtag(...args: any[]) {
-          window.dataLayer!.push(args);
+        function gtag(...args: unknown[]) {
+          (window.dataLayer as unknown[]).push(args);
         }
         window.gtag = gtag;
         gtag('js', new Date());
@@ -64,7 +65,7 @@
   async function handleSearch(event: Event) {
     event.preventDefault();
 
-    const params = new URLSearchParams();
+    const params = new SvelteURLSearchParams();
 
     if ($searchTerm) {
       params.set('q', $searchTerm);
@@ -109,7 +110,7 @@
           <Icon icon="material-symbols:workspace-premium" class="h-5 w-5" />
           Rewards
         </a>
-        <a href="/leaderboard" class="btn btn-ghost btn-sm normal-case hidden sm:inline-flex">
+        <a href="/leaderboard" class="btn btn-ghost btn-sm hidden normal-case sm:inline-flex">
           <Icon icon="material-symbols:leaderboard" class="h-5 w-5" />
           Leaderboard
         </a>
@@ -215,7 +216,7 @@
           <span class="text-white">Popular Categories</span>
         </h3>
         <ul class="space-y-2">
-          {#each popularCategories as item}
+          {#each popularCategories as item (item.name)}
             {#if item.category}
               <li>
                 <a
@@ -265,7 +266,7 @@
               <span>Leaderboard</span>
             </a>
           </li>
-          {#each [{ name: 'About Us', url: 'https://www.exaful.com/about' }, { name: 'Career', url: 'https://www.exaful.com/career' }, { name: 'Contact Us', url: 'https://www.exaful.com/contact' }, { name: 'Terms of Use', url: 'https://www.exaful.com/policies/terms' }, { name: 'Privacy Policy', url: 'https://www.exaful.com/policies/privacy' }, { name: 'Refund Policy', url: 'https://www.exaful.com/policies/refund' }] as item}
+          {#each [{ name: 'About Us', url: 'https://www.exaful.com/about' }, { name: 'Career', url: 'https://www.exaful.com/career' }, { name: 'Contact Us', url: 'https://www.exaful.com/contact' }, { name: 'Terms of Use', url: 'https://www.exaful.com/policies/terms' }, { name: 'Privacy Policy', url: 'https://www.exaful.com/policies/privacy' }, { name: 'Refund Policy', url: 'https://www.exaful.com/policies/refund' }] as item (item.name)}
             <li>
               <a
                 href={item.url}
@@ -287,7 +288,7 @@
           <span class="text-white">Follow Us</span>
         </h3>
         <div class="flex space-x-6">
-          {#each [{ icon: 'line-md:facebook', label: 'Facebook', url: 'https://www.fb.me/itarav' }, { icon: 'line-md:twitter-x', label: 'Twitter', url: 'https://twitter.com/itaravin' }, { icon: 'mdi:github', label: 'GitHub', url: 'https://github.com/Aravin/' }, { icon: 'mdi:linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/itaravin/' }, { icon: 'mdi:stack-overflow', label: 'Stack Overflow', url: 'https://stackoverflow.com/users/3058254/aravin' }] as { icon, label, url }}
+          {#each [{ icon: 'line-md:facebook', label: 'Facebook', url: 'https://www.fb.me/itarav' }, { icon: 'line-md:twitter-x', label: 'Twitter', url: 'https://twitter.com/itaravin' }, { icon: 'mdi:github', label: 'GitHub', url: 'https://github.com/Aravin/' }, { icon: 'mdi:linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/itaravin/' }, { icon: 'mdi:stack-overflow', label: 'Stack Overflow', url: 'https://stackoverflow.com/users/3058254/aravin' }] as { icon, label, url } (label)}
             <a
               href={url}
               target="_blank"

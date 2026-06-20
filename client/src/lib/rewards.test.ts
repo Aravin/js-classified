@@ -120,7 +120,9 @@ describe('rewards API helpers', () => {
     const unauthorized = await refreshRewardSummary(mockFetch as never, {});
     expect(unauthorized).toBeNull();
 
-    const authorized = await refreshRewardSummary(mockFetch as never, { Authorization: 'Bearer token' });
+    const authorized = await refreshRewardSummary(mockFetch as never, {
+      Authorization: 'Bearer token',
+    });
     expect(authorized?.points).toBe(8);
   });
 });

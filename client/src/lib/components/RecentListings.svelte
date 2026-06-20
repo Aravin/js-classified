@@ -11,6 +11,7 @@
 
   onMount(async () => {
     try {
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const searchParams = new URLSearchParams();
       searchParams.set('limit', '10');
       searchParams.set('sortBy', 'createdAt');

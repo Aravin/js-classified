@@ -35,6 +35,7 @@
   }
 
   function updateSearch(newParams: Record<string, string>) {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const params = new URLSearchParams($page.url.searchParams);
 
     Object.entries(newParams).forEach(([key, value]) => {

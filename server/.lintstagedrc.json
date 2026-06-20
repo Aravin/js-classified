@@ -1,0 +1,6 @@
+{
+  "src/**/*.{js,ts,json,prisma}": [
+    "yarn format",
+    "yarn lint:fix"
+  ]
+}

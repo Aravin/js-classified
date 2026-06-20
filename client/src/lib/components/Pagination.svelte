@@ -35,7 +35,7 @@
       <Icon icon="material-symbols:chevron-left" />
     </button>
 
-    {#each getPaginationRange(currentPage, totalPages) as item}
+    {#each getPaginationRange(currentPage, totalPages) as item (item)}
       {#if item === '...'}
         <span class="flex h-8 w-8 items-center justify-center">...</span>
       {:else}

@@ -5,11 +5,7 @@
   import { browser } from '$app/environment';
   import { getAuthHeaders } from '$lib/auth/auth0';
   import { shouldLoadRewardSummary } from '$lib/reward-summary-load-state';
-  import {
-    getCachedRewardSummary,
-    refreshRewardSummary,
-    type RewardSummary,
-  } from '$lib/rewards';
+  import { getCachedRewardSummary, refreshRewardSummary, type RewardSummary } from '$lib/rewards';
 
   let isLoading = true;
   let error: string | null = null;
@@ -238,13 +234,17 @@
                 <p class="mt-2 text-3xl font-black text-primary">{rewardSummary.points}</p>
               </div>
               <div class="rounded-2xl bg-secondary/10 p-5">
-                <p class="text-xs font-semibold uppercase tracking-wide text-secondary">All-time rank</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-secondary">
+                  All-time rank
+                </p>
                 <p class="mt-2 text-3xl font-black text-secondary">
                   {rewardSummary.ranks.allTime ? `#${rewardSummary.ranks.allTime}` : 'Unranked'}
                 </p>
               </div>
               <div class="rounded-2xl bg-accent/10 p-5">
-                <p class="text-xs font-semibold uppercase tracking-wide text-accent">Monthly rank</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-accent">
+                  Monthly rank
+                </p>
                 <p class="mt-2 text-3xl font-black text-accent">
                   {rewardSummary.ranks.monthly ? `#${rewardSummary.ranks.monthly}` : 'Unranked'}
                 </p>
@@ -260,18 +260,23 @@
 
                 {#if rewardSummary.breakdown.length > 0}
                   <div class="overflow-hidden rounded-2xl border border-base-200 bg-base-200/30">
-                    <div class="grid grid-cols-[minmax(0,1fr)_96px_96px] gap-3 border-b border-base-200 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                    <div
+                      class="grid grid-cols-[minmax(0,1fr)_96px_96px] gap-3 border-b border-base-200 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-base-content/60"
+                    >
                       <span>Reward type</span>
                       <span class="text-right">Count</span>
                       <span class="text-right">Points</span>
                     </div>
 
-                    {#each rewardSummary.breakdown as item}
-                      <div class="grid grid-cols-[minmax(0,1fr)_96px_96px] gap-3 border-b border-base-200/70 px-4 py-3 last:border-b-0">
+                    {#each rewardSummary.breakdown as item (item.action)}
+                      <div
+                        class="grid grid-cols-[minmax(0,1fr)_96px_96px] gap-3 border-b border-base-200/70 px-4 py-3 last:border-b-0"
+                      >
                         <div>
                           <p class="font-semibold text-base-content">{item.title}</p>
                           <p class="text-sm text-base-content/60">
-                            {item.count} {item.count === 1 ? 'reward event' : 'reward events'}
+                            {item.count}
+                            {item.count === 1 ? 'reward event' : 'reward events'}
                           </p>
                         </div>
                         <p class="text-right font-semibold text-base-content/70">{item.count}</p>
@@ -294,12 +299,13 @@
 
                 {#if rewardSummary.recentRewards.length > 0}
                   <div class="space-y-3">
-                    {#each rewardSummary.recentRewards as reward}
+                    {#each rewardSummary.recentRewards as reward (reward.createdAt + reward.action)}
                       <div class="rounded-2xl border border-base-200 bg-base-100 p-4 shadow-sm">
                         <div class="flex items-start justify-between gap-3">
                           <div>
                             <p class="font-semibold text-base-content">
-                              {rewardSummary.breakdown.find((item) => item.action === reward.action)?.title || reward.action}
+                              {rewardSummary.breakdown.find((item) => item.action === reward.action)
+                                ?.title || reward.action}
                             </p>
                             <p class="mt-1 text-sm text-base-content/60">
                               {new Date(reward.createdAt).toLocaleDateString('en-IN', {

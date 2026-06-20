@@ -38,7 +38,7 @@ function getAbsoluteImageUrl(imagePath: string, baseUrl: string): string | null 
 export function generateListingStructuredData(
   listing: ListingWithStatus,
   baseUrl: string = 'https://locful.com',
-): any {
+): Record<string, unknown> {
   const imageUrls =
     listing.images
       ?.map((img) => getAbsoluteImageUrl(img.path, baseUrl))
@@ -47,7 +47,7 @@ export function generateListingStructuredData(
   const listingUrl = `${baseUrl}/list/${listing.slug}`;
   const status = listing.status?.toUpperCase() === 'ACTIVE' || !listing.status ? 'ACTIVE' : 'DRAFT';
 
-  const structuredData: any = {
+  const structuredData: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: listing.title,
@@ -204,7 +204,10 @@ export function generateGoogleShoppingFeed(
       const imageUrl = listing.images?.[0]?.path ? `${baseUrl}${listing.images[0].path}` : '';
       const listingUrl = `${baseUrl}/list/${listing.slug}`;
       const price = listing.price || 0;
-      const categoryName = (listing.category as any)?.name || listing.category?.value || 'Other';
+      const categoryName =
+        (listing.category as { name?: string } & typeof listing.category)?.name ||
+        listing.category?.value ||
+        'Other';
 
       return `    <item>
       <g:id>${listing.id}</g:id>

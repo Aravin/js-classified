@@ -369,7 +369,7 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
           'Cache-Control': 'public, max-age=3600',
         },
       });
-    } catch (fallbackError) {
+    } catch {
       return new Response('Error generating image', { status: 500 });
     }
   }

@@ -72,7 +72,7 @@ export async function checkActiveAdsLimit(
     // Count active ads, excluding the specified listing ID if provided
     // Also ensure we don't count expired ads
     const activeCount = listings.filter(
-      (listing: any) =>
+      (listing: { status: string; createdAt: string; republishedAt?: string | null; id: number }) =>
         (listing.status === 'ACTIVE' || listing.status === 'active') &&
         !isListingExpired(listing.createdAt, listing.republishedAt) &&
         (excludeListingId ? listing.id !== excludeListingId : true),

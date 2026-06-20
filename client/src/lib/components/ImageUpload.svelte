@@ -2,7 +2,6 @@
   import { createEventDispatcher } from 'svelte';
   import type { ImageUploadResult } from '$lib/types';
   import { config } from '$lib/config';
-  import { browser } from '$app/environment';
   import { flip } from 'svelte/animate';
   import { dndzone } from 'svelte-dnd-action';
   import Icon from '@iconify/svelte';
@@ -21,8 +20,7 @@
   $: isUploading = preview.some((item) => item.uploading);
 
   let fileInput: HTMLInputElement;
-  let uploadStates: Map<string, { progress: number; error: string | null }> = new Map();
-  let preview: Array<{
+  export let preview: Array<{
     id: string;
     src: string;
     file: File;
@@ -306,6 +304,6 @@
   }
 
   :global(.dndzone.active) {
-    @apply border-primary;
+    border-color: hsl(var(--p));
   }
 </style>

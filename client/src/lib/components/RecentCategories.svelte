@@ -4,6 +4,7 @@
   import type { ListingType, CategoryType } from '$lib/types';
   import { categories as categoriesData } from '$lib/categories/categories';
   import Icon from '@iconify/svelte';
+  import { SvelteURLSearchParams, SvelteMap } from 'svelte/reactivity';
 
   interface CategoryCount {
     category: CategoryType;
@@ -16,7 +17,7 @@
 
   onMount(async () => {
     try {
-      const searchParams = new URLSearchParams();
+      const searchParams = new SvelteURLSearchParams();
       searchParams.set('limit', '200');
       searchParams.set('sortBy', 'createdAt');
       searchParams.set('order', 'desc');
@@ -31,11 +32,12 @@
       const listings: ListingType[] = result.listings || [];
 
       // Group by category and count
-      const categoryMap = new Map<number, CategoryCount>();
+      const categoryMap = new SvelteMap<number, CategoryCount>();
 
-      listings.forEach((listing: any) => {
+      listings.forEach((listing: ListingType & { categoryId?: number }) => {
         // Check if listing has categoryId directly or category object
-        const categoryId = (listing as any).categoryId || listing.category?.key;
+        const categoryId =
+          (listing as ListingType & { categoryId?: number }).categoryId || listing.category?.key;
 
         if (categoryId) {
           // Find the matching category from our categories array
@@ -89,7 +91,7 @@
     </h2>
     <div class="rounded-lg border border-base-200 bg-base-100 p-4">
       <ul class="space-y-1">
-        {#each categories as { category }}
+        {#each categories as { category } (category.key)}
           <li>
             <a
               href="/category/{category.slug}?category={category.key}"

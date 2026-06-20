@@ -4,6 +4,7 @@
   import type { ListingType, LocationType } from '$lib/types';
   import { locations as locationsData } from '$lib/locations';
   import Icon from '@iconify/svelte';
+  import { SvelteURLSearchParams, SvelteMap } from 'svelte/reactivity';
 
   interface LocationCount {
     location: LocationType;
@@ -16,7 +17,7 @@
 
   onMount(async () => {
     try {
-      const searchParams = new URLSearchParams();
+      const searchParams = new SvelteURLSearchParams();
       searchParams.set('limit', '200');
       searchParams.set('sortBy', 'createdAt');
       searchParams.set('order', 'desc');
@@ -31,11 +32,12 @@
       const listings: ListingType[] = result.listings || [];
 
       // Group by location and count
-      const locationMap = new Map<number, LocationCount>();
+      const locationMap = new SvelteMap<number, LocationCount>();
 
-      listings.forEach((listing: any) => {
+      listings.forEach((listing: ListingType & { locationId?: number }) => {
         // Check if listing has locationId directly or location object
-        const locationId = (listing as any).locationId || listing.location?.key;
+        const locationId =
+          (listing as ListingType & { locationId?: number }).locationId || listing.location?.key;
 
         if (locationId) {
           // Find the matching location from our locations array
@@ -90,7 +92,7 @@
     </h2>
     <div class="rounded-lg border border-base-200 bg-base-100 p-4">
       <ul class="space-y-1">
-        {#each locations as { location }}
+        {#each locations as { location } (location.key)}
           <li>
             <a
               href="/search?location={location.key}"

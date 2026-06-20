@@ -7,7 +7,7 @@
   import { goto } from '$app/navigation';
   import { config } from '$lib/config';
   import { selectedLocation, selectedCategory } from '$lib/stores/filters';
-  import { isAuthenticated, getAuthHeaders, user, authState } from '$lib/auth/auth0';
+  import { isAuthenticated, getAuthHeaders, user } from '$lib/auth/auth0';
   import { checkActiveAdsLimit } from '$lib/utils';
   import ImageUpload from '$lib/components/ImageUpload.svelte';
   import type { ImageUploadResult } from '$lib/types';

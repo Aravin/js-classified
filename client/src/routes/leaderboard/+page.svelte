@@ -14,20 +14,29 @@
   />
 </svelte:head>
 
-<section class="mb-8 flex flex-col gap-4 rounded-3xl border border-base-200 bg-base-100 p-8 shadow-lg md:flex-row md:items-end md:justify-between">
+<section
+  class="mb-8 flex flex-col gap-4 rounded-3xl border border-base-200 bg-base-100 p-8 shadow-lg md:flex-row md:items-end md:justify-between"
+>
   <div>
-    <p class="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+    <p
+      class="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary"
+    >
       <Icon icon="material-symbols:leaderboard" class="h-5 w-5" />
       Rewards ranking
     </p>
     <h1 class="text-4xl font-black tracking-tight">Leaderboard</h1>
     <p class="mt-3 max-w-2xl text-base-content/70">
-      Track the most active sellers and see how steady marketplace activity moves users up the rankings.
+      Track the most active sellers and see how steady marketplace activity moves users up the
+      rankings.
     </p>
   </div>
   <div class="join">
-    <a href="/leaderboard?period=all" class:btn-primary={!isMonthly} class="btn join-item">All-time</a>
-    <a href="/leaderboard?period=month" class:btn-primary={isMonthly} class="btn join-item">This month</a>
+    <a href="/leaderboard?period=all" class:btn-primary={!isMonthly} class="btn join-item"
+      >All-time</a
+    >
+    <a href="/leaderboard?period=month" class:btn-primary={isMonthly} class="btn join-item"
+      >This month</a
+    >
   </div>
 </section>
 
@@ -56,7 +65,7 @@
               </tr>
             </thead>
             <tbody>
-              {#each data.leaderboard as entry}
+              {#each data.leaderboard as entry (entry.rank)}
                 <tr>
                   <td>
                     <div class="flex items-center gap-2 font-bold">
@@ -71,17 +80,26 @@
                       <div class="avatar placeholder">
                         <div class="h-10 w-10 rounded-full bg-primary/10 text-primary">
                           {#if entry.avatar}
-                            <img src={entry.avatar} alt={entry.fullName?.trim() || entry.username?.trim() || 'User'} />
+                            <img
+                              src={entry.avatar}
+                              alt={entry.fullName?.trim() || entry.username?.trim() || 'User'}
+                            />
                           {:else}
                             <span class="text-sm font-bold">
-                              {(entry.fullName?.trim() || entry.username?.trim() || 'U')[0]?.toUpperCase()}
+                              {(entry.fullName?.trim() ||
+                                entry.username?.trim() ||
+                                'U')[0]?.toUpperCase()}
                             </span>
                           {/if}
                         </div>
                       </div>
                       <div>
-                        <p class="font-semibold">{entry.fullName?.trim() || entry.username?.trim() || 'Locful User'}</p>
-                        <p class="text-xs text-base-content/60">{entry.username?.trim() || 'Marketplace member'}</p>
+                        <p class="font-semibold">
+                          {entry.fullName?.trim() || entry.username?.trim() || 'Locful User'}
+                        </p>
+                        <p class="text-xs text-base-content/60">
+                          {entry.username?.trim() || 'Marketplace member'}
+                        </p>
                       </div>
                     </div>
                   </td>

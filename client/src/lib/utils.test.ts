@@ -149,13 +149,17 @@ describe('isListingExpired', () => {
     recentRepublishedAt.setDate(recentRepublishedAt.getDate() - (config.listing.expiryDays - 2));
 
     // Even if createdAt is expired, since republishedAt is recent, it should NOT be expired
-    expect(isListingExpired(expiredCreatedAt.toISOString(), recentRepublishedAt.toISOString())).toBe(false);
+    expect(
+      isListingExpired(expiredCreatedAt.toISOString(), recentRepublishedAt.toISOString()),
+    ).toBe(false);
 
     const expiredRepublishedAt = new Date();
     expiredRepublishedAt.setDate(expiredRepublishedAt.getDate() - (config.listing.expiryDays + 1));
 
     // If republishedAt is expired, it should be expired
-    expect(isListingExpired(expiredCreatedAt.toISOString(), expiredRepublishedAt.toISOString())).toBe(true);
+    expect(
+      isListingExpired(expiredCreatedAt.toISOString(), expiredRepublishedAt.toISOString()),
+    ).toBe(true);
   });
 });
 
@@ -185,6 +189,8 @@ describe('getExpiryDate', () => {
     const activeRepublishedAt = new Date();
     activeRepublishedAt.setDate(activeRepublishedAt.getDate() - (config.listing.expiryDays - 5));
 
-    expect(getExpiryDate(expiredCreatedAt.toISOString(), activeRepublishedAt.toISOString())).toBe('Expires in 5 days');
+    expect(getExpiryDate(expiredCreatedAt.toISOString(), activeRepublishedAt.toISOString())).toBe(
+      'Expires in 5 days',
+    );
   });
 });

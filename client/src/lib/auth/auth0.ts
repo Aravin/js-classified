@@ -88,11 +88,11 @@ export async function initAuth0() {
           await syncUserToApi(userProfile);
         }
       }
-    } catch (err) {
-      console.error('Error checking authentication', err);
+    } catch (checkErr) {
+      console.error('Error checking authentication', checkErr);
     }
-  } catch (err) {
-    error.set(err instanceof Error ? err.message : 'Failed to initialize auth0');
+  } catch (initErr) {
+    error.set(initErr instanceof Error ? initErr.message : 'Failed to initialize auth0');
   } finally {
     isInitializing.set(false);
     isLoading.set(false);
@@ -135,10 +135,10 @@ export async function getIdToken(): Promise<string | null> {
       // The Auth0 SDK handles token refresh internally
       const claims = await client.getIdTokenClaims();
       return claims?.__raw || null;
-    } catch (err: any) {
+    } catch {
       return null;
     }
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -179,11 +179,13 @@ export async function login() {
     const redirectPath = sessionStorage.getItem('redirectAfterLogin');
     if (redirectPath) {
       sessionStorage.removeItem('redirectAfterLogin');
+      // eslint-disable-next-line svelte/no-navigation-without-resolve
       goto(redirectPath);
     }
   } catch (e) {
     error.set(e instanceof Error ? e.message : 'Unknown error');
     // If login fails, redirect to home
+    // eslint-disable-next-line svelte/no-navigation-without-resolve
     goto('/');
   } finally {
     popupOpen.set(false);

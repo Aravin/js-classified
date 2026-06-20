@@ -78,7 +78,7 @@
       <button
         type="button"
         aria-label="Open user menu"
-        class="avatar btn btn-sm btn-circle btn-ghost ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100"
+        class="avatar btn btn-circle btn-ghost btn-sm ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100"
       >
         <div class="h-8 w-8 overflow-hidden rounded-full bg-base-200">
           {#if currentUser.picture}
@@ -109,7 +109,9 @@
               <span class="truncate text-sm font-medium">{currentUser.name}</span>
               <span class="truncate text-xs text-base-content/60">{currentUser.email}</span>
               {#if rewardPoints !== null}
-                <span class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                <span
+                  class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary"
+                >
                   <Icon icon="material-symbols:stars" class="h-4 w-4" />
                   {rewardPoints} points
                 </span>
@@ -118,10 +120,7 @@
           </li>
           <div class="divider my-1"></div>
           <li>
-            <a
-              href="/my-ads"
-              class:active={$page.url.pathname.startsWith('/my-ads')}
-            >
+            <a href="/my-ads" class:active={$page.url.pathname.startsWith('/my-ads')}>
               <Icon icon="material-symbols:list-alt" class="h-5 w-5" />
               My Ads
             </a>
@@ -139,20 +138,14 @@
             </a>
           </li>
           <li>
-            <a
-              href="/settings"
-              class:active={$page.url.pathname.startsWith('/settings')}
-            >
+            <a href="/settings" class:active={$page.url.pathname.startsWith('/settings')}>
               <Icon icon="material-symbols:settings" class="h-5 w-5" />
               Settings
             </a>
           </li>
           <div class="divider my-1"></div>
           <li>
-            <button
-              on:click={logout}
-              class="text-error"
-            >
+            <button on:click={logout} class="text-error">
               <Icon icon="material-symbols:logout" class="h-5 w-5" />
               Logout
             </button>

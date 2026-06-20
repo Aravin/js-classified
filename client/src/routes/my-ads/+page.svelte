@@ -418,7 +418,7 @@
             on:change={applyFiltersAndSort}
           >
             <option value="ALL">All Categories</option>
-            {#each uniqueCategories as cat}
+            {#each uniqueCategories as cat (cat?.key)}
               {#if cat}
                 <option value={cat.key.toString()}>{cat.value}</option>
               {/if}
@@ -437,7 +437,7 @@
             on:change={applyFiltersAndSort}
           >
             <option value="ALL">All Locations</option>
-            {#each uniqueLocations as loc}
+            {#each uniqueLocations as loc (loc?.key)}
               {#if loc}
                 <option value={loc.key.toString()}>{loc.value}</option>
               {/if}

@@ -8,7 +8,7 @@
 
 {#if listings.length > 0}
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    {#each listings as listing}
+    {#each listings as listing (listing.id)}
       <ListingCard {listing} />
     {/each}
   </div>

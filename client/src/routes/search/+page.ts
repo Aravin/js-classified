@@ -2,7 +2,7 @@ import { config } from '$lib/config';
 import type { PageLoad } from './$types';
 import type { ListingType } from '$lib/types';
 
-interface ApiResponse<T> {
+interface ApiResponse {
   listings: ListingType[];
   total: number;
   page: number;
@@ -34,13 +34,13 @@ export const load: PageLoad = async ({ url, fetch }) => {
 
   try {
     // First try: exact match (with all filters)
-    let response = await fetch(`${config.api.baseUrl}/listings?${searchParams.toString()}`);
+    const response = await fetch(`${config.api.baseUrl}/listings?${searchParams.toString()}`);
 
     if (!response.ok) {
       throw new Error('Failed to fetch listings');
     }
 
-    let result: ApiResponse<ListingType> = await response.json();
+    let result: ApiResponse = await response.json();
     let fallbackType: 'none' | 'location' | 'category' | 'hasImages' = 'none';
 
     // If no results and hasImages filter is active, try removing it first

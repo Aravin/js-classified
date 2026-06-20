@@ -104,10 +104,7 @@ export function buildRewardsExamples(rewards: RewardCatalogItem[]): RewardsExamp
   return [
     {
       title: 'Weekly activity starter',
-      steps: [
-        'Log in every day for 7 days',
-        'Publish your first 2 listings',
-      ],
+      steps: ['Log in every day for 7 days', 'Publish your first 2 listings'],
       totalPoints: calculateExampleTotal([
         { points: dailyLogin?.points ?? 0, count: 7 },
         { points: listingPublished?.points ?? 0, count: 2 },
@@ -115,10 +112,7 @@ export function buildRewardsExamples(rewards: RewardCatalogItem[]): RewardsExamp
     },
     {
       title: 'Refresh an expired ad',
-      steps: [
-        'Log in on the day you return',
-        'Republish 1 expired listing',
-      ],
+      steps: ['Log in on the day you return', 'Republish 1 expired listing'],
       totalPoints: calculateExampleTotal([
         { points: dailyLogin?.points ?? 0, count: 1 },
         { points: listingRepublished?.points ?? 0, count: 1 },
@@ -126,10 +120,7 @@ export function buildRewardsExamples(rewards: RewardCatalogItem[]): RewardsExamp
     },
     {
       title: 'Complete your profile and go live',
-      steps: [
-        'Add your email, phone, full name, and avatar',
-        'Publish 1 listing',
-      ],
+      steps: ['Add your email, phone, full name, and avatar', 'Publish 1 listing'],
       totalPoints: calculateExampleTotal([
         { points: profileCompleted?.points ?? 0, count: 1 },
         { points: listingPublished?.points ?? 0, count: 1 },

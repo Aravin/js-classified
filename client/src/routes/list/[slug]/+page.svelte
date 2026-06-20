@@ -97,7 +97,6 @@
     hasRevealedContact,
     trackedView,
   } = createListingInteractionState();
-  let recaptchaReady = false;
   let previousListingId: number | null = null;
   let viewTrackingInFlight = false;
 
@@ -131,14 +130,14 @@
       if (userListingsResponse.ok) {
         const userListings = await userListingsResponse.json();
         isOwner =
-          userListings.listings?.some((l: any) => {
+          userListings.listings?.some((l: { id?: number; slug?: string }) => {
             return (listing.id && l.id === listing.id) || (listing.slug && l.slug === listing.slug);
           }) || false;
       } else {
         // API call failed - assume user doesn't own the listing
         isOwner = false;
       }
-    } catch (err) {
+    } catch {
       isOwner = false;
     } finally {
       checkingOwnership = false;
@@ -193,7 +192,7 @@
       // Wait for reCAPTCHA to be ready
       if (window.grecaptcha?.enterprise) {
         window.grecaptcha.enterprise.ready(() => {
-          recaptchaReady = true;
+          // reCAPTCHA is now ready
         });
       }
 
@@ -413,12 +412,12 @@
               action,
             });
             resolve(token);
-          } catch (err) {
+          } catch {
             resolve(null);
           }
         });
       });
-    } catch (err) {
+    } catch {
       return null;
     }
   }
@@ -468,9 +467,7 @@
             return;
           }
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-          throw new Error(
-            getErrorMessage(errorData, 'Failed to fetch contact information'),
-          );
+          throw new Error(getErrorMessage(errorData, 'Failed to fetch contact information'));
         }
         const data = await response.json();
         cachedContactInfo = data.contactInfo;
@@ -486,7 +483,7 @@
       } else {
         contactInfo = { ...cachedContactInfo };
       }
-    } catch (err) {
+    } catch {
       error = 'Failed to load contact information. Please try again.';
     } finally {
       isLoading = false;
@@ -544,11 +541,6 @@
     await login();
   }
 
-  function formatPhoneNumber(phone: string): string {
-    // Format: +91 XXXXX-XXXXX
-    return `+91 ${phone.slice(0, 5)}-${phone.slice(5)}`;
-  }
-
   function getDaysLeft(createdAt: string, republishedAt?: string | null): number {
     const baseDate = new Date(republishedAt || createdAt);
     const expiryDate = new Date(baseDate.getTime() + LISTING_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
@@ -568,7 +560,8 @@
   {/if}
 
   <!-- Structured Data for Google -->
-  {@html `<script type="application/ld+json">${safeJsonLd(structuredData)}</script>`}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html `<script type="application/ld+json">${safeJsonLd(structuredData)}<` + `/script>`}
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="product" />
@@ -621,7 +614,7 @@
         <!-- Thumbnail Gallery -->
         {#if listing.images.length > 1}
           <div class="flex gap-2 overflow-x-auto py-2">
-            {#each listing.images as image, index}
+            {#each listing.images as image, index (image.id ?? index)}
               <button
                 class="relative h-24 w-24 flex-shrink-0 cursor-pointer transition-all duration-200
                        {selectedImage === index
@@ -875,11 +868,12 @@
           </div>
 
           <p class="mb-4 text-sm text-base-content/70">
-            After you reveal the seller’s contact information, you can leave a quick rating and optional note.
+            After you reveal the seller’s contact information, you can leave a quick rating and
+            optional note.
           </p>
 
           <div class="mb-4 flex flex-wrap gap-2">
-            {#each [1, 2, 3, 4, 5] as rating}
+            {#each [1, 2, 3, 4, 5] as rating (rating)}
               <button
                 type="button"
                 class="btn btn-sm {feedbackRating === rating ? 'btn-primary' : 'btn-outline'}"
@@ -911,7 +905,11 @@
           {/if}
 
           <div class="mt-4">
-            <button class="btn btn-primary" on:click={submitFeedback} disabled={isSubmittingFeedback}>
+            <button
+              class="btn btn-primary"
+              on:click={submitFeedback}
+              disabled={isSubmittingFeedback}
+            >
               {#if isSubmittingFeedback}
                 <Icon icon="material-symbols:sync-outline" class="mr-2 h-5 w-5 animate-spin" />
                 Submitting...
