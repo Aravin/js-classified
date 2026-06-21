@@ -10,12 +10,20 @@
   href="/list/{listing.slug}"
   class="card card-compact bg-base-100 shadow-xl transition-shadow hover:shadow-2xl"
 >
-  <figure class="aspect-video bg-gray-100">
+  <figure class="relative aspect-video bg-gray-100">
     {#if listing.images?.[0]}
       <img src={listing.images[0].path} alt={listing.title} class="h-full w-full object-cover" />
     {:else}
       <div class="flex h-full w-full items-center justify-center">
         <Icon icon="material-symbols:image" class="text-4xl text-gray-400" />
+      </div>
+    {/if}
+    {#if listing.externalLink}
+      <div
+        class="badge badge-accent absolute right-2 top-2 flex items-center gap-1 font-semibold shadow-sm"
+      >
+        <Icon icon="material-symbols:open-in-new" class="h-3 w-3" />
+        <span>OLX</span>
       </div>
     {/if}
   </figure>

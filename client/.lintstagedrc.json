@@ -3,6 +3,6 @@
     "yarn format",
     "yarn lint:fix",
     "yarn run check",
-    "yarn run test"
+    "yarn vitest run --passWithNoTests"
   ]
 }

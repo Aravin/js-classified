@@ -12,6 +12,9 @@ import { config, validateEnvConfig } from './config/config';
 import { validateSecurityConfig } from './config/security';
 import { StatisticsService } from './services/statistics.service';
 import { EmailService } from './services/email.service';
+import { CrawlerService } from './services/crawler/crawler.service';
+import { ImageService } from './services/image.service';
+import { ListingCleanupService } from './services/listing-cleanup.service';
 
 // Validate environment variables before starting
 validateEnvConfig();
@@ -198,6 +201,136 @@ if (config.cron.dailyReportEnabled) {
   console.log('ℹ️  Daily statistics report cron job is disabled.');
 }
 
+// Setup crawler cron job
+server.register(async (fastify) => {
+  const crawlerService = new CrawlerService(prisma);
+
+  fastify.post('/internal/cron/crawl', async (request, reply) => {
+    const headerSecret = request.headers['x-cron-secret'];
+    const providedSecret = Array.isArray(headerSecret) ? headerSecret[0] : headerSecret;
+
+    if (!config.cron.jobSecret || providedSecret !== config.cron.jobSecret) {
+      request.log.warn('Unauthorized cron crawl invocation attempt.');
+      return reply.code(401).send({
+        status: 'unauthorized',
+        message: 'Invalid cron secret.',
+      });
+    }
+
+    try {
+      request.log.info('Processing crawl cron request.');
+      const force = (request.query as any)?.force === 'true';
+      const result = await crawlerService.runCrawlJob(force);
+      return reply.code(200).send(result);
+    } catch (error) {
+      request.log.error({ err: error }, 'Failed to execute crawler job.');
+      return reply.code(500).send({
+        status: 'error',
+        message: 'Failed to execute crawler job: ' + (error as Error).message,
+      });
+    }
+  });
+
+  fastify.post('/internal/cron/cleanup', async (request, reply) => {
+    const headerSecret = request.headers['x-cron-secret'];
+    const providedSecret = Array.isArray(headerSecret) ? headerSecret[0] : headerSecret;
+
+    if (!config.cron.jobSecret || providedSecret !== config.cron.jobSecret) {
+      request.log.warn('Unauthorized cron image cleanup invocation attempt.');
+      return reply.code(401).send({
+        status: 'unauthorized',
+        message: 'Invalid cron secret.',
+      });
+    }
+
+    try {
+      request.log.info('Starting image cleanup job...');
+      const listings = await prisma.listing.findMany({
+        where: {
+          externalLink: { not: null }
+        },
+        include: {
+          images: {
+            orderBy: { order: 'asc' }
+          }
+        }
+      });
+
+      let totalDeleted = 0;
+      let totalUpdated = 0;
+
+      for (const listing of listings) {
+        const validImages: typeof listing.images = [];
+        const imageIdsToDelete: number[] = [];
+
+        for (const img of listing.images) {
+          try {
+            const imgResponse = await fetch(img.path);
+            if (!imgResponse.ok) {
+              imageIdsToDelete.push(img.id);
+              continue;
+            }
+            const buffer = Buffer.from(await imgResponse.arrayBuffer());
+            if (buffer.length < 8000) {
+              imageIdsToDelete.push(img.id);
+            } else {
+              validImages.push(img);
+            }
+          } catch (err) {
+            imageIdsToDelete.push(img.id);
+          }
+        }
+
+        // Limit to 3 images
+        const keptImages = validImages.slice(0, 3);
+        const excessImages = validImages.slice(3);
+        
+        excessImages.forEach(img => {
+          imageIdsToDelete.push(img.id);
+        });
+
+        // Perform deletions
+        if (imageIdsToDelete.length > 0) {
+          totalDeleted += imageIdsToDelete.length;
+          try {
+            await ImageService.deleteImages(prisma, imageIdsToDelete);
+          } catch (delErr) {
+            request.log.error(delErr, `Failed to delete images for listing ${listing.id}`);
+          }
+        }
+
+        // Re-order remaining images
+        for (let i = 0; i < keptImages.length; i++) {
+          const img = keptImages[i];
+          if (img.order !== i) {
+            totalUpdated++;
+            await prisma.image.update({
+              where: { id: img.id },
+              data: { order: i }
+            });
+          }
+        }
+      }
+
+      return reply.code(200).send({
+        status: 'success',
+        message: `Cleanup completed. Deleted ${totalDeleted} images, updated order for ${totalUpdated} images.`,
+      });
+    } catch (error) {
+      request.log.error(error, 'Failed to run cleanup.');
+      return reply.code(500).send({
+        status: 'error',
+        message: 'Failed to execute cleanup: ' + (error as Error).message,
+      });
+    }
+  });
+
+});
+
+console.log('🌐 Crawler cron endpoint ready at POST /internal/cron/crawl');
+console.log('   ➜ Suggested Cloud Scheduler schedule (UTC): 30 19 * * *');
+console.log('   ➜ Equivalent India time: 1:00 AM IST daily');
+
 // Health check route with connection checks
 server.get('/health', async (request, reply) => {
   const { checks: checksParam } = request.query as { checks?: string };
@@ -246,6 +379,40 @@ server.get('/health', async (request, reply) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Setup listing cleanup cron job
+server.register(async (fastify) => {
+  const listingCleanupService = new ListingCleanupService(prisma);
+
+  fastify.post('/internal/cron/cleanup-listings', async (request, reply) => {
+    const headerSecret = request.headers['x-cron-secret'];
+    const providedSecret = Array.isArray(headerSecret) ? headerSecret[0] : headerSecret;
+
+    if (!config.cron.jobSecret || providedSecret !== config.cron.jobSecret) {
+      request.log.warn('Unauthorized cron cleanup-listings invocation attempt.');
+      return reply.code(401).send({
+        status: 'unauthorized',
+        message: 'Invalid cron secret.',
+      });
+    }
+
+    try {
+      request.log.info('Processing listing cleanup cron request.');
+      const result = await listingCleanupService.cleanupListings();
+      return reply.code(200).send(result);
+    } catch (error) {
+      request.log.error({ err: error }, 'Failed to execute listing cleanup job.');
+      return reply.code(500).send({
+        status: 'error',
+        message: 'Failed to execute listing cleanup job: ' + (error as Error).message,
+      });
+    }
+  });
+});
+
+console.log('🌐 Listing cleanup cron endpoint ready at POST /internal/cron/cleanup-listings');
+console.log('   ➜ Suggested Cloud Scheduler schedule (UTC): 30 20 * * *');
+console.log('   ➜ Equivalent India time: 2:00 AM IST daily');
 
 const start = async () => {
   try {

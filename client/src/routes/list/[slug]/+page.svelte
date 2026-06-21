@@ -617,7 +617,7 @@
             {#each listing.images as image, index (image.id ?? index)}
               <button
                 class="relative h-24 w-24 flex-shrink-0 cursor-pointer transition-all duration-200
-                       {selectedImage === index
+                       {(selectedImage ?? 0) === index
                   ? 'ring-2 ring-primary'
                   : 'hover:ring-2 hover:ring-gray-300'}"
                 on:click={() => (selectedImage = index)}
@@ -770,7 +770,23 @@
       <!-- Contact Information -->
       <div class="mt-6">
         <h2 class="mb-4 text-xl font-semibold">Contact Information</h2>
-        {#if isExpired && !isOwner}
+        {#if listing.externalLink}
+          <div class="space-y-4">
+            <p class="text-sm text-gray-600">
+              This is an external listing sourced from our partner platform. Direct contact details
+              are not hosted on locful.com.
+            </p>
+            <a
+              href={listing.externalLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-primary flex w-full max-w-sm items-center gap-2"
+            >
+              <Icon icon="material-symbols:open-in-new" class="h-5 w-5" />
+              View Original Listing on OLX
+            </a>
+          </div>
+        {:else if isExpired && !isOwner}
           <div class="text-sm italic text-gray-400">
             Contact information is not available for expired listings.
           </div>

@@ -164,6 +164,8 @@ function createPrismaMock(state: TestState) {
         const listing = where.id ? state.listingsById.get(where.id) ?? null : null;
         return applySelect(listing, select);
       }),
+      count: vi.fn(async () => 0),
+      findMany: vi.fn(async () => []),
     },
     listingView: {
       create: vi.fn(async ({ data, select }: {
@@ -293,6 +295,39 @@ afterEach(async () => {
 });
 
 describe('listingRoutes view tracking', () => {
+  it('preserves the non-expired filter when search terms are applied to listing browse queries', async () => {
+    const { app, prisma } = await createApp();
+    openApps.push(app);
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/listings?search=phone',
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(prisma.listing.count).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: 'ACTIVE',
+          AND: [
+            {
+              OR: [
+                { republishedAt: { gte: expect.any(Date) } },
+                { republishedAt: null, createdAt: { gte: expect.any(Date) } },
+              ],
+            },
+            {
+              OR: [
+                { title: { contains: 'phone', mode: 'insensitive' } },
+                { description: { contains: 'phone', mode: 'insensitive' } },
+              ],
+            },
+          ],
+        }),
+      }),
+    );
+  });
+
   it('does not create a duplicate listingView for repeated views on the same UTC day', async () => {
     const { app, state } = await createApp();
     openApps.push(app);

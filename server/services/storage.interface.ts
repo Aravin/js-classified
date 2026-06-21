@@ -14,6 +14,8 @@ export interface ThumbnailResult {
 }
 
 export interface StorageProvider {
+  readonly supportsWatermark?: boolean;
+
   /**
    * Upload an image file
    * @param buffer - Image file buffer
@@ -58,6 +60,7 @@ export interface UploadOptions {
   height?: number;
   quality?: number;
   allowedFormats?: string[];
+  watermark?: boolean;
 }
 
 export interface ThumbnailOptions {

@@ -3,6 +3,8 @@ import { StorageProvider, UploadResult, UploadOptions, ThumbnailOptions } from '
 import { config } from '../../config/config';
 
 export class CloudinaryProvider implements StorageProvider {
+  readonly supportsWatermark = true;
+
   constructor() {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -39,14 +41,29 @@ export class CloudinaryProvider implements StorageProvider {
               folder: options.folder,
               resource_type: 'image',
               allowed_formats: options.allowedFormats,
-              transformation: [{
-                width: options.width,
-                height: options.height,
-                crop: 'fill',
-                quality: options.quality,
-                fetch_format: 'auto',
-                flags: 'progressive'
-              }],
+              transformation: [
+                {
+                  width: options.width,
+                  height: options.height,
+                  crop: 'fill',
+                  quality: options.quality,
+                  fetch_format: 'auto',
+                  flags: 'progressive'
+                },
+                ...(options.watermark ? [{
+                  overlay: {
+                    font_family: 'Arial',
+                    font_size: 28,
+                    font_weight: 'bold',
+                    text: 'locful.com'
+                  },
+                  color: '#ffffff',
+                  opacity: 60,
+                  gravity: 'south_east',
+                  x: 15,
+                  y: 15
+                }] : [])
+              ],
               timeout: 60000,
             },
             (error, result) => {
@@ -94,10 +111,9 @@ export class CloudinaryProvider implements StorageProvider {
 
   async delete(publicId: string): Promise<boolean> {
     const result = await cloudinary.uploader.destroy(publicId);
-    return result.result === 'ok';
+    return result.result === 'ok' || result.result === 'not found';
   }
 }
-
 
 
 

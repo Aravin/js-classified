@@ -28,6 +28,7 @@ export interface ListingType {
   slug: string;
   createdAt: string;
   updatedAt: string;
+  externalLink?: string;
 }
 
 export interface PaginationType {

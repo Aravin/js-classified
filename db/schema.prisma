@@ -101,12 +101,14 @@ model listing {
   views       listingView[]
   contactReveals contactReveal[]
   feedbacks   listingFeedback[]
+  externalLink String?      @unique @db.VarChar(512)
 
   @@index([categoryId])
   @@index([locationId])
   @@index([userId])
   @@index([status])
   @@index([price])
+  @@index([externalLink])
 }
 
 model image {
@@ -183,4 +185,16 @@ model listingFeedback {
   @@unique([listingId, buyerId])
   @@index([sellerId, createdAt])
   @@index([listingId, createdAt])
+}
+
+model crawlerLog {
+  id            Int      @id @default(autoincrement())
+  timestamp     DateTime @default(now())
+  targetName    String
+  creditsUsed   Int
+  listingsAdded Int
+  status        String
+  message       String?  @db.Text
+
+  @@index([timestamp])
 }

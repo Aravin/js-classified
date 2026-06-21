@@ -334,8 +334,14 @@ describe('RewardService wrapper methods', () => {
           createdAt: {
             gte: expect.any(Date),
           },
+          user: {
+            userId: {
+              not: 'system-crawler',
+            },
+          },
         },
-        take: 5,
+        skip: 0,
+        take: 20,
       }),
     );
     expect(leaderboard).toEqual([
@@ -362,6 +368,86 @@ describe('RewardService wrapper methods', () => {
     expect(leaderboard).toEqual([
       expect.objectContaining({ rank: 1, userId: 3, points: 30, username: 'alpha' }),
       expect.objectContaining({ rank: 2, userId: 4, points: 10, username: 'beta' }),
+    ]);
+  });
+
+  it('continues fetching leaderboard batches until it fills the requested limit with real users', async () => {
+    const { prisma } = createPrismaMock();
+    const firstBatch = Array.from({ length: 20 }, (_, index) => ({
+      userId: 101 + index,
+      _sum: { points: 100 - index },
+    }));
+    prisma.rewardEvent.groupBy
+      .mockResolvedValueOnce(firstBatch)
+      .mockResolvedValueOnce([
+        { userId: 3, _sum: { points: 30 } },
+        { userId: 4, _sum: { points: 20 } },
+      ])
+    prisma.user.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: 3, userId: 'auth0|3', username: 'alpha', fullName: 'Alpha', avatar: null },
+        { id: 4, userId: 'auth0|4', username: 'beta', fullName: 'Beta', avatar: null },
+      ]);
+
+    const service = new RewardService(prisma as never);
+    const leaderboard = await service.getLeaderboard('all', 2);
+
+    expect(prisma.rewardEvent.groupBy).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        skip: 0,
+        take: 20,
+      }),
+    );
+    expect(prisma.rewardEvent.groupBy).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        skip: 20,
+        take: 20,
+      }),
+    );
+    expect(leaderboard).toEqual([
+      expect.objectContaining({ rank: 1, userId: 3, points: 30, username: 'alpha' }),
+      expect.objectContaining({ rank: 2, userId: 4, points: 20, username: 'beta' }),
+    ]);
+  });
+
+  it('excludes the crawler account from leaderboard results', async () => {
+    const { prisma } = createPrismaMock();
+    prisma.rewardEvent.groupBy.mockResolvedValue([
+      { userId: 12, _sum: { points: 999 } },
+      { userId: 3, _sum: { points: 30 } },
+    ]);
+    prisma.user.findMany.mockResolvedValue([
+      { id: 3, userId: 'auth0|3', username: 'alpha', fullName: 'Alpha', avatar: null },
+    ]);
+
+    const service = new RewardService(prisma as never);
+    const leaderboard = await service.getLeaderboard('all', 5);
+
+    expect(prisma.rewardEvent.groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          user: {
+            userId: {
+              not: 'system-crawler',
+            },
+          },
+        },
+      }),
+    );
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId: {
+            not: 'system-crawler',
+          },
+        }),
+      }),
+    );
+    expect(leaderboard).toEqual([
+      expect.objectContaining({ rank: 1, userId: 3, points: 30, username: 'alpha' }),
     ]);
   });
 

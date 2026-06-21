@@ -303,18 +303,25 @@ export async function listingRoutes(fastify: FastifyInstance) {
 
       const where: Prisma.listingWhereInput = {
         status: ListingStatus.ACTIVE,
-        OR: [
-          { republishedAt: { gte: minDate } },
-          { republishedAt: null, createdAt: { gte: minDate } }
-        ],
         ...(categoryId && { categoryId }),
         ...(locationId && { locationId }),
-        ...(search && {
-          OR: [
-            { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
-            { description: { contains: search, mode: Prisma.QueryMode.insensitive } }
-          ]
+        ...(config.crawler.showCrawledItems === false && {
+          externalLink: null
         }),
+        AND: [
+          {
+            OR: [
+              { republishedAt: { gte: minDate } },
+              { republishedAt: null, createdAt: { gte: minDate } }
+            ]
+          },
+          ...(search ? [{
+            OR: [
+              { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
+              { description: { contains: search, mode: Prisma.QueryMode.insensitive } }
+            ]
+          }] : [])
+        ],
         ...(hasImages === true && {
           images: {
             some: {}
@@ -394,6 +401,9 @@ export async function listingRoutes(fastify: FastifyInstance) {
             { republishedAt: { gte: minDate } },
             { republishedAt: null, createdAt: { gte: minDate } }
           ],
+          ...(config.crawler.showCrawledItems === false && {
+            externalLink: null
+          }),
         },
         select: {
           slug: true,
@@ -445,6 +455,11 @@ export async function listingRoutes(fastify: FastifyInstance) {
       }
 
       if (!listing) {
+        return sendResponse(reply, 404, { error: 'Listing not found' });
+      }
+
+      // Hide external listings if toggled off
+      if (listing.externalLink && config.crawler.showCrawledItems === false) {
         return sendResponse(reply, 404, { error: 'Listing not found' });
       }
 

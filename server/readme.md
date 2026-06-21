@@ -40,6 +40,10 @@ Copy `.env.example` to `.env` and configure the following variables:
 
 See [docs/daily-reports.md](./docs/daily-reports.md) for detailed setup instructions.
 
+**Classified Crawler Config (Optional):**
+
+See [docs/crawler.md](./docs/crawler.md) for external crawl configurations, toggles, and schedule instructions.
+
 **For GCP/Cloud Run:** Use SendGrid (Twilio SendGrid) - direct API, no port restrictions! 🆓 **FREE TIER: 12,000 emails/month**
 
 See [docs/free-email-services.md](./docs/free-email-services.md) for all free email service options.
@@ -82,26 +86,49 @@ Create the Cloud Scheduler trigger manually (Console or CLI) after completing th
      --role="roles/run.invoker" \
      --region=asia-southeast1
    ```
-2. **Allow Cloud Build to deploy with secrets** (if not already configured)
+2. **Allow Cloud Build to deploy and auto-provision Scheduler jobs** (if not already configured)
    ```bash
    PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')
    CLOUD_BUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 
+   # Required to read secrets during build (DATABASE_URL, CRON_JOB_SECRET, etc.)
    gcloud projects add-iam-policy-binding ${PROJECT_ID} \
      --member="serviceAccount:${CLOUD_BUILD_SA}" \
      --role="roles/secretmanager.secretAccessor"
 
+   # Required to deploy and describe Cloud Run services
    gcloud projects add-iam-policy-binding ${PROJECT_ID} \
      --member="serviceAccount:${CLOUD_BUILD_SA}" \
      --role="roles/run.admin"
+
+   # Required to create/update Cloud Scheduler jobs automatically during deploy
+   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+     --member="serviceAccount:${CLOUD_BUILD_SA}" \
+     --role="roles/cloudscheduler.admin"
+
+   # Required to create the scheduler-invoker service account
+   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+     --member="serviceAccount:${CLOUD_BUILD_SA}" \
+     --role="roles/iam.serviceAccountAdmin"
+
+   # Required to bind roles/run.invoker on the Cloud Run service
+   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+     --member="serviceAccount:${CLOUD_BUILD_SA}" \
+     --role="roles/iam.securityAdmin"
    ```
+   > **Note:** `roles/iam.securityAdmin` is needed so Cloud Build can call
+   > `gcloud run services add-iam-policy-binding`. If your security policy does not
+   > permit this broad role, scope it to the specific resource with an IAM condition.
 3. **Store the secret** in Secret Manager as `CRON_JOB_SECRET` (use a strong random string).
-4. **Create the Cloud Scheduler job** in the GCP console (or with `gcloud scheduler jobs create http`).
+4. **Create the Cloud Scheduler job** in the GCP console (or with `gcloud scheduler jobs create http`) for daily statistics if you want that report automated.
    - Target URL: `https://<cloud-run-url>/internal/cron/daily-statistics`
    - Method: `POST`
    - Header: `X-Cron-Secret: <CRON_JOB_SECRET value>`
    - Auth: OIDC using `scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com`
    - Schedule: `30 14 * * *` (UTC) or your preferred time
+
+The crawler (`locful-crawl`) and listing-cleanup (`locful-cleanup-listings`) Scheduler jobs are provisioned **automatically on every deploy** by [cloudbuild.yaml](./cloudbuild.yaml) — no manual creation needed after the first deploy.
+
 
 ## Setup
 

@@ -111,5 +111,20 @@ export const config = {
     dailyReportEnabled: process.env.CRON_DAILY_REPORT_ENABLED === 'true',
     dailyReportTime: process.env.CRON_DAILY_REPORT_TIME || '30 14 * * *', // Default: 8 PM IST (14:30 UTC)
     jobSecret: process.env.CRON_JOB_SECRET || '',
+    inactiveDays: Number(process.env.LISTING_INACTIVE_DAYS) || 30,
+    deleteDays: Number(process.env.LISTING_DELETE_DAYS) || 45,
+  },
+  firecrawl: {
+    apiKey: process.env.FIRECRAWL_API_KEY || '',
+    monthlyLimit: Number(process.env.FIRECRAWL_MONTHLY_LIMIT) || 950,
+    maxItemsPerRun: Number(process.env.FIRECRAWL_MAX_ITEMS_PER_RUN) || 3,
+  },
+  crawler: {
+    enabled: process.env.CRAWLER_ENABLED !== 'false',
+    supportedSites: process.env.CRAWLER_SUPPORTED_SITES 
+      ? process.env.CRAWLER_SUPPORTED_SITES.split(',').map(s => s.trim().toLowerCase()) 
+      : ['olx'],
+    showCrawledItems: process.env.SHOW_CRAWLED_ITEMS !== 'false',
+    maxImagesPerListing: Number(process.env.CRAWLER_MAX_IMAGES_PER_LISTING) || 2,
   }
 };

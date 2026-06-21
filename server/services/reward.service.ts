@@ -423,72 +423,97 @@ export class RewardService {
 
   async getLeaderboard(period: LeaderboardPeriod, limit = 20): Promise<LeaderboardEntry[]> {
     const periodStart = getPeriodStart(period);
+    const batchSize = Math.max(limit, 20);
+    const entries: LeaderboardEntryWithoutRank[] = [];
+    let skip = 0;
 
-    const grouped = await this.prisma.rewardEvent.groupBy({
-      by: ['userId'],
-      where: periodStart
-        ? {
-            createdAt: {
-              gte: periodStart,
+    while (entries.length < limit) {
+      const grouped = await this.prisma.rewardEvent.groupBy({
+        by: ['userId'],
+        where: {
+          ...(periodStart
+            ? {
+                createdAt: {
+                  gte: periodStart,
+                },
+              }
+            : {}),
+          user: {
+            userId: {
+              not: 'system-crawler',
             },
-          }
-        : undefined,
-      _sum: {
-        points: true,
-      },
-      orderBy: [
-        {
-          _sum: {
-            points: 'desc',
           },
         },
-        {
-          userId: 'asc',
+        _sum: {
+          points: true,
         },
-      ],
-      take: limit,
-    });
+        orderBy: [
+          {
+            _sum: {
+              points: 'desc',
+            },
+          },
+          {
+            userId: 'asc',
+          },
+        ],
+        skip,
+        take: batchSize,
+      });
 
-    if (grouped.length === 0) {
-      return [];
-    }
+      if (grouped.length === 0) {
+        break;
+      }
 
-    const users = await this.prisma.user.findMany({
-      where: {
-        id: {
-          in: grouped.map((entry) => entry.userId),
+      const users = await this.prisma.user.findMany({
+        where: {
+          id: {
+            in: grouped.map((entry) => entry.userId),
+          },
+          userId: {
+            not: 'system-crawler',
+          },
         },
-      },
-      select: {
-        id: true,
-        userId: true,
-        username: true,
-        fullName: true,
-        avatar: true,
-      },
-    });
+        select: {
+          id: true,
+          userId: true,
+          username: true,
+          fullName: true,
+          avatar: true,
+        },
+      });
 
-    const userById = new Map(users.map((entry) => [entry.id, entry]));
+      const userById = new Map(users.map((entry) => [entry.id, entry]));
 
-    return grouped
-      .map((entry) => {
-        const user = userById.get(entry.userId);
-        if (!user) {
-          return null;
+      for (const entry of grouped) {
+        if (entries.length >= limit) {
+          break;
         }
 
-        return {
+        const user = userById.get(entry.userId);
+        if (!user) {
+          continue;
+        }
+
+        entries.push({
           userId: entry.userId,
           username: user.username,
           fullName: user.fullName,
           avatar: user.avatar,
           points: entry._sum.points ?? 0,
-        } satisfies LeaderboardEntryWithoutRank;
-      })
-      .filter((entry): entry is LeaderboardEntryWithoutRank => entry !== null)
-      .map((entry, index) => ({
-        ...entry,
-        rank: index + 1,
-      }));
+        });
+      }
+
+      if (grouped.length < batchSize) {
+        break;
+      }
+
+      skip += grouped.length;
+    }
+
+    return entries.map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+    }));
   }
 }
