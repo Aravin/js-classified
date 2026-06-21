@@ -61,16 +61,16 @@ steps:
         SCHEDULER_LOCATION='asia-southeast1'
         SERVICE_NAME='locful-api'
         SCHEDULER_SA="scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com"
-        SERVICE_URL="$(gcloud run services describe "${SERVICE_NAME}" --region "${REGION}" --format='value(status.url)')"
+        SERVICE_URL="$(gcloud run services describe "$${SERVICE_NAME}" --region "$${REGION}" --format='value(status.url)')"
         CRON_SECRET="$(gcloud secrets versions access latest --secret=CRON_JOB_SECRET)"
 
-        if ! gcloud iam service-accounts describe "${SCHEDULER_SA}" >/dev/null 2>&1; then
+        if ! gcloud iam service-accounts describe "$${SCHEDULER_SA}" >/dev/null 2>&1; then
           gcloud iam service-accounts create scheduler-invoker --display-name='Cloud Scheduler invoker'
         fi
 
-        gcloud run services add-iam-policy-binding "${SERVICE_NAME}" \
-          --region "${REGION}" \
-          --member="serviceAccount:${SCHEDULER_SA}" \
+        gcloud run services add-iam-policy-binding "$${SERVICE_NAME}" \
+          --region "$${REGION}" \
+          --member="serviceAccount:$${SCHEDULER_SA}" \
           --role='roles/run.invoker'
 
         upsert_scheduler_job() {
@@ -78,33 +78,34 @@ steps:
           local schedule="$2"
           local uri="$3"
 
-          if gcloud scheduler jobs describe "${name}" --location "${SCHEDULER_LOCATION}" >/dev/null 2>&1; then
-            gcloud scheduler jobs update http "${name}" \
-              --location "${SCHEDULER_LOCATION}" \
-              --schedule "${schedule}" \
+          if gcloud scheduler jobs describe "$${name}" --location "$${SCHEDULER_LOCATION}" >/dev/null 2>&1; then
+            gcloud scheduler jobs update http "$${name}" \
+              --location "$${SCHEDULER_LOCATION}" \
+              --schedule "$${schedule}" \
               --time-zone 'Etc/UTC' \
-              --uri "${uri}" \
+              --uri "$${uri}" \
               --http-method POST \
-              --headers "Content-Type=application/json,X-Cron-Secret=${CRON_SECRET}" \
+              --headers "Content-Type=application/json,X-Cron-Secret=$${CRON_SECRET}" \
               --message-body '{}' \
-              --oidc-service-account-email "${SCHEDULER_SA}" \
-              --oidc-token-audience "${SERVICE_URL}"
+              --oidc-service-account-email "$${SCHEDULER_SA}" \
+              --oidc-token-audience "$${SERVICE_URL}"
           else
-            gcloud scheduler jobs create http "${name}" \
-              --location "${SCHEDULER_LOCATION}" \
-              --schedule "${schedule}" \
+            gcloud scheduler jobs create http "$${name}" \
+              --location "$${SCHEDULER_LOCATION}" \
+              --schedule "$${schedule}" \
               --time-zone 'Etc/UTC' \
-              --uri "${uri}" \
+              --uri "$${uri}" \
               --http-method POST \
-              --headers "Content-Type=application/json,X-Cron-Secret=${CRON_SECRET}" \
+              --headers "Content-Type=application/json,X-Cron-Secret=$${CRON_SECRET}" \
               --message-body '{}' \
-              --oidc-service-account-email "${SCHEDULER_SA}" \
-              --oidc-token-audience "${SERVICE_URL}"
+              --oidc-service-account-email "$${SCHEDULER_SA}" \
+              --oidc-token-audience "$${SERVICE_URL}"
           fi
         }
 
-        upsert_scheduler_job 'locful-crawl' '30 19 * * *' "${SERVICE_URL}/internal/cron/crawl"
-        upsert_scheduler_job 'locful-cleanup-listings' '30 20 * * *' "${SERVICE_URL}/internal/cron/cleanup-listings"
+        upsert_scheduler_job 'locful-crawl' '30 19 * * *' "$${SERVICE_URL}/internal/cron/crawl"
+        upsert_scheduler_job 'locful-cleanup-listings' '30 20 * * *' "$${SERVICE_URL}/internal/cron/cleanup-listings"
+
 
 images:
   - 'gcr.io/$PROJECT_ID/locful-api:$SHORT_SHA'
