@@ -49,7 +49,10 @@ steps:
       - '--set-env-vars'
       - '^|^EMAIL_ENABLED=true|EMAIL_PROVIDER=sendgrid|CRON_DAILY_REPORT_ENABLED=true|CRON_DAILY_REPORT_TIME=30 14 * * *|CORS_ORIGIN=https://locful.com,https://www.locful.com|LISTING_INACTIVE_DAYS=30|LISTING_DELETE_DAYS=45|CRAWLER_ENABLED=true|CRAWLER_SUPPORTED_SITES=olx|SHOW_CRAWLED_ITEMS=true|FIRECRAWL_MONTHLY_LIMIT=950|FIRECRAWL_MAX_ITEMS_PER_RUN=3|CRAWLER_MAX_IMAGES_PER_LISTING=2'
 
-  # Ensure Cloud Scheduler jobs exist for crawl and cleanup-listings
+  # Ensure Cloud Scheduler jobs exist for crawl and cleanup-listings.
+  # The service is deployed with --allow-unauthenticated so no roles/run.invoker
+  # binding is required. Endpoint security is enforced by the X-Cron-Secret header
+  # checked in the application itself.
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: bash
     args:
@@ -60,18 +63,8 @@ steps:
         REGION='asia-southeast1'
         SCHEDULER_LOCATION='asia-southeast1'
         SERVICE_NAME='locful-api'
-        SCHEDULER_SA="scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com"
         SERVICE_URL="$(gcloud run services describe "$${SERVICE_NAME}" --region "$${REGION}" --format='value(status.url)')"
         CRON_SECRET="$(gcloud secrets versions access latest --secret=CRON_JOB_SECRET)"
-
-        if ! gcloud iam service-accounts describe "$${SCHEDULER_SA}" >/dev/null 2>&1; then
-          gcloud iam service-accounts create scheduler-invoker --display-name='Cloud Scheduler invoker'
-        fi
-
-        gcloud run services add-iam-policy-binding "$${SERVICE_NAME}" \
-          --region "$${REGION}" \
-          --member="serviceAccount:$${SCHEDULER_SA}" \
-          --role='roles/run.invoker'
 
         upsert_scheduler_job() {
           local name="$1"
@@ -86,9 +79,7 @@ steps:
               --uri "$${uri}" \
               --http-method POST \
               --headers "Content-Type=application/json,X-Cron-Secret=$${CRON_SECRET}" \
-              --message-body '{}' \
-              --oidc-service-account-email "$${SCHEDULER_SA}" \
-              --oidc-token-audience "$${SERVICE_URL}"
+              --message-body '{}'
           else
             gcloud scheduler jobs create http "$${name}" \
               --location "$${SCHEDULER_LOCATION}" \
@@ -97,14 +88,13 @@ steps:
               --uri "$${uri}" \
               --http-method POST \
               --headers "Content-Type=application/json,X-Cron-Secret=$${CRON_SECRET}" \
-              --message-body '{}' \
-              --oidc-service-account-email "$${SCHEDULER_SA}" \
-              --oidc-token-audience "$${SERVICE_URL}"
+              --message-body '{}'
           fi
         }
 
         upsert_scheduler_job 'locful-crawl' '30 19 * * *' "$${SERVICE_URL}/internal/cron/crawl"
         upsert_scheduler_job 'locful-cleanup-listings' '30 20 * * *' "$${SERVICE_URL}/internal/cron/cleanup-listings"
+
 
 
 images:

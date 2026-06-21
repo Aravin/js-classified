@@ -74,19 +74,11 @@ See [docs/free-email-services.md](./docs/free-email-services.md) for all free em
 
 ### Provisioning Cloud Scheduler (one-time setup)
 
-Create the Cloud Scheduler trigger manually (Console or CLI) after completing these steps:
+The crawler (`locful-crawl`) and listing-cleanup (`locful-cleanup-listings`) Scheduler jobs are created and kept up-to-date **automatically on every deploy** by [cloudbuild.yaml](./cloudbuild.yaml).
 
-1. **Create a Scheduler invoker service account**
-   ```bash
-   gcloud iam service-accounts create scheduler-invoker \
-     --display-name="Cloud Scheduler invoker"
+> **Security note:** The Cloud Run service uses `--allow-unauthenticated`. Cron endpoint security is enforced at the application level via the `X-Cron-Secret` header (checked against the `CRON_JOB_SECRET` secret). No OIDC/service-account binding is required.
 
-   gcloud run services add-iam-policy-binding locful-api \
-     --member="serviceAccount:scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com" \
-     --role="roles/run.invoker" \
-     --region=asia-southeast1
-   ```
-2. **Allow Cloud Build to deploy and auto-provision Scheduler jobs** (if not already configured)
+1. **Allow Cloud Build to deploy and manage Scheduler jobs** (one-time, before the first push)
    ```bash
    PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')
    CLOUD_BUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
@@ -105,29 +97,15 @@ Create the Cloud Scheduler trigger manually (Console or CLI) after completing th
    gcloud projects add-iam-policy-binding ${PROJECT_ID} \
      --member="serviceAccount:${CLOUD_BUILD_SA}" \
      --role="roles/cloudscheduler.admin"
-
-   # Required to create the scheduler-invoker service account
-   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
-     --member="serviceAccount:${CLOUD_BUILD_SA}" \
-     --role="roles/iam.serviceAccountAdmin"
-
-   # Required to bind roles/run.invoker on the Cloud Run service
-   gcloud projects add-iam-policy-binding ${PROJECT_ID} \
-     --member="serviceAccount:${CLOUD_BUILD_SA}" \
-     --role="roles/iam.securityAdmin"
    ```
-   > **Note:** `roles/iam.securityAdmin` is needed so Cloud Build can call
-   > `gcloud run services add-iam-policy-binding`. If your security policy does not
-   > permit this broad role, scope it to the specific resource with an IAM condition.
-3. **Store the secret** in Secret Manager as `CRON_JOB_SECRET` (use a strong random string).
-4. **Create the Cloud Scheduler job** in the GCP console (or with `gcloud scheduler jobs create http`) for daily statistics if you want that report automated.
+2. **Store the secret** in Secret Manager as `CRON_JOB_SECRET` (use a strong random string).
+3. **Create the daily-statistics Cloud Scheduler job** manually (one-time) for the daily email report:
    - Target URL: `https://<cloud-run-url>/internal/cron/daily-statistics`
    - Method: `POST`
    - Header: `X-Cron-Secret: <CRON_JOB_SECRET value>`
-   - Auth: OIDC using `scheduler-invoker@${PROJECT_ID}.iam.gserviceaccount.com`
+   - Auth: No OIDC needed (service is `--allow-unauthenticated`)
    - Schedule: `30 14 * * *` (UTC) or your preferred time
 
-The crawler (`locful-crawl`) and listing-cleanup (`locful-cleanup-listings`) Scheduler jobs are provisioned **automatically on every deploy** by [cloudbuild.yaml](./cloudbuild.yaml) — no manual creation needed after the first deploy.
 
 
 ## Setup
