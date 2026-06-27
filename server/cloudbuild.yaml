@@ -94,6 +94,7 @@ steps:
 
         upsert_scheduler_job 'locful-crawl' '30 19 * * *' "$${SERVICE_URL}/internal/cron/crawl"
         upsert_scheduler_job 'locful-cleanup-listings' '30 20 * * *' "$${SERVICE_URL}/internal/cron/cleanup-listings"
+        upsert_scheduler_job 'locful-send-daily-update' '30 14 * * *' "$${SERVICE_URL}/internal/cron/daily-statistics"
 
 
 
