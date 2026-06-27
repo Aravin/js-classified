@@ -78,7 +78,7 @@ steps:
               --time-zone 'Etc/UTC' \
               --uri "$${uri}" \
               --http-method POST \
-              --headers "Content-Type=application/json,X-Cron-Secret=$${CRON_SECRET}" \
+              --update-headers "Content-Type=application/json,X-Cron-Secret=$${CRON_SECRET}" \
               --message-body '{}'
           else
             gcloud scheduler jobs create http "$${name}" \
