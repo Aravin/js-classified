@@ -5,7 +5,7 @@
   import { locations } from '$lib/locations';
   import SearchableSelect from '$lib/SearchableSelect.svelte';
   import { selectedLocation, selectedCategory, searchTerm } from '$lib/stores/filters';
-  import { goto } from '$app/navigation';
+  import { goto, afterNavigate } from '$app/navigation';
   import AuthNav from '$lib/components/AuthNav.svelte';
   import { onMount } from 'svelte';
   import { initAuth0 } from '$lib/auth/auth0';
@@ -42,12 +42,11 @@
       if (config.googleAnalytics.id) {
         // Initialize dataLayer before loading gtag.js
         window.dataLayer = window.dataLayer || [];
-        function gtag(...args: unknown[]) {
+        window.gtag = function (...args: unknown[]) {
           (window.dataLayer as unknown[]).push(args);
-        }
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', config.googleAnalytics.id);
+        };
+        window.gtag('js', new Date());
+        window.gtag('config', config.googleAnalytics.id, { send_page_view: false });
 
         // Load gtag.js script asynchronously
         const script = document.createElement('script');
@@ -55,6 +54,17 @@
         script.src = `https://www.googletagmanager.com/gtag/js?id=${config.googleAnalytics.id}`;
         document.head.appendChild(script);
       }
+    }
+  });
+
+  // Track page views on every SvelteKit client-side navigation
+  afterNavigate(({ to }) => {
+    if (browser && window.gtag && config.googleAnalytics.id && to) {
+      window.gtag('event', 'page_view', {
+        page_title: document.title,
+        page_location: window.location.href,
+        page_path: to.url.pathname,
+      });
     }
   });
 
