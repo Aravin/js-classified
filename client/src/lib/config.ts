@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public';
+import { PUBLIC_GOOGLE_ANALYTICS_ID } from '$env/static/public';
 
 // Get environment variables with fallbacks
 const currencyCode = env.PUBLIC_CURRENCY_CODE ?? 'INR';
@@ -7,7 +8,7 @@ const apiUrl = env.PUBLIC_API_URL ?? 'http://localhost:8080/api';
 const expiryDays = Number(env.PUBLIC_LISTING_EXPIRY_DAYS) || 30;
 const recaptchaSiteKey = env.PUBLIC_RECAPTCHA_SITE_KEY || '';
 const maxActiveAds = Number(env.PUBLIC_MAX_ACTIVE_ADS) || 1;
-const googleAnalyticsId = env.PUBLIC_GOOGLE_ANALYTICS_ID || '';
+const googleAnalyticsId = PUBLIC_GOOGLE_ANALYTICS_ID || env.PUBLIC_GOOGLE_ANALYTICS_ID || '';
 
 export const config = {
   listing: {
