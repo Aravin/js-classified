@@ -355,7 +355,7 @@ describe('verifyAuth0Token', () => {
       error: 'Invalid or expired token',
       message: 'Invalid or expired token',
     });
-    expect((request.log.warn as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
+    expect(request.log.warn as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(
       expect.objectContaining({ err: expect.objectContaining({ message: 'invalid signature' }) }),
       'JWT verification failed',
     );
@@ -375,6 +375,60 @@ describe('verifyAuth0Token', () => {
       message: 'Token expired',
     });
     expect(request.user).toBeUndefined();
+  });
+
+  it('handles TokenExpiredError when jwt.verify rejects with TokenExpiredError', async () => {
+    mockDecodedAudience('https://api.locful.test');
+    const expiredError = new Error('jwt expired');
+    expiredError.name = 'TokenExpiredError';
+    (expiredError as unknown as { expiredAt: Date }).expiredAt = new Date();
+    verifyMock.mockImplementation(
+      (
+        _token: string,
+        _getKey: unknown,
+        _options: unknown,
+        callback: (error: Error | null) => void,
+      ) => {
+        callback(expiredError);
+      },
+    );
+    const request = createRequest('Bearer a.b.c');
+    const reply = createReply();
+
+    await verifyAuth0Token(request, reply);
+
+    expect(reply.statusCode).toBe(401);
+    expect(reply.body).toEqual({
+      error: 'Token expired',
+      message: 'Token expired',
+    });
+    expect(request.log.warn as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(
+      expect.objectContaining({
+        err: expect.objectContaining({ name: 'TokenExpiredError', message: 'jwt expired' }),
+      }),
+      'JWT verification failed: token expired',
+    );
+  });
+
+  it('normalizes AUTH0_DOMAIN with trailing slashes or https prefix', async () => {
+    process.env.AUTH0_DOMAIN = 'https://tenant.example.com/';
+    mockDecodedAudience('client-123');
+    mockVerifiedToken();
+    const request = createRequest('Bearer a.b.c');
+    const reply = createReply();
+
+    await verifyAuth0Token(request, reply);
+
+    expect(request.user).toMatchObject({ sub: 'auth0|user' });
+    expect(verifyMock).toHaveBeenCalledWith(
+      'a.b.c',
+      expect.any(Function),
+      expect.objectContaining({
+        audience: 'client-123',
+        issuer: 'https://tenant.example.com/',
+      }),
+      expect.any(Function),
+    );
   });
 });
 

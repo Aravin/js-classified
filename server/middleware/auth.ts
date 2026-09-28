@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
-import jwksClient from 'jwks-rsa';
+import jwksClient, { JwksClient } from 'jwks-rsa';
 import { buildErrorResponseBody } from '../api/http-errors';
 
 /**
@@ -8,14 +8,35 @@ import { buildErrorResponseBody } from '../api/http-errors';
  * A07 - Authentication Failures: JWT validation
  */
 
-// Create JWKS client
-const client = jwksClient({
-  jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
-  cache: true,
-  cacheMaxAge: 86400000, // 24 hours
-});
+function normalizeAuth0Domain(domain?: string): string {
+  return (domain || '')
+    .trim()
+    .replace(/^https?:\/\//, '')
+    .replace(/\/+$/, '');
+}
+
+// Cached JWKS client per domain
+let cachedJwksClient: JwksClient | null = null;
+let cachedJwksDomain: string | null = null;
+
+function getJwksClient(domain: string): JwksClient {
+  if (!cachedJwksClient || cachedJwksDomain !== domain) {
+    cachedJwksClient = jwksClient({
+      jwksUri: `https://${domain}/.well-known/jwks.json`,
+      cache: true,
+      cacheMaxAge: 86400000, // 24 hours
+    });
+    cachedJwksDomain = domain;
+  }
+  return cachedJwksClient;
+}
 
 function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
+  const domain = normalizeAuth0Domain(process.env.AUTH0_DOMAIN);
+  if (!domain) {
+    return callback(new Error('AUTH0_DOMAIN is not configured'));
+  }
+  const client = getJwksClient(domain);
   client.getSigningKey(header.kid || '', (err, key) => {
     if (err) return callback(err);
     callback(null, key?.getPublicKey());
@@ -119,7 +140,7 @@ export async function authenticateAuth0Token(request: FastifyRequest): Promise<A
     };
   }
 
-  const auth0Domain = process.env.AUTH0_DOMAIN;
+  const auth0Domain = normalizeAuth0Domain(process.env.AUTH0_DOMAIN);
   const auth0Audience = process.env.AUTH0_AUDIENCE?.trim();
   const auth0ClientId = process.env.AUTH0_CLIENT_ID?.trim();
 
@@ -144,9 +165,9 @@ export async function authenticateAuth0Token(request: FastifyRequest): Promise<A
       };
     }
 
-  const tokenAudience = decoded.payload.aud;
-  const audiences = getTokenAudiences(tokenAudience);
-  const tokenType = classifyToken(tokenAudience, auth0Audience, auth0ClientId);
+    const tokenAudience = decoded.payload.aud;
+    const audiences = getTokenAudiences(tokenAudience);
+    const tokenType = classifyToken(tokenAudience, auth0Audience, auth0ClientId);
 
     let expectedAudience: string | undefined;
 
@@ -208,6 +229,7 @@ export async function authenticateAuth0Token(request: FastifyRequest): Promise<A
           audience: expectedAudience,
           issuer: `https://${auth0Domain}/`,
           algorithms: ['RS256'],
+          clockTolerance: 60,
         },
         (err, verified) => {
           if (err) reject(err);
@@ -228,8 +250,29 @@ export async function authenticateAuth0Token(request: FastifyRequest): Promise<A
       ok: true,
       token: verifiedToken,
     };
-  } catch (error: any) {
-    request.log.warn({ err: error }, 'JWT verification failed');
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    const tokenExpiredErr = err as Error & { expiredAt?: Date };
+
+    if (err.name === 'TokenExpiredError') {
+      request.log.warn(
+        {
+          err: {
+            name: err.name,
+            message: err.message,
+            expiredAt: tokenExpiredErr.expiredAt,
+          },
+        },
+        'JWT verification failed: token expired',
+      );
+      return {
+        ok: false,
+        statusCode: 401,
+        body: buildErrorResponseBody('Token expired'),
+      };
+    }
+
+    request.log.warn({ err }, 'JWT verification failed');
     return {
       ok: false,
       statusCode: 401,
@@ -244,7 +287,7 @@ export async function authenticateAuth0Token(request: FastifyRequest): Promise<A
  */
 export async function verifyAuth0Token(
   request: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ): Promise<void> {
   const result = await authenticateAuth0Token(request);
 
@@ -260,10 +303,7 @@ export async function verifyAuth0Token(
  * A01 - Broken Access Control: Optional authentication
  * Checks if user is authenticated, but doesn't require it
  */
-export async function optionalAuth(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function optionalAuth(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const authHeader = request.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     const result = await authenticateAuth0Token(request);
@@ -284,7 +324,7 @@ export async function optionalAuth(
 export async function requireOwnership(
   request: FastifyRequest,
   reply: FastifyReply,
-  resourceOwnerId: string | number
+  resourceOwnerId: string | number,
 ): Promise<boolean> {
   if (!request.user) {
     reply.code(401).send(buildErrorResponseBody('Authentication required'));
@@ -292,7 +332,7 @@ export async function requireOwnership(
   }
 
   const userId = request.user.sub;
-  
+
   // Convert to string for comparison
   const ownerIdStr = String(resourceOwnerId);
   const userIdStr = String(userId);
@@ -304,5 +344,3 @@ export async function requireOwnership(
 
   return true;
 }
-
-

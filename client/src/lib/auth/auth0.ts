@@ -14,12 +14,21 @@ export const error = writable<string | null>(null);
 export const isInitializing = writable(true);
 export const isLoading = writable(true);
 
-let _auth0Client: Auth0Client;
+let _auth0Client: Auth0Client | undefined;
+
+interface Auth0ErrorWithCode {
+  error?: string;
+  error_description?: string;
+  message?: string;
+}
 
 async function syncUserToApi(userData: User) {
   try {
     const apiUrl = `${config.api.baseUrl}/users`;
     const authHeaders = await getAuthHeaders();
+    if (!authHeaders.Authorization) {
+      return;
+    }
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -40,7 +49,7 @@ async function syncUserToApi(userData: User) {
     }
 
     await refreshRewardSummary(fetch, authHeaders);
-  } catch (e) {
+  } catch (e: unknown) {
     console.error('Error syncing user data:', e);
   }
 }
@@ -88,10 +97,10 @@ export async function initAuth0() {
           await syncUserToApi(userProfile);
         }
       }
-    } catch (checkErr) {
+    } catch (checkErr: unknown) {
       console.error('Error checking authentication', checkErr);
     }
-  } catch (initErr) {
+  } catch (initErr: unknown) {
     error.set(initErr instanceof Error ? initErr.message : 'Failed to initialize auth0');
   } finally {
     isInitializing.set(false);
@@ -131,9 +140,30 @@ export async function getIdToken(): Promise<string | null> {
     if (!isAuth) return null;
 
     try {
-      // getIdTokenClaims automatically refreshes the token if expired
-      // The Auth0 SDK handles token refresh internally
-      const claims = await client.getIdTokenClaims();
+      let claims = await client.getIdTokenClaims();
+      const nowInSeconds = Math.floor(Date.now() / 1000);
+
+      // If token is missing, expired, or about to expire in the next 60 seconds,
+      // silently refresh it using the refresh token via Auth0 SDK
+      if (!claims || !claims.exp || claims.exp - nowInSeconds < 60) {
+        try {
+          await client.getTokenSilently();
+          claims = await client.getIdTokenClaims();
+        } catch (refreshErr: unknown) {
+          console.warn('Failed to refresh Auth0 token silently:', refreshErr);
+          const errCode = (refreshErr as Auth0ErrorWithCode | undefined)?.error;
+          if (
+            errCode === 'login_required' ||
+            errCode === 'consent_required' ||
+            errCode === 'interaction_required'
+          ) {
+            isAuthenticated.set(false);
+            user.set(null);
+          }
+          return null;
+        }
+      }
+
       return claims?.__raw || null;
     } catch {
       return null;
@@ -182,7 +212,7 @@ export async function login() {
       // eslint-disable-next-line svelte/no-navigation-without-resolve
       goto(redirectPath);
     }
-  } catch (e) {
+  } catch (e: unknown) {
     error.set(e instanceof Error ? e.message : 'Unknown error');
     // If login fails, redirect to home
     // eslint-disable-next-line svelte/no-navigation-without-resolve
@@ -205,7 +235,7 @@ export async function logout() {
     });
     user.set(null);
     isAuthenticated.set(false);
-  } catch (e) {
+  } catch (e: unknown) {
     error.set(e instanceof Error ? e.message : 'Unknown error');
   }
 }
