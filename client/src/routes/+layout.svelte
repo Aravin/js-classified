@@ -120,10 +120,6 @@
           <Icon icon="material-symbols:workspace-premium" class="h-5 w-5" />
           Rewards
         </a>
-        <a href="/leaderboard" class="btn btn-ghost btn-sm hidden normal-case sm:inline-flex">
-          <Icon icon="material-symbols:leaderboard" class="h-5 w-5" />
-          Leaderboard
-        </a>
         <AuthNav />
       </div>
     </div>
@@ -264,16 +260,7 @@
               class="inline-flex items-center space-x-2 text-neutral-content/70 transition-all duration-200 hover:translate-x-1 hover:text-white"
             >
               <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
-              <span>Rewards Guide</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/leaderboard"
-              class="inline-flex items-center space-x-2 text-neutral-content/70 transition-all duration-200 hover:translate-x-1 hover:text-white"
-            >
-              <Icon icon="material-symbols:chevron-right" class="text-accent/50" />
-              <span>Leaderboard</span>
+              <span>Rewards &amp; Leaderboard</span>
             </a>
           </li>
           {#each [{ name: 'About Us', url: 'https://www.exaful.com/about' }, { name: 'Career', url: 'https://www.exaful.com/career' }, { name: 'Contact Us', url: 'https://www.exaful.com/contact' }, { name: 'Terms of Use', url: 'https://www.exaful.com/policies/terms' }, { name: 'Privacy Policy', url: 'https://www.exaful.com/policies/privacy' }, { name: 'Refund Policy', url: 'https://www.exaful.com/policies/refund' }] as item (item.name)}

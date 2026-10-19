@@ -126,15 +126,9 @@
             </a>
           </li>
           <li>
-            <a href="/leaderboard" class:active={$page.url.pathname.startsWith('/leaderboard')}>
-              <Icon icon="material-symbols:leaderboard" class="h-5 w-5" />
-              Leaderboard
-            </a>
-          </li>
-          <li>
             <a href="/rewards" class:active={$page.url.pathname.startsWith('/rewards')}>
-              <Icon icon="material-symbols:menu-book" class="h-5 w-5" />
-              Rewards Guide
+              <Icon icon="material-symbols:workspace-premium" class="h-5 w-5" />
+              Rewards &amp; Leaderboard
             </a>
           </li>
           <li>

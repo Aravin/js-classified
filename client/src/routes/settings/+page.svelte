@@ -208,13 +208,9 @@
               <Icon icon="material-symbols:add" />
               Post New Ad
             </a>
-            <a href="/leaderboard" class="btn btn-outline w-full justify-start gap-2">
-              <Icon icon="material-symbols:leaderboard" />
-              View Leaderboard
-            </a>
             <a href="/rewards" class="btn btn-outline w-full justify-start gap-2">
-              <Icon icon="material-symbols:menu-book" />
-              Rewards Guide
+              <Icon icon="material-symbols:workspace-premium" />
+              Rewards &amp; Leaderboard
             </a>
           </div>
         </div>

@@ -1,20 +1,7 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import { fetchLeaderboard } from '$lib/rewards';
 
-export const load: PageLoad = async ({ url, fetch }) => {
+export const load: PageLoad = ({ url }) => {
   const period = url.searchParams.get('period') === 'month' ? 'month' : 'all';
-
-  try {
-    const leaderboard = await fetchLeaderboard(fetch, period, 20);
-    return {
-      leaderboard,
-      period,
-    };
-  } catch (error) {
-    console.error('Failed to load leaderboard', error);
-    return {
-      leaderboard: [],
-      period,
-    };
-  }
+  throw redirect(308, `/rewards?period=${period}#leaderboard`);
 };
