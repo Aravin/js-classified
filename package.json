@@ -1,6 +1,9 @@
 {
   "name": "js-classified",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "prepare": "husky install",
     "pre-commit": "lint-staged"
